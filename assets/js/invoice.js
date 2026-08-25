@@ -88,7 +88,7 @@ export function generatePDFInvoice(order) {
         </div>
 
         <div class="footer">
-          Thank you for shopping with Bangla Bazar! For support, call 01342697743 or email banglabazaroffical@gmail.com
+          Thank you for shopping with Bangla Bazar! For support, call 01342697743 or email saripofficialsupport@gmail.com
         </div>
       </div>
     </body>
