@@ -102,7 +102,7 @@ window.goBack = () => {
   if (document.referrer && document.referrer.includes(window.location.host)) {
     window.history.back();
   } else {
-    window.location.href = '/index.html';
+    window.location.href = 'index.html';
   }
 };
 
@@ -121,7 +121,7 @@ export function initSearch(allProducts) {
     const matches = allProducts.filter(p => p.name.toLowerCase().includes(val) || (p.category && p.category.toLowerCase().includes(val)));
     if (matches.length > 0) {
       resultsDropdown.innerHTML = matches.slice(0, 6).map(p => `
-        <div class="search-result-item" onclick="window.location.href='/product-detail.html?slug=${p.slug || p.id}'">
+        <div class="search-result-item" onclick="window.location.href='product-detail.html?slug=${p.slug || p.id}'">
           <img src="${p.images?.[0] || 'https://via.placeholder.com/40'}" alt="${p.name}">
           <div>
             <div style="font-size: 0.85rem; font-weight: 600;">${p.name}</div>
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const catGrid = document.getElementById('category-grid');
     if (catGrid) {
       catGrid.innerHTML = DEFAULT_CATEGORIES.map(cat => `
-        <div class="category-card" onclick="window.location.href='/shop.html?category=${cat.id}'">
+        <div class="category-card" onclick="window.location.href='shop.html?category=${cat.id}'">
           <div class="category-icon-box"><i class="fas ${cat.icon}"></i></div>
           <span class="category-name">${cat.name}</span>
         </div>

@@ -73,14 +73,14 @@ onAuthStateChanged(auth, async (user) => {
   notifyAuthStateListeners();
 });
 
-// Update Header UI based on user auth state
+// Update Header UI based on user auth state (using relative paths for GitHub Pages compatibility)
 function updateHeaderAuthUI() {
   const accountBtns = document.querySelectorAll('.account-icon-btn, .account-link');
   accountBtns.forEach(btn => {
     if (currentUser) {
-      btn.href = userProfile && userProfile.role === 'admin' ? '/admin.html' : '/profile.html';
+      btn.href = userProfile && userProfile.role === 'admin' ? 'admin.html' : 'profile.html';
     } else {
-      btn.href = '/login.html';
+      btn.href = 'login.html';
     }
   });
 
@@ -162,5 +162,5 @@ export async function resetPassword(email) {
 
 export async function logoutUser() {
   await signOut(auth);
-  window.location.href = '/index.html';
+  window.location.href = 'index.html';
 }
