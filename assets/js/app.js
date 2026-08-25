@@ -145,29 +145,74 @@ export function initSearch(allProducts) {
 
 // Carousel Banner Controls
 let currentSlide = 0;
+let carouselTimer = null;
+
 export function initCarousel(banners) {
   const container = document.getElementById('carousel-container');
   const dotsContainer = document.getElementById('carousel-dots');
-  if (!container || !dotsContainer) return;
+  if (!container || !dotsContainer || !banners || banners.length === 0) return;
 
-  container.innerHTML = banners.map(b => `
-    <div class="carousel-slide">
-      <img src="${b.image}" alt="${b.title || 'Banner'}">
-      <div class="banner-overlay">
-        <h2>${b.title || ''}</h2>
-        <p>${b.subtitle || ''}</p>
+  container.innerHTML = banners.map(b => {
+    const imgSrc = (b.image && !b.image.startsWith('PASTE_CLOUDINARY_URL')) ? b.image : (b.fallbackImage || b.image);
+    const linkUrl = b.linkTo || 'shop.html';
+    return `
+      <div class="carousel-slide" onclick="window.location.href='${linkUrl}'" style="cursor: pointer;">
+        <img src="${imgSrc}" alt="${b.title || 'Banner'}" onerror="this.src='${b.fallbackImage || 'https://via.placeholder.com/1200x400?text=Bangla+Bazar'}'">
+        <div class="banner-overlay">
+          <h2>${b.title || ''}</h2>
+          <p>${b.subtitle || ''}</p>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
-  dotsContainer.innerHTML = banners.map((_, idx) => `<div class="dot ${idx === 0 ? 'active' : ''}"></div>`).join('');
+  dotsContainer.innerHTML = banners.map((_, idx) => `<div class="dot ${idx === 0 ? 'active' : ''}" data-index="${idx}"></div>`).join('');
 
-  setInterval(() => {
-    currentSlide = (currentSlide + 1) % banners.length;
+  const goToSlide = (index) => {
+    currentSlide = (index + banners.length) % banners.length;
     container.style.transform = `translateX(-${currentSlide * 100}%)`;
     const dots = dotsContainer.querySelectorAll('.dot');
     dots.forEach((dot, idx) => dot.classList.toggle('active', idx === currentSlide));
-  }, 4000);
+  };
+
+  const startAutoRotate = () => {
+    if (carouselTimer) clearInterval(carouselTimer);
+    carouselTimer = setInterval(() => {
+      goToSlide(currentSlide + 1);
+    }, 2000); // 2-second rotation
+  };
+
+  dotsContainer.querySelectorAll('.dot').forEach(dot => {
+    dot.addEventListener('click', (e) => {
+      const idx = parseInt(e.target.getAttribute('data-index'), 10);
+      goToSlide(idx);
+      startAutoRotate();
+    });
+  });
+
+  // Touch / Swipe Gesture support for mobile devices
+  let startX = 0;
+  let endX = 0;
+  const heroSec = container.closest('.hero-section') || container;
+
+  heroSec.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+  }, { passive: true });
+
+  heroSec.addEventListener('touchend', (e) => {
+    endX = e.changedTouches[0].clientX;
+    const diff = startX - endX;
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) {
+        goToSlide(currentSlide + 1);
+      } else {
+        goToSlide(currentSlide - 1);
+      }
+      startAutoRotate();
+    }
+  }, { passive: true });
+
+  startAutoRotate();
 }
 
 // Initializer on Page Load

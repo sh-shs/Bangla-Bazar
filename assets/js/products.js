@@ -64,14 +64,28 @@ export async function fetchBanners() {
   }
   return [
     {
-      image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=1200&q=80',
+      id: 'banner_1',
+      image: 'PASTE_CLOUDINARY_URL_HERE_BANNER_1',
+      fallbackImage: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=1200&q=80',
       title: 'Grand Wholesale Offer!',
-      subtitle: 'Up to 50% discount on local items across Kushtia'
+      subtitle: 'Up to 50% discount on local items across Kushtia',
+      linkTo: 'offers.html'
     },
     {
-      image: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=1200&q=80',
+      id: 'banner_2',
+      image: 'PASTE_CLOUDINARY_URL_HERE_BANNER_2',
+      fallbackImage: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=1200&q=80',
       title: 'Trending Electronics & Gadgets',
-      subtitle: 'Best prices guaranteed on top brands'
+      subtitle: 'Best prices guaranteed on top brands',
+      linkTo: 'shop.html?category=electronics'
+    },
+    {
+      id: 'banner_3',
+      image: 'PASTE_CLOUDINARY_URL_HERE_BANNER_3',
+      fallbackImage: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80',
+      title: 'Kushtia Special Local Deals',
+      subtitle: 'Flat delivery ৳100 inside Kushtia town',
+      linkTo: 'shop.html'
     }
   ];
 }
