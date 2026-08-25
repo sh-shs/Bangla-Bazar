@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop - Bangla Bazar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="page-top-bar">
+    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+    <span class="page-title">Product Catalog</span>
+  </div>
+
+  <div class="search-container">
+    <div class="search-box">
+      <input type="text" id="search-input" placeholder="Search products..." autocomplete="off">
+      <button><i class="fas fa-search"></i></button>
+    </div>
+    <div class="search-results-dropdown" id="search-results"></div>
+  </div>
+
+  <div class="section-wrapper">
+    <div id="category-filter-bar" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 12px;"></div>
+    <div class="product-grid" id="shop-products-grid"></div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item">
+      <i class="fas fa-home"></i>
+      <span>Home</span>
+    </a>
+    <a href="shop.html" class="nav-item active">
+      <i class="fas fa-th-large"></i>
+      <span>Menu</span>
+    </a>
+    <a href="cart.html" class="center-cart-shortcut">
+      <i class="fas fa-shopping-cart"></i>
+    </a>
+    <a href="shop.html" class="nav-item">
+      <i class="fas fa-search"></i>
+      <span>Search</span>
+    </a>
+    <a href="login.html" class="nav-item account-link">
+      <i class="fas fa-user"></i>
+      <span>Account</span>
+    </a>
+  </nav>
+
+  <script type="module" src="assets/js/firebase-config.js"></script>
+  <script type="module" src="assets/js/auth.js"></script>
+  <script type="module" src="assets/js/products.js"></script>
+  <script type="module" src="assets/js/app.js"></script>
+  <script type="module">
+    import { fetchPublishedProducts, renderProductCard, DEFAULT_CATEGORIES } from './assets/js/products.js';
+    import { initSearch } from './assets/js/app.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const products = await fetchPublishedProducts();
+      initSearch(products);
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const selectedCategory = urlParams.get('category');
+      const filterParam = urlParams.get('filter');
+
+      // Filter tabs
+      const filterBar = document.getElementById('category-filter-bar');
+      filterBar.innerHTML = `<button class="btn-outline ${!selectedCategory ? 'btn-primary' : ''}" onclick="window.location.href='shop.html'" style="padding: 4px 12px; font-size: 0.8rem; white-space: nowrap;">All</button>` +
+        DEFAULT_CATEGORIES.map(c => `
+          <button class="btn-outline ${selectedCategory === c.id ? 'btn-primary' : ''}"
+            onclick="window.location.href='shop.html?category=${c.id}'"
+            style="padding: 4px 12px; font-size: 0.8rem; white-space: nowrap;">
+            ${c.name}
+          </button>
+        `).join('');
+
+      let displayed = products;
+      if (selectedCategory) {
+        displayed = displayed.filter(p => p.category === selectedCategory || (p.category && p.category.toLowerCase() === selectedCategory.toLowerCase()));
+      }
+      if (filterParam === 'trending') displayed = displayed.filter(p => p.isTrending);
+      if (filterParam === 'flash') displayed = displayed.filter(p => p.isFlashSale);
+      if (filterParam === 'bestseller') displayed = displayed.filter(p => p.isBestSeller);
+
+      const grid = document.getElementById('shop-products-grid');
+      if (displayed.length > 0) {
+        grid.innerHTML = displayed.map(renderProductCard).join('');
+      } else {
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #777; padding: 40px;">No products match your selected filter.</p>';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Admin Panel - Bangla Bazar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="page-top-bar" style="background-color: #05261E;">
+    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+    <span class="page-title"><i class="fas fa-user-shield"></i> Bangla Bazar Super Admin</span>
+  </div>
+
+  <div class="section-wrapper">
+    <!-- Admin Navigation Tabs -->
+    <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px;">
+      <button class="btn-primary" id="adm-tab-dash" onclick="switchAdminTab('dash')">Dashboard</button>
+      <button class="btn-outline" id="adm-tab-products" onclick="switchAdminTab('products')">Products</button>
+      <button class="btn-outline" id="adm-tab-categories" onclick="switchAdminTab('categories')">Categories</button>
+      <button class="btn-outline" id="adm-tab-sellers" onclick="switchAdminTab('sellers')">Sellers</button>
+      <button class="btn-outline" id="adm-tab-customers" onclick="switchAdminTab('customers')">Customers</button>
+      <button class="btn-outline" id="adm-tab-orders" onclick="switchAdminTab('orders')">Orders</button>
+      <button class="btn-outline" id="adm-tab-coupons" onclick="switchAdminTab('coupons')">Coupons</button>
+      <button class="btn-outline" id="adm-tab-settings" onclick="switchAdminTab('settings')">Settings</button>
+      <button class="btn-outline" id="adm-tab-banners" onclick="switchAdminTab('banners')">Banners</button>
+    </div>
+
+    <!-- Section 1: Dashboard Overview -->
+    <div id="sec-dash">
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px;">
+        <div class="glass-card" style="text-align: center;">
+          <i class="fas fa-chart-line" style="font-size: 1.5rem; color: var(--accent-color);"></i>
+          <div style="font-size: 1.2rem; font-weight: bold; margin-top: 4px;" id="stat-total-sales">৳0</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Total Sales Volume</div>
+        </div>
+        <div class="glass-card" style="text-align: center;">
+          <i class="fas fa-shopping-cart" style="font-size: 1.5rem; color: var(--primary-color);"></i>
+          <div style="font-size: 1.2rem; font-weight: bold; margin-top: 4px;" id="stat-total-orders">0</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Total Orders Placed</div>
+        </div>
+        <div class="glass-card" style="text-align: center;">
+          <i class="fas fa-store" style="font-size: 1.5rem; color: var(--warning-color);"></i>
+          <div style="font-size: 1.2rem; font-weight: bold; margin-top: 4px;" id="stat-pending-sellers">0</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Pending Sellers</div>
+        </div>
+        <div class="glass-card" style="text-align: center;">
+          <i class="fas fa-users" style="font-size: 1.5rem; color: var(--success-color);"></i>
+          <div style="font-size: 1.2rem; font-weight: bold; margin-top: 4px;" id="stat-total-users">0</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Registered Customers</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Product Management -->
+    <div id="sec-products" style="display: none;">
+      <div class="glass-card" style="margin-bottom: 20px;">
+        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-plus-circle"></i> Add / Edit Product (Admin)</h3>
+
+        <form id="admin-product-form">
+          <input type="hidden" id="adm-p-id">
+
+          <div class="form-group">
+            <label class="form-label">Product Name *</label>
+            <input type="text" id="adm-p-name" class="form-control" required placeholder="Full title">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+              <label class="form-label">Category *</label>
+              <select id="adm-p-category" class="form-control" required>
+                <option value="electronics">Electronics</option>
+                <option value="fashion">Fashion</option>
+                <option value="home-living">Home & Living</option>
+                <option value="kitchen">Kitchen</option>
+                <option value="beauty">Beauty</option>
+                <option value="health">Health</option>
+                <option value="baby-care">Baby Care</option>
+                <option value="sports">Sports</option>
+                <option value="lighting">Lighting</option>
+                <option value="gadgets">Gadgets</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sub-category</label>
+              <input type="text" id="adm-p-subcategory" class="form-control" placeholder="Sub-category">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+              <label class="form-label">Brand</label>
+              <input type="text" id="adm-p-brand" class="form-control" placeholder="Brand Name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">SKU</label>
+              <input type="text" id="adm-p-sku" class="form-control" placeholder="SKU-101">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+              <label class="form-label">Regular Price (৳) *</label>
+              <input type="number" id="adm-p-reg-price" class="form-control" required placeholder="1200">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Discount Price (৳)</label>
+              <input type="number" id="adm-p-disc-price" class="form-control" placeholder="990">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+              <label class="form-label">Stock Quantity *</label>
+              <input type="number" id="adm-p-stock" class="form-control" required value="20">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Warranty</label>
+              <input type="text" id="adm-p-warranty" class="form-control" placeholder="e.g. 1 Year Official">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tags (comma separated)</label>
+            <input type="text" id="adm-p-tags" class="form-control" placeholder="electronics, offer, kushtia">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Short Description *</label>
+            <input type="text" id="adm-p-short-desc" class="form-control" required placeholder="Brief bullet overview">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Full Description</label>
+            <textarea id="adm-p-full-desc" class="form-control" rows="3" placeholder="Detailed specs"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Product Images (Multiple file upload to Firebase Storage)</label>
+            <input type="file" id="adm-p-images" class="form-control" multiple accept="image/*">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Product Video (Optional upload)</label>
+            <input type="file" id="adm-p-video" class="form-control" accept="video/*">
+          </div>
+
+          <!-- Feature Flags -->
+          <div style="display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; background: #F8F9FA; padding: 10px; border-radius: 6px;">
+            <label><input type="checkbox" id="adm-flag-featured"> Featured</label>
+            <label><input type="checkbox" id="adm-flag-flash"> Flash Sale</label>
+            <label><input type="checkbox" id="adm-flag-trending"> Trending</label>
+            <label><input type="checkbox" id="adm-flag-bestseller"> Best Seller</label>
+          </div>
+
+          <button type="submit" id="adm-p-submit-btn" class="btn-accent" style="width: 100%; padding: 10px; font-weight: bold;">Publish Product</button>
+        </form>
+      </div>
+
+      <div class="glass-card">
+        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-boxes"></i> Published Products</h3>
+        <div id="admin-products-list"></div>
+      </div>
+    </div>
+
+    <!-- Section: Category Management -->
+    <div id="sec-categories" style="display: none;">
+      <div class="glass-card" style="margin-bottom: 16px;">
+        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-tags"></i> Add Category</h3>
+        <form id="adm-category-form">
+          <div class="form-group">
+            <label class="form-label">Category Name *</label>
+            <input type="text" id="cat-name" class="form-control" required placeholder="e.g. Organic Food">
+          </div>
+          <div class="form-group">
+            <label class="form-label">FontAwesome Icon Class (Optional)</label>
+            <input type="text" id="cat-icon" class="form-control" placeholder="e.g. fa-leaf">
+          </div>
+          <button type="submit" class="btn-primary">Add Category</button>
+        </form>
+      </div>
+      <div class="glass-card">
+        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;">Existing Categories</h3>
+        <div id="admin-categories-list"></div>
+      </div>
+    </div>
+
+    <!-- Section 3: Seller Approval & Management -->
+    <div id="sec-sellers" style="display: none;">
+      <div class="glass-card">
+        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-users-cog"></i> Seller Approval Requests</h3>
+        <div id="admin-sellers-list"></div>
+      </div>
+    </div>
+
+    <!-- Section: Customer Management -->
+    <div id="sec-customers" style="display: none;">
+      <div class="glass-card">
+        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-users"></i> Registered Customers</h3>
+        <div id="admin-customers-list"></div>
+      </div>
+    </div>
+
+    <!-- Section 4: Order Status Management -->
+    <div id="sec-orders" style="display: none;">
+      <div class="glass-card">
+        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-truck"></i> All Customer Orders</h3>
+        <div id="admin-orders-list"></div>
+      </div>
+    </div>
+
+    <!-- Section: Coupon Management -->
+    <div id="sec-coupons" style="display: none;">
+      <div class="glass-card" style="margin-bottom: 16px;">
+        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-ticket-alt"></i> Create Coupon</h3>
+        <form id="adm-coupon-form">
+          <div class="form-group">
+            <label class="form-label">Coupon Code *</label>
+            <input type="text" id="cpn-code" class="form-control" required placeholder="e.g. KUSHTIA50" style="text-transform: uppercase;">
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+              <label class="form-label">Discount %</label>
+              <input type="number" id="cpn-percent" class="form-control" placeholder="10">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Flat Discount (৳)</label>
+              <input type="number" id="cpn-flat" class="form-control" placeholder="50">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Minimum Spend (৳)</label>
+            <input type="number" id="cpn-min" class="form-control" placeholder="500">
+          </div>
+          <button type="submit" class="btn-accent">Create Coupon</button>
+        </form>
+      </div>
+      <div class="glass-card">
+        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;">Active Coupons</h3>
+        <div id="admin-coupons-list"></div>
+      </div>
+    </div>
+
+    <!-- Section 5: Delivery & Payment Settings -->
+    <div id="sec-settings" style="display: none;">
+      <div class="glass-card" style="margin-bottom: 16px;">
+        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-truck-loading"></i> Delivery Charge Settings</h3>
+        <form id="adm-delivery-form">
+          <div class="form-group">
+            <label class="form-label">Inside Kushtia Delivery Charge (৳) *</label>
+            <input type="number" id="charge-inside" class="form-control" value="100" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Outside Kushtia Delivery Charge (৳) *</label>
+            <input type="number" id="charge-outside" class="form-control" value="160" required>
+          </div>
+          <button type="submit" class="btn-primary">Save Delivery Settings</button>
+        </form>
+      </div>
+
+      <div class="glass-card">
+        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-money-bill-wave"></i> Payment Settings</h3>
+        <form id="adm-payment-form">
+          <div class="form-group">
+            <label class="form-label">bKash Merchant / Personal Mobile Number</label>
+            <input type="text" id="bkash-num-setting" class="form-control" value="01342697743" required>
+          </div>
+          <div class="form-group">
+            <label><input type="checkbox" id="cod-toggle-setting" checked> Enable Cash on Delivery (COD)</label>
+          </div>
+          <button type="submit" class="btn-primary">Save Payment Settings</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Section 6: Banners Management -->
+    <div id="sec-banners" style="display: none;">
+      <div class="glass-card">
+        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-image"></i> Homepage Banners</h3>
+        <form id="adm-banner-form">
+          <div class="form-group">
+            <label class="form-label">Banner Title</label>
+            <input type="text" id="banner-title" class="form-control" placeholder="e.g. Grand Wholesale Offer">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Banner Subtitle</label>
+            <input type="text" id="banner-sub" class="form-control" placeholder="e.g. Up to 50% discount">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Banner Image File</label>
+            <input type="file" id="banner-file" class="form-control" accept="image/*">
+          </div>
+          <button type="submit" class="btn-accent">Upload Banner</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="assets/js/firebase-config.js"></script>
+  <script type="module" src="assets/js/auth.js"></script>
+  <script type="module" src="assets/js/app.js"></script>
+  <script type="module">
+    import { isSuperAdminUser, saveAdminDeliverySettings, saveAdminPaymentSettings, updateSellerStatus, updateOrderStatus, addBanner, createCoupon, fetchCoupons, deleteCoupon, createCategory, fetchCategoriesFromDB, deleteCategoryFromDB } from './assets/js/admin.js';
+    import { onAuthStateUpdate, SUPER_ADMIN_EMAIL } from './assets/js/auth.js';
+    import { showToast } from './assets/js/app.js';
+    import { db, collection, getDocs, doc, deleteDoc } from './assets/js/firebase-config.js';
+    import { saveSellerProduct, deleteSellerProduct, uploadMediaFile } from './assets/js/seller.js';
+
+    let allAdminProducts = [];
+
+    window.switchAdminTab = (tab) => {
+      ['dash', 'products', 'categories', 'sellers', 'customers', 'orders', 'coupons', 'settings', 'banners'].forEach(t => {
+        const sec = document.getElementById(`sec-${t}`);
+        if (sec) sec.style.display = t === tab ? 'block' : 'none';
+        const btn = document.getElementById(`adm-tab-${t}`);
+        if (btn) btn.className = t === tab ? 'btn-primary' : 'btn-outline';
+      });
+    };
+
+    onAuthStateUpdate((user, profile) => {
+      if (!isSuperAdminUser(user, profile)) {
+        alert('Access Denied: Super Admin account (banglabazaroffical@gmail.com) required.');
+        window.location.href = 'index.html';
+        return;
+      }
+      loadAdminData();
+    });
+
+    async function loadAdminData() {
+      // Load All Products
+      const productsSnap = await getDocs(collection(db, 'products'));
+      allAdminProducts = [];
+      productsSnap.forEach(d => allAdminProducts.push({ id: d.id, ...d.data() }));
+
+      const prodListContainer = document.getElementById('admin-products-list');
+      if (allAdminProducts.length === 0) {
+        prodListContainer.innerHTML = '<p style="color:#777;">No products uploaded yet.</p>';
+      } else {
+        prodListContainer.innerHTML = allAdminProducts.map(p => `
+          <div style="display: flex; gap: 12px; background: #FFF; border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; margin-bottom: 8px; align-items: center;">
+            <img src="${p.images?.[0] || 'https://via.placeholder.com/50'}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+            <div style="flex: 1;">
+              <h4 style="font-size: 0.85rem; font-weight: 600;">${p.name}</h4>
+              <div style="font-size: 0.75rem; color: var(--accent-color); font-weight: bold;">৳${p.discountPrice || p.regularPrice} | Stock: ${p.stock} | Vendor: ${p.sellerName || 'Admin'}</div>
+            </div>
+            <div style="display: flex; gap: 4px;">
+              <button onclick="window.editAdminProduct('${p.id}')" class="btn-outline" style="padding: 2px 6px; font-size: 0.75rem;"><i class="fas fa-edit"></i></button>
+              <button onclick="window.deleteAdminProduct('${p.id}')" style="background: var(--danger-color); color: #FFF; padding: 2px 6px; border: none; border-radius: 4px; font-size: 0.75rem;"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Load Orders & Stats
+      const ordersSnap = await getDocs(collection(db, 'orders'));
+      let totalSales = 0;
+      let orderCount = 0;
+      const ordersListContainer = document.getElementById('admin-orders-list');
+      let ordersHTML = '';
+
+      ordersSnap.forEach(d => {
+        const o = { id: d.id, ...d.data() };
+        orderCount++;
+        totalSales += Number(o.totalAmount || 0);
+
+        ordersHTML += `
+          <div style="background: #FFF; border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; margin-bottom: 10px; font-size: 0.85rem;">
+            <div style="display: flex; justify-content: space-between; font-weight: bold;">
+              <span>Order #${o.id.substring(0,6)} (৳${o.totalAmount})</span>
+              <select onchange="window.handleStatusChange('${o.id}', this.value)" style="padding: 2px 4px; font-size: 0.8rem;">
+                <option value="Pending" ${o.orderStatus==='Pending'?'selected':''}>Pending</option>
+                <option value="Confirmed" ${o.orderStatus==='Confirmed'?'selected':''}>Confirmed</option>
+                <option value="Packed" ${o.orderStatus==='Packed'?'selected':''}>Packed</option>
+                <option value="Shipped" ${o.orderStatus==='Shipped'?'selected':''}>Shipped</option>
+                <option value="Out for Delivery" ${o.orderStatus==='Out for Delivery'?'selected':''}>Out for Delivery</option>
+                <option value="Delivered" ${o.orderStatus==='Delivered'?'selected':''}>Delivered</option>
+                <option value="Cancelled" ${o.orderStatus==='Cancelled'?'selected':''}>Cancelled</option>
+              </select>
+            </div>
+            <div>Customer: ${o.customerInfo?.name} (${o.customerInfo?.phone})</div>
+            <div>District: ${o.shippingAddress?.district} | Method: ${o.paymentMethod}</div>
+          </div>
+        `;
+      });
+
+      document.getElementById('stat-total-sales').textContent = `৳${totalSales}`;
+      document.getElementById('stat-total-orders').textContent = orderCount;
+      ordersListContainer.innerHTML = ordersHTML || '<p style="color:#777;">No orders yet.</p>';
+
+      // Load Users & Sellers
+      const usersSnap = await getDocs(collection(db, 'users'));
+      let userCount = 0;
+      let pendingSellers = 0;
+      const sellersContainer = document.getElementById('admin-sellers-list');
+      const customersContainer = document.getElementById('admin-customers-list');
+      let sellersHTML = '';
+      let customersHTML = '';
+
+      usersSnap.forEach(d => {
+        const u = { id: d.id, ...d.data() };
+        userCount++;
+        if (u.sellerStatus === 'pending') pendingSellers++;
+        if (u.sellerStatus && u.sellerStatus !== 'none') {
+          sellersHTML += `
+            <div style="background: #FFF; border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+              <div>
+                <strong>${u.storeName || u.displayName}</strong> (${u.email})
+                <div style="font-size: 0.75rem; color: #777;">Status: ${u.sellerStatus} | NID: ${u.sellerNID || 'N/A'}</div>
+              </div>
+              <div style="display: flex; gap: 4px;">
+                <button onclick="window.handleSellerApprove('${u.id}', 'approved')" style="background: var(--success-color); color: #FFF; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">Approve</button>
+                <button onclick="window.handleSellerApprove('${u.id}', 'rejected')" style="background: var(--danger-color); color: #FFF; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">Reject</button>
+              </div>
+            </div>
+          `;
+        }
+        customersHTML += `
+          <div style="background: #FFF; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px; margin-bottom: 6px; font-size: 0.85rem;">
+            <strong>${u.displayName || 'Customer'}</strong> (${u.email || 'No email'}) - Role: ${u.role || 'customer'}
+          </div>
+        `;
+      });
+
+      document.getElementById('stat-total-users').textContent = userCount;
+      document.getElementById('stat-pending-sellers').textContent = pendingSellers;
+      sellersContainer.innerHTML = sellersHTML || '<p style="color:#777;">No seller applications.</p>';
+      customersContainer.innerHTML = customersHTML || '<p style="color:#777;">No customers found.</p>';
+
+      // Load Coupons
+      const coupons = await fetchCoupons();
+      const couponsContainer = document.getElementById('admin-coupons-list');
+      if (coupons.length === 0) {
+        couponsContainer.innerHTML = '<p style="color:#777;">No active coupons.</p>';
+      } else {
+        couponsContainer.innerHTML = coupons.map(c => `
+          <div style="display: flex; justify-content: space-between; align-items: center; background: #FFF; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px; margin-bottom: 6px; font-size: 0.85rem;">
+            <div>
+              <strong>${c.code}</strong> (${c.discountPercent ? `${c.discountPercent}% Off` : `৳${c.flatDiscount} Off`})
+              <div style="font-size: 0.75rem; color: #777;">Min Spend: ৳${c.minSpend || 0}</div>
+            </div>
+            <button onclick="window.handleDeleteCoupon('${c.id}')" style="background: var(--danger-color); color: #FFF; border: none; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem;"><i class="fas fa-trash"></i></button>
+          </div>
+        `).join('');
+      }
+
+      // Load Categories
+      const categories = await fetchCategoriesFromDB();
+      const catContainer = document.getElementById('admin-categories-list');
+      if (categories.length === 0) {
+        catContainer.innerHTML = '<p style="color:#777;">No custom categories created yet.</p>';
+      } else {
+        catContainer.innerHTML = categories.map(c => `
+          <div style="display: flex; justify-content: space-between; align-items: center; background: #FFF; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px; margin-bottom: 6px; font-size: 0.85rem;">
+            <div><i class="fas ${c.icon || 'fa-folder'}"></i> <strong>${c.name}</strong></div>
+            <button onclick="window.handleDeleteCategory('${c.id}')" style="background: var(--danger-color); color: #FFF; border: none; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem;"><i class="fas fa-trash"></i></button>
+          </div>
+        `).join('');
+      }
+    }
+
+    window.editAdminProduct = (id) => {
+      const p = allAdminProducts.find(i => i.id === id);
+      if (!p) return;
+      document.getElementById('adm-p-id').value = p.id;
+      document.getElementById('adm-p-name').value = p.name || '';
+      document.getElementById('adm-p-category').value = p.category || 'electronics';
+      document.getElementById('adm-p-subcategory').value = p.subCategory || '';
+      document.getElementById('adm-p-brand').value = p.brand || '';
+      document.getElementById('adm-p-sku').value = p.sku || '';
+      document.getElementById('adm-p-reg-price').value = p.regularPrice || '';
+      document.getElementById('adm-p-disc-price').value = p.discountPrice || '';
+      document.getElementById('adm-p-stock').value = p.stock || 10;
+      document.getElementById('adm-p-warranty').value = p.warranty || '';
+      document.getElementById('adm-p-tags').value = p.tags ? p.tags.join(', ') : '';
+      document.getElementById('adm-p-short-desc').value = p.shortDescription || '';
+      document.getElementById('adm-p-full-desc').value = p.fullDescription || '';
+      document.getElementById('adm-flag-featured').checked = !!p.isFeatured;
+      document.getElementById('adm-flag-flash').checked = !!p.isFlashSale;
+      document.getElementById('adm-flag-trending').checked = !!p.isTrending;
+      document.getElementById('adm-flag-bestseller').checked = !!p.isBestSeller;
+      switchAdminTab('products');
+    };
+
+    window.deleteAdminProduct = async (id) => {
+      if (confirm('Delete product?')) {
+        await deleteDoc(doc(db, 'products', id));
+        showToast('Product Deleted');
+        loadAdminData();
+      }
+    };
+
+    window.handleStatusChange = async (orderId, newStatus) => {
+      await updateOrderStatus(orderId, newStatus);
+      showToast('Order Status Updated');
+    };
+
+    window.handleSellerApprove = async (userId, newStatus) => {
+      await updateSellerStatus(userId, newStatus);
+      showToast(`Seller status updated to ${newStatus}`);
+      loadAdminData();
+    };
+
+    window.handleDeleteCoupon = async (id) => {
+      await deleteCoupon(id);
+      showToast('Coupon deleted');
+      loadAdminData();
+    };
+
+    window.handleDeleteCategory = async (id) => {
+      await deleteCategoryFromDB(id);
+      showToast('Category deleted');
+      loadAdminData();
+    };
+
+    // Category Form Submit
+    document.getElementById('adm-category-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await createCategory(
+        document.getElementById('cat-name').value.trim(),
+        document.getElementById('cat-icon').value.trim()
+      );
+      showToast('Category Added');
+      document.getElementById('adm-category-form').reset();
+      loadAdminData();
+    });
+
+    // Coupon Form Submit
+    document.getElementById('adm-coupon-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await createCoupon(
+        document.getElementById('cpn-code').value.trim(),
+        document.getElementById('cpn-percent').value,
+        document.getElementById('cpn-flat').value,
+        document.getElementById('cpn-min').value
+      );
+      showToast('Coupon Created');
+      document.getElementById('adm-coupon-form').reset();
+      loadAdminData();
+    });
+
+    // Admin Delivery Form Submit
+    document.getElementById('adm-delivery-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await saveAdminDeliverySettings(
+        document.getElementById('charge-inside').value,
+        document.getElementById('charge-outside').value
+      );
+      showToast('Delivery Settings Updated');
+    });
+
+    // Admin Payment Form Submit
+    document.getElementById('adm-payment-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await saveAdminPaymentSettings(
+        document.getElementById('bkash-num-setting').value,
+        document.getElementById('cod-toggle-setting').checked
+      );
+      showToast('Payment Settings Updated');
+    });
+
+    // Admin Banner Upload Submit
+    document.getElementById('adm-banner-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('banner-title').value;
+      const sub = document.getElementById('banner-sub').value;
+      const file = document.getElementById('banner-file').files[0];
+      await addBanner(title, sub, file);
+      showToast('Banner Added Successfully');
+      document.getElementById('adm-banner-form').reset();
+    });
+
+    // Admin Product Add/Edit Form
+    document.getElementById('admin-product-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('adm-p-submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Saving Product...';
+
+      try {
+        const imageFiles = document.getElementById('adm-p-images').files;
+        const imageUrls = [];
+        for (let i = 0; i < imageFiles.length; i++) {
+          const url = await uploadMediaFile(imageFiles[i], 'products/images');
+          imageUrls.push(url);
+        }
+
+        const videoFile = document.getElementById('adm-p-video').files[0];
+        let videoUrl = null;
+        if (videoFile) videoUrl = await uploadMediaFile(videoFile, 'products/videos');
+
+        const productPayload = {
+          name: document.getElementById('adm-p-name').value.trim(),
+          category: document.getElementById('adm-p-category').value,
+          subCategory: document.getElementById('adm-p-subcategory').value.trim(),
+          brand: document.getElementById('adm-p-brand').value.trim(),
+          regularPrice: Number(document.getElementById('adm-p-reg-price').value),
+          discountPrice: document.getElementById('adm-p-disc-price').value ? Number(document.getElementById('adm-p-disc-price').value) : null,
+          stock: Number(document.getElementById('adm-p-stock').value),
+          sku: document.getElementById('adm-p-sku').value.trim(),
+          warranty: document.getElementById('adm-p-warranty').value.trim(),
+          tags: document.getElementById('adm-p-tags').value ? document.getElementById('adm-p-tags').value.split(',').map(t=>t.trim()) : [],
+          shortDescription: document.getElementById('adm-p-short-desc').value.trim(),
+          fullDescription: document.getElementById('adm-p-full-desc').value.trim(),
+          slug: document.getElementById('adm-p-name').value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+          status: 'published',
+          isFeatured: document.getElementById('adm-flag-featured').checked,
+          isFlashSale: document.getElementById('adm-flag-flash').checked,
+          isTrending: document.getElementById('adm-flag-trending').checked,
+          isBestSeller: document.getElementById('adm-flag-bestseller').checked,
+          sellerId: 'admin',
+          images: imageUrls.length > 0 ? imageUrls : ['https://via.placeholder.com/400?text=Bangla+Bazar']
+        };
+
+        if (videoUrl) productPayload.video = videoUrl;
+
+        await saveSellerProduct(productPayload, document.getElementById('adm-p-id').value || null);
+        showToast('Product published by Admin!');
+        document.getElementById('admin-product-form').reset();
+        loadAdminData();
+      } catch (err) {
+        showToast(err.message || 'Error saving product');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Publish Product';
+      }
+    });
+  </script>
+</body>
+</html>

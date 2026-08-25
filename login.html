@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login / Sign Up - Bangla Bazar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="page-top-bar">
+    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+    <span class="page-title">Account Login</span>
+  </div>
+
+  <div class="section-wrapper" style="max-width: 450px; margin: 0 auto;">
+    <div class="glass-card" style="padding: 24px;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <img src="assets/images/logo.png" style="height: 50px; border-radius: 6px;" alt="Bangla Bazar">
+        <h2 style="color: var(--primary-color); font-size: 1.3rem; margin-top: 8px;">Welcome to Bangla Bazar</h2>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">Sign in to your account</p>
+      </div>
+
+      <!-- Google Sign In Button -->
+      <button id="google-signin-btn" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: #FFF; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 16px;">
+        <i class="fab fa-google" style="color: #EA4335;"></i> Sign in with Google
+      </button>
+
+      <div style="text-align: center; margin-bottom: 16px; color: #888; font-size: 0.8rem;">OR WITH EMAIL</div>
+
+      <form id="auth-form">
+        <div class="form-group" id="group-name" style="display: none;">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="auth-name" class="form-control" placeholder="Enter full name">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address *</label>
+          <input type="email" id="auth-email" class="form-control" required placeholder="name@domain.com">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password *</label>
+          <input type="password" id="auth-pass" class="form-control" required placeholder="******">
+        </div>
+
+        <button type="submit" id="auth-submit-btn" class="btn-primary" style="width: 100%; padding: 10px; font-size: 0.95rem;">Login</button>
+      </form>
+
+      <!-- Toggle Signup/Login Mode -->
+      <div style="text-align: center; margin-top: 16px; font-size: 0.85rem;">
+        <span id="toggle-prompt">Don't have an account?</span>
+        <a href="#" id="toggle-mode-btn" style="color: var(--accent-color); font-weight: bold; margin-left: 4px;">Sign Up</a>
+      </div>
+
+      <!-- Forgot Password -->
+      <div style="text-align: center; margin-top: 10px; font-size: 0.8rem;">
+        <a href="#" id="forgot-pass-btn" style="color: var(--text-muted);">Forgot Password?</a>
+      </div>
+
+      <!-- Mobile OTP Login Stub -->
+      <div style="margin-top: 20px; border-top: 1px dashed var(--border-color); padding-top: 16px; text-align: center;">
+        <button id="otp-stub-btn" class="btn-outline" style="width: 100%; font-size: 0.85rem; opacity: 0.8;">
+          <i class="fas fa-mobile-alt"></i> Mobile OTP Login <span style="font-size: 0.65rem; background: var(--warning-color); color: #FFF; padding: 1px 4px; border-radius: 4px;">Coming Soon</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="assets/js/firebase-config.js"></script>
+  <script type="module" src="assets/js/auth.js"></script>
+  <script type="module" src="assets/js/app.js"></script>
+  <script type="module">
+    import { loginWithEmail, registerWithEmail, loginWithGoogle, resetPassword } from './assets/js/auth.js';
+    import { showToast } from './assets/js/app.js';
+
+    let isSignUp = false;
+
+    const toggleBtn = document.getElementById('toggle-mode-btn');
+    const groupName = document.getElementById('group-name');
+    const submitBtn = document.getElementById('auth-submit-btn');
+    const prompt = document.getElementById('toggle-prompt');
+
+    toggleBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      isSignUp = !isSignUp;
+      if (isSignUp) {
+        groupName.style.display = 'block';
+        submitBtn.textContent = 'Create Account';
+        prompt.textContent = 'Already have an account?';
+        toggleBtn.textContent = 'Login';
+      } else {
+        groupName.style.display = 'none';
+        submitBtn.textContent = 'Login';
+        prompt.textContent = "Don't have an account?";
+        toggleBtn.textContent = 'Sign Up';
+      }
+    });
+
+    document.getElementById('google-signin-btn').addEventListener('click', async () => {
+      try {
+        await loginWithGoogle();
+        showToast('Signed in with Google!');
+        window.location.href = 'index.html';
+      } catch (err) {
+        showToast(err.message || 'Google Sign-in failed');
+      }
+    });
+
+    document.getElementById('auth-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('auth-email').value.trim();
+      const pass = document.getElementById('auth-pass').value.trim();
+      const name = document.getElementById('auth-name').value.trim();
+
+      submitBtn.disabled = true;
+      try {
+        if (isSignUp) {
+          await registerWithEmail(email, pass, name);
+          showToast('Account Created!');
+        } else {
+          await loginWithEmail(email, pass);
+          showToast('Welcome back!');
+        }
+        window.location.href = 'index.html';
+      } catch (err) {
+        showToast(err.message || 'Authentication error');
+        submitBtn.disabled = false;
+      }
+    });
+
+    document.getElementById('forgot-pass-btn').addEventListener('click', async (e) => {
+      e.preventDefault();
+      const email = prompt('Enter your registered email address for password reset:');
+      if (email) {
+        try {
+          await resetPassword(email);
+          showToast('Password reset link sent to your email.');
+        } catch (err) {
+          showToast(err.message || 'Failed to send reset email.');
+        }
+      }
+    });
+
+    document.getElementById('otp-stub-btn').addEventListener('click', () => {
+      showToast('Mobile OTP Login is coming soon!');
+    });
+  </script>
+</body>
+</html>

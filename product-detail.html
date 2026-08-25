@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Details - Bangla Bazar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="page-top-bar">
+    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+    <span class="page-title" id="pd-header-title">Product Details</span>
+  </div>
+
+  <div class="section-wrapper" style="max-width: 650px; margin: 0 auto;" id="pd-container">
+    <div style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
+  </div>
+
+  <script type="module" src="assets/js/firebase-config.js"></script>
+  <script type="module" src="assets/js/auth.js"></script>
+  <script type="module" src="assets/js/app.js"></script>
+  <script type="module">
+    import { fetchProductBySlugOrId } from './assets/js/products.js';
+    import { addToCart } from './assets/js/app.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const params = new URLSearchParams(window.location.search);
+      const slug = params.get('slug');
+      const container = document.getElementById('pd-container');
+
+      if (!slug) {
+        container.innerHTML = '<p style="text-align: center;">Product not found.</p>';
+        return;
+      }
+
+      const product = await fetchProductBySlugOrId(slug);
+      if (!product) {
+        container.innerHTML = '<p style="text-align: center;">Product not found.</p>';
+        return;
+      }
+
+      document.getElementById('pd-header-title').textContent = product.name;
+      const isDiscounted = product.discountPrice && Number(product.discountPrice) < Number(product.regularPrice);
+      const currentPrice = isDiscounted ? product.discountPrice : product.regularPrice;
+      const isOutOfStock = !product.stock || Number(product.stock) <= 0;
+
+      container.innerHTML = `
+        <div class="glass-card" style="padding: 16px;">
+          <div style="width: 100%; aspect-ratio: 1/1; overflow: hidden; border-radius: 8px; margin-bottom: 16px;">
+            <img src="${product.images?.[0] || 'https://via.placeholder.com/400'}" style="width: 100%; height: 100%; object-fit: cover;">
+          </div>
+          <h2 style="font-size: 1.2rem; color: var(--primary-color); margin-bottom: 8px;">${product.name}</h2>
+          <div style="display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px;">
+            <span style="font-size: 1.4rem; font-weight: bold; color: var(--accent-color);">৳${currentPrice}</span>
+            ${isDiscounted ? `<span style="text-decoration: line-through; color: #888;">৳${product.regularPrice}</span>` : ''}
+          </div>
+
+          <div style="font-size: 0.85rem; color: #555; margin-bottom: 16px; line-height: 1.4;">
+            ${product.shortDescription || 'No description provided.'}
+          </div>
+
+          ${product.variants && product.variants.length > 0 ? `
+            <div class="form-group">
+              <label class="form-label">Select Variant</label>
+              <select id="pd-variant-select" class="form-control">
+                ${product.variants.map(v => `<option value="${v}">${v}</option>`).join('')}
+              </select>
+            </div>
+          ` : ''}
+
+          <div style="display: flex; gap: 10px; margin-top: 16px;">
+            <button id="pd-add-btn" class="btn-primary" style="flex: 1;" ${isOutOfStock ? 'disabled' : ''}>
+              ${isOutOfStock ? 'Stock Out' : 'Add to Cart'}
+            </button>
+            <button id="pd-buynow-btn" class="btn-accent" style="flex: 1;" ${isOutOfStock ? 'disabled' : ''}>
+              Buy Now
+            </button>
+          </div>
+        </div>
+
+        ${product.fullDescription ? `
+          <div class="glass-card" style="margin-top: 16px; padding: 16px;">
+            <h3 style="font-size: 1rem; color: var(--primary-color); margin-bottom: 8px;">Description & Specs</h3>
+            <p style="font-size: 0.85rem; color: #444; white-space: pre-line;">${product.fullDescription}</p>
+          </div>
+        ` : ''}
+      `;
+
+      document.getElementById('pd-add-btn')?.addEventListener('click', () => {
+        const variant = document.getElementById('pd-variant-select')?.value || '';
+        addToCart({
+          id: product.id,
+          name: product.name,
+          price: currentPrice,
+          image: product.images?.[0] || '',
+          variant,
+          quantity: 1
+        });
+      });
+
+      document.getElementById('pd-buynow-btn')?.addEventListener('click', () => {
+        const variant = document.getElementById('pd-variant-select')?.value || '';
+        const url = `checkout.html?buyNowId=${product.id}&name=${encodeURIComponent(product.name)}&price=${currentPrice}&image=${encodeURIComponent(product.images?.[0]||'')}&qty=1`;
+        window.location.href = url;
+      });
+    });
+  </script>
+</body>
+</html>

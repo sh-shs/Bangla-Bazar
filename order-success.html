@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Placed - Bangla Bazar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="page-top-bar">
+    <span class="page-title">Order Successful</span>
+  </div>
+
+  <div class="section-wrapper" style="text-align: center; padding: 40px 16px;">
+    <div class="glass-card" style="max-width: 500px; margin: 0 auto; padding: 30px;">
+      <i class="fas fa-check-circle" style="font-size: 4rem; color: var(--success-color); margin-bottom: 16px;"></i>
+      <h2 style="color: var(--primary-color); font-size: 1.4rem; margin-bottom: 8px;">Thank You For Your Order!</h2>
+      <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">Your order has been placed and is currently under review.</p>
+
+      <div style="background: var(--bg-color); padding: 12px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 24px;">
+        Order ID: <strong id="order-id-display">...</strong>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: center;">
+        <a href="index.html" class="btn-outline">Back to Home</a>
+        <a href="profile.html" class="btn-primary">View My Orders</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    document.getElementById('order-id-display').textContent = urlParams.get('orderId') || 'N/A';
+  </script>
+</body>
+</html>

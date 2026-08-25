@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Bangla Bazar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="page-top-bar">
+    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+    <span class="page-title">Checkout</span>
+  </div>
+
+  <div class="section-wrapper" style="max-width: 600px; margin: 0 auto;">
+    <form id="checkout-form">
+
+      <!-- Contact Information -->
+      <div class="glass-card" style="margin-bottom: 16px;">
+        <h3 style="font-size: 1rem; color: var(--primary-color); margin-bottom: 12px;"><i class="fas fa-user"></i> Contact Information</h3>
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input type="text" id="cust-name" class="form-control" required placeholder="Enter your full name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mobile Number *</label>
+          <input type="tel" id="cust-phone" class="form-control" required placeholder="017XXXXXXXX">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address (Optional)</label>
+          <input type="email" id="cust-email" class="form-control" placeholder="example@email.com">
+        </div>
+      </div>
+
+      <!-- Shipping Address -->
+      <div class="glass-card" style="margin-bottom: 16px;">
+        <h3 style="font-size: 1rem; color: var(--primary-color); margin-bottom: 12px;"><i class="fas fa-map-marker-alt"></i> Delivery Address</h3>
+
+        <div class="form-group">
+          <label class="form-label">Division *</label>
+          <select id="select-division" class="form-control" required>
+            <option value="">Select Division</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">District *</label>
+          <select id="select-district" class="form-control" required disabled>
+            <option value="">Select District</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Upazila / Thana *</label>
+          <select id="select-thana" class="form-control" required disabled>
+            <option value="">Select Thana / Upazila</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Village / Area / House / Street *</label>
+          <input type="text" id="cust-village" class="form-control" required placeholder="House No, Road, Village or Area name">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Order Notes (Optional)</label>
+          <textarea id="cust-notes" class="form-control" rows="2" placeholder="Special delivery instructions..."></textarea>
+        </div>
+      </div>
+
+      <!-- Coupon Code -->
+      <div class="glass-card" style="margin-bottom: 16px;">
+        <h3 style="font-size: 1rem; color: var(--primary-color); margin-bottom: 12px;"><i class="fas fa-ticket-alt"></i> Discount Coupon</h3>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="coupon-code" class="form-control" placeholder="Enter promo code" style="text-transform: uppercase;">
+          <button type="button" id="apply-coupon-btn" class="btn-outline">Apply</button>
+        </div>
+        <div id="coupon-msg" style="font-size: 0.8rem; margin-top: 6px;"></div>
+      </div>
+
+      <!-- Payment Methods -->
+      <div class="glass-card" style="margin-bottom: 16px;">
+        <h3 style="font-size: 1rem; color: var(--primary-color); margin-bottom: 12px;"><i class="fas fa-wallet"></i> Payment Method</h3>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <label style="display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;">
+            <input type="radio" name="payment_method" value="cod" checked>
+            <div>
+              <strong>Cash on Delivery (COD)</strong>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Pay when you receive products</div>
+            </div>
+          </label>
+
+          <label style="display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;">
+            <input type="radio" name="payment_method" value="bkash">
+            <div>
+              <strong>bKash Payment</strong>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Send Money to <strong>01342697743</strong></div>
+            </div>
+          </label>
+
+          <div id="bkash-fields" style="display: none; background: #FFF3E0; padding: 12px; border-radius: 6px; margin-top: 4px;">
+            <p style="font-size: 0.8rem; margin-bottom: 8px;">Please Send Money ৳<span id="bkash-total-display">0</span> to Merchant bKash: <strong>01342697743</strong> and enter TrxID below:</p>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">bKash Transaction ID (TrxID) *</label>
+              <input type="text" id="bkash-txnid" class="form-control" placeholder="e.g. 9J7A6B5C4D">
+            </div>
+          </div>
+
+          <label style="display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; opacity: 0.6; cursor: not-allowed;">
+            <input type="radio" name="payment_method" value="nagad" disabled>
+            <div>
+              <strong>Nagad Payment <span style="font-size: 0.7rem; background: var(--warning-color); color: #FFF; padding: 1px 6px; border-radius: 4px;">Coming Soon</span></strong>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Disabled in v1</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Summary & Submit -->
+      <div class="glass-card" style="margin-bottom: 24px;">
+        <h3 style="font-size: 1rem; color: var(--primary-color); margin-bottom: 12px;">Final Summary</h3>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem;">
+          <span>Subtotal</span>
+          <span id="summary-subtotal">৳0</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem;">
+          <span>Delivery Charge (<span id="delivery-location-type">Inside Kushtia ৳100</span>)</span>
+          <span id="summary-delivery">৳100</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem; color: var(--success-color);" id="discount-row">
+          <span>Coupon Discount</span>
+          <span id="summary-discount">-৳0</span>
+        </div>
+        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 8px 0;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 1.1rem; font-weight: bold;">
+          <span>Grand Total</span>
+          <strong id="summary-grandtotal" style="color: var(--accent-color);">৳0</strong>
+        </div>
+
+        <button type="submit" id="place-order-btn" class="btn-accent" style="width: 100%; font-size: 1rem; padding: 12px;">Place Order Now</button>
+      </div>
+
+    </form>
+  </div>
+
+  <script type="module" src="assets/js/firebase-config.js"></script>
+  <script type="module" src="assets/js/auth.js"></script>
+  <script type="module" src="assets/js/app.js"></script>
+  <script type="module">
+    import { BANGLADESH_LOCATIONS } from './assets/js/locations.js';
+    import { loadDeliverySettings, calculateDeliveryCharge, placeOrder } from './assets/js/cart-checkout.js';
+    import { getCart, showToast } from './assets/js/app.js';
+    import { currentUser, userProfile } from './assets/js/auth.js';
+    import { fetchCoupons } from './assets/js/admin.js';
+
+    let appliedDiscount = 0;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadDeliverySettings();
+      let cart = getCart();
+
+      // Support "Buy Now" flow via URL query params
+      const urlParams = new URLSearchParams(window.location.search);
+      const buyNowId = urlParams.get('buyNowId');
+      if (buyNowId) {
+        cart = [{
+          id: buyNowId,
+          name: urlParams.get('name') || 'Product',
+          price: Number(urlParams.get('price')) || 0,
+          image: urlParams.get('image') || '',
+          quantity: Number(urlParams.get('qty')) || 1
+        }];
+      }
+
+      if (cart.length === 0) {
+        showToast('Your cart is empty');
+        window.location.href = 'shop.html';
+        return;
+      }
+
+      // Pre-fill customer info if logged in
+      if (currentUser && userProfile) {
+        document.getElementById('cust-name').value = userProfile.displayName || '';
+        document.getElementById('cust-email').value = userProfile.email || '';
+      }
+
+      // Populate Divisions
+      const divSelect = document.getElementById('select-division');
+      const distSelect = document.getElementById('select-district');
+      const thanaSelect = document.getElementById('select-thana');
+
+      Object.keys(BANGLADESH_LOCATIONS).forEach(div => {
+        const opt = document.createElement('option');
+        opt.value = div;
+        opt.textContent = div;
+        divSelect.appendChild(opt);
+      });
+
+      // Default to Khulna -> Kushtia
+      divSelect.value = "Khulna";
+      populateDistricts("Khulna");
+      distSelect.value = "Kushtia";
+      populateThanas("Khulna", "Kushtia");
+
+      function populateDistricts(div) {
+        distSelect.innerHTML = '<option value="">Select District</option>';
+        distSelect.disabled = false;
+        thanaSelect.innerHTML = '<option value="">Select Thana / Upazila</option>';
+        thanaSelect.disabled = true;
+
+        if (BANGLADESH_LOCATIONS[div]) {
+          Object.keys(BANGLADESH_LOCATIONS[div]).forEach(dist => {
+            const opt = document.createElement('option');
+            opt.value = dist;
+            opt.textContent = dist;
+            distSelect.appendChild(opt);
+          });
+        }
+      }
+
+      function populateThanas(div, dist) {
+        thanaSelect.innerHTML = '<option value="">Select Thana / Upazila</option>';
+        thanaSelect.disabled = false;
+        if (BANGLADESH_LOCATIONS[div] && BANGLADESH_LOCATIONS[div][dist]) {
+          BANGLADESH_LOCATIONS[div][dist].forEach(th => {
+            const opt = document.createElement('option');
+            opt.value = th;
+            opt.textContent = th;
+            thanaSelect.appendChild(opt);
+          });
+        }
+      }
+
+      divSelect.addEventListener('change', (e) => {
+        populateDistricts(e.target.value);
+        recalculateTotals();
+      });
+
+      distSelect.addEventListener('change', (e) => {
+        if (divSelect.value && e.target.value) {
+          populateThanas(divSelect.value, e.target.value);
+        }
+        recalculateTotals();
+      });
+
+      // Radio Payment Handler
+      const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+      const bkashFields = document.getElementById('bkash-fields');
+      paymentRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+          bkashFields.style.display = e.target.value === 'bkash' ? 'block' : 'none';
+        });
+      });
+
+      // Coupon Validation Listener
+      document.getElementById('apply-coupon-btn').addEventListener('click', async () => {
+        const inputCode = document.getElementById('coupon-code').value.trim().toUpperCase();
+        const msgEl = document.getElementById('coupon-msg');
+        if (!inputCode) {
+          msgEl.style.color = 'var(--danger-color)';
+          msgEl.textContent = 'Please enter a coupon code.';
+          return;
+        }
+
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const coupons = await fetchCoupons();
+        const matched = coupons.find(c => c.code.toUpperCase() === inputCode);
+
+        if (!matched) {
+          msgEl.style.color = 'var(--danger-color)';
+          msgEl.textContent = 'Invalid promo code.';
+          appliedDiscount = 0;
+        } else if (matched.minSpend && subtotal < matched.minSpend) {
+          msgEl.style.color = 'var(--warning-color)';
+          msgEl.textContent = `Minimum order amount of ৳${matched.minSpend} required.`;
+          appliedDiscount = 0;
+        } else {
+          if (matched.discountPercent) {
+            appliedDiscount = Math.round((subtotal * matched.discountPercent) / 100);
+          } else if (matched.flatDiscount) {
+            appliedDiscount = matched.flatDiscount;
+          }
+          msgEl.style.color = 'var(--success-color)';
+          msgEl.textContent = `Coupon Applied! You saved ৳${appliedDiscount}`;
+        }
+        recalculateTotals();
+      });
+
+      // Calculate totals
+      function recalculateTotals() {
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const district = distSelect.value || 'Kushtia';
+        const deliveryCharge = calculateDeliveryCharge(district);
+        const grandTotal = Math.max(0, subtotal + deliveryCharge - appliedDiscount);
+
+        document.getElementById('summary-subtotal').textContent = `৳${subtotal}`;
+        document.getElementById('summary-delivery').textContent = `৳${deliveryCharge}`;
+        document.getElementById('delivery-location-type').textContent = district.toLowerCase() === 'kushtia' ? 'Inside Kushtia ৳100' : 'Outside Kushtia ৳160';
+        document.getElementById('bkash-total-display').textContent = grandTotal;
+
+        const discountRow = document.getElementById('discount-row');
+        if (appliedDiscount > 0) {
+          discountRow.style.display = 'flex';
+          document.getElementById('summary-discount').textContent = `-৳${appliedDiscount}`;
+        } else {
+          discountRow.style.display = 'none';
+        }
+
+        document.getElementById('summary-grandtotal').textContent = `৳${grandTotal}`;
+      }
+
+      recalculateTotals();
+
+      // Form Submission
+      const form = document.getElementById('checkout-form');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = document.getElementById('place-order-btn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Processing Order...';
+
+        const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+        const bkashTxnId = document.getElementById('bkash-txnid').value.trim();
+
+        if (paymentMethod === 'bkash' && !bkashTxnId) {
+          showToast('Please enter your bKash Transaction ID');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Place Order Now';
+          return;
+        }
+
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const district = distSelect.value;
+        const deliveryCharge = calculateDeliveryCharge(district);
+        const totalAmount = Math.max(0, subtotal + deliveryCharge - appliedDiscount);
+
+        const orderPayload = {
+          items: cart,
+          customerInfo: {
+            name: document.getElementById('cust-name').value.trim(),
+            phone: document.getElementById('cust-phone').value.trim(),
+            email: document.getElementById('cust-email').value.trim()
+          },
+          shippingAddress: {
+            division: divSelect.value,
+            district: district,
+            thana: thanaSelect.value,
+            village: document.getElementById('cust-village').value.trim(),
+            notes: document.getElementById('cust-notes').value.trim()
+          },
+          subtotal,
+          deliveryCharge,
+          discountAmount: appliedDiscount,
+          totalAmount,
+          paymentMethod,
+          bKashTxnId: paymentMethod === 'bkash' ? bkashTxnId : null
+        };
+
+        try {
+          const orderId = await placeOrder(orderPayload);
+          showToast('Order Placed Successfully!');
+          window.location.href = `order-success.html?orderId=${orderId}`;
+        } catch (err) {
+          showToast('Failed to place order. Please try again.');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Place Order Now';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

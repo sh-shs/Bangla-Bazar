@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bangla Bazar - Offer Offer Offer</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header class="top-header">
+    <div class="header-left">
+      <button class="hamburger-btn" onclick="toggleDrawer()">
+        <i class="fas fa-bars"></i>
+      </button>
+      <a href="index.html" class="logo-container">
+        <img src="assets/images/logo.png" alt="Bangla Bazar Logo" class="logo-img">
+        <div class="brand-text">
+          <span class="brand-name">Bangla Bazar</span>
+          <span class="brand-tagline">OFFER OFFER OFFER</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="header-right">
+      <a href="wishlist.html" class="icon-btn">
+        <i class="far fa-heart"></i>
+        <span class="badge-count wishlist-count-badge">0</span>
+      </a>
+      <a href="cart.html" class="icon-btn">
+        <i class="fas fa-shopping-bag"></i>
+        <span class="badge-count cart-count-badge">0</span>
+      </a>
+      <a href="login.html" class="icon-btn account-icon-btn">
+        <i class="far fa-user"></i>
+      </a>
+    </div>
+  </header>
+
+  <!-- Side Navigation Drawer -->
+  <div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer()"></div>
+  <aside class="nav-drawer" id="nav-drawer">
+    <div class="drawer-header">
+      <div class="logo-container">
+        <img src="assets/images/logo.png" alt="Bangla Bazar Logo" class="logo-img">
+        <span class="brand-name">Bangla Bazar</span>
+      </div>
+      <button class="hamburger-btn" onclick="toggleDrawer()"><i class="fas fa-times"></i></button>
+    </div>
+    <ul class="drawer-menu">
+      <li><a href="index.html" class="drawer-menu-item active"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="shop.html" class="drawer-menu-item"><i class="fas fa-th"></i> All Categories</a></li>
+      <li><a href="offers.html" class="drawer-menu-item"><i class="fas fa-tags"></i> Special Offers</a></li>
+      <li><a href="seller-register.html" class="drawer-menu-item"><i class="fas fa-store"></i> Become a Seller</a></li>
+      <li><a href="profile.html" class="drawer-menu-item"><i class="fas fa-user-circle"></i> My Account</a></li>
+      <li><a href="contact.html" class="drawer-menu-item"><i class="fas fa-headset"></i> Contact Us</a></li>
+      <li><a href="about.html" class="drawer-menu-item"><i class="fas fa-info-circle"></i> About Us</a></li>
+    </ul>
+  </aside>
+
+  <!-- Search Bar Sticky Section -->
+  <div class="search-container">
+    <div class="search-box">
+      <input type="text" id="search-input" placeholder="Search products in Kushtia..." autocomplete="off">
+      <button><i class="fas fa-search"></i></button>
+    </div>
+    <div class="search-results-dropdown" id="search-results"></div>
+  </div>
+
+  <!-- Hero Banner Carousel -->
+  <section class="hero-section">
+    <div class="carousel-container" id="carousel-container"></div>
+    <div class="carousel-dots" id="carousel-dots"></div>
+  </section>
+
+  <!-- Featured Categories Section -->
+  <section class="section-wrapper">
+    <div class="section-header">
+      <div class="section-title-wrap">
+        <h2 class="section-title">Featured Categories</h2>
+        <div class="section-accent-line"></div>
+      </div>
+      <a href="shop.html" class="see-all-btn">See All <i class="fas fa-chevron-right"></i></a>
+    </div>
+    <div class="category-grid" id="category-grid"></div>
+  </section>
+
+  <!-- Trending Products Section -->
+  <section class="section-wrapper">
+    <div class="section-header">
+      <div class="section-title-wrap">
+        <h2 class="section-title">Trending Products</h2>
+        <div class="section-accent-line"></div>
+      </div>
+      <a href="shop.html?filter=trending" class="see-all-btn">See All <i class="fas fa-chevron-right"></i></a>
+    </div>
+    <div class="product-grid" id="trending-products"></div>
+  </section>
+
+  <!-- Flash Sale Section -->
+  <section class="section-wrapper" style="background-color: #FFF3E0; border-radius: var(--radius-md); margin: 12px; padding: 16px;">
+    <div class="section-header">
+      <div class="section-title-wrap">
+        <h2 class="section-title" style="color: var(--accent-color);"><i class="fas fa-bolt"></i> Flash Sale</h2>
+        <div class="section-accent-line"></div>
+      </div>
+      <a href="shop.html?filter=flash" class="see-all-btn">See All <i class="fas fa-chevron-right"></i></a>
+    </div>
+    <div class="product-grid" id="flash-sale-products"></div>
+  </section>
+
+  <!-- Latest Products Section -->
+  <section class="section-wrapper">
+    <div class="section-header">
+      <div class="section-title-wrap">
+        <h2 class="section-title">Latest Arrivals</h2>
+        <div class="section-accent-line"></div>
+      </div>
+      <a href="shop.html" class="see-all-btn">See All <i class="fas fa-chevron-right"></i></a>
+    </div>
+    <div class="product-grid" id="latest-products"></div>
+  </section>
+
+  <!-- Best Sellers Section -->
+  <section class="section-wrapper">
+    <div class="section-header">
+      <div class="section-title-wrap">
+        <h2 class="section-title">Best Sellers</h2>
+        <div class="section-accent-line"></div>
+      </div>
+      <a href="shop.html?filter=bestseller" class="see-all-btn">See All <i class="fas fa-chevron-right"></i></a>
+    </div>
+    <div class="product-grid" id="best-sellers-products"></div>
+  </section>
+
+  <!-- Recommended Products Section -->
+  <section class="section-wrapper">
+    <div class="section-header">
+      <div class="section-title-wrap">
+        <h2 class="section-title">Recommended For You</h2>
+        <div class="section-accent-line"></div>
+      </div>
+      <a href="shop.html" class="see-all-btn">See All <i class="fas fa-chevron-right"></i></a>
+    </div>
+    <div class="product-grid" id="recommended-products"></div>
+  </section>
+
+  <!-- Offers Promotional Banner Section -->
+  <section class="section-wrapper">
+    <div style="background: linear-gradient(135deg, var(--primary-color), #05261E); color: #FFF; padding: 24px; border-radius: var(--radius-md); text-align: center; position: relative; overflow: hidden;">
+      <h3 style="color: var(--accent-color); font-size: 1.4rem; font-weight: 800; margin-bottom: 6px;">OFFER OFFER OFFER</h3>
+      <p style="font-size: 0.9rem; margin-bottom: 14px;">Special Wholesale Deals inside Kushtia! Delivery only ৳100 inside Kushtia town.</p>
+      <a href="shop.html" class="btn-accent" style="display: inline-block; text-transform: uppercase; font-weight: bold;">Shop Deals Now</a>
+    </div>
+  </section>
+
+  <!-- Newsletter Signup Section -->
+  <section class="section-wrapper">
+    <div class="glass-card" style="text-align: center; padding: 24px;">
+      <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 6px;">Subscribe to Newsletter</h3>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px;">Get instant SMS and Email notifications for local flash deals and discount coupons.</p>
+      <div style="display: flex; gap: 8px; max-width: 400px; margin: 0 auto;">
+        <input type="email" placeholder="Enter your email" class="form-control" style="flex: 1;">
+        <button class="btn-primary">Subscribe</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Floating Elements -->
+  <div class="floating-cart-bubble" id="floating-cart-bubble" style="display: none;" onclick="window.location.href='cart.html'">
+    <i class="fas fa-shopping-basket" style="font-size: 1.2rem; color: var(--accent-color);"></i>
+    <div class="cart-info">
+      <span class="cart-items">0 Items</span>
+      <span class="cart-total">৳0</span>
+    </div>
+  </div>
+
+  <a href="https://t.me/shsaripofficial" target="_blank" class="floating-chat-bubble" title="Live Support Telegram">
+    <i class="fab fa-telegram-plane"></i>
+  </a>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-col">
+        <h3 style="display: flex; align-items: center; gap: 8px;">
+          <img src="assets/images/logo.png" style="height: 30px; background: #FFF; padding: 2px; border-radius: 4px;" alt="Logo">
+          Bangla Bazar
+        </h3>
+        <p style="font-size: 0.85rem; line-height: 1.4; color: #D1D5DB;">Your trusted multi-vendor local e-commerce platform in Kushtia, Bangladesh.</p>
+        <p style="font-size: 0.8rem; margin-top: 10px; color: var(--accent-color); font-weight: bold;">Tagline: OFFER OFFER OFFER</p>
+      </div>
+
+      <div class="footer-col">
+        <h3>Quick Links</h3>
+        <div class="footer-links">
+          <a href="shop.html">Shop All Products</a>
+          <a href="offers.html">Special Offers</a>
+          <a href="seller-register.html">Become a Seller</a>
+          <a href="contact.html">Contact Us</a>
+          <a href="about.html">About Us</a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h3>Customer Care & Policies</h3>
+        <div class="footer-links">
+          <a href="privacy-policy.html">Privacy Policy</a>
+          <a href="terms.html">Terms & Conditions</a>
+          <a href="return-policy.html">Return & Refund Policy</a>
+          <a href="seller-policy.html">Seller Policy</a>
+          <a href="shipping-policy.html">Shipping Policy</a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h3>Contact Us</h3>
+        <div class="footer-links" style="font-size: 0.85rem;">
+          <p><i class="fas fa-phone-alt" style="color: var(--accent-color);"></i> 01342697743</p>
+          <p><i class="fab fa-whatsapp" style="color: #25D366;"></i> 01342697743</p>
+          <p><i class="fas fa-envelope" style="color: var(--accent-color);"></i> banglabazaroffical@gmail.com</p>
+          <p><i class="fas fa-map-marker-alt" style="color: var(--accent-color);"></i> Kushtia, Bangladesh</p>
+          <div style="display: flex; gap: 12px; margin-top: 10px; font-size: 1.2rem;">
+            <a href="https://t.me/banglabazarofficial" target="_blank" style="color: #29B6F6;"><i class="fab fa-telegram"></i></a>
+            <a href="https://www.facebook.com/share/1HRbgfrKK3/" target="_blank" style="color: #1877F2;"><i class="fab fa-facebook"></i></a>
+            <a href="https://www.tiktok.com/@banglabazarofficial" target="_blank" style="color: #FFF;"><i class="fab fa-tiktok"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2025 Bangla Bazar. All rights reserved. Kushtia, Bangladesh.
+    </div>
+  </footer>
+
+  <!-- Bottom Fixed Mobile Navigation Bar -->
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item active">
+      <i class="fas fa-home"></i>
+      <span>Home</span>
+    </a>
+    <a href="shop.html" class="nav-item">
+      <i class="fas fa-th-large"></i>
+      <span>Menu</span>
+    </a>
+    <a href="cart.html" class="center-cart-shortcut">
+      <i class="fas fa-shopping-cart"></i>
+    </a>
+    <a href="shop.html" class="nav-item">
+      <i class="fas fa-search"></i>
+      <span>Search</span>
+    </a>
+    <a href="login.html" class="nav-item account-link">
+      <i class="fas fa-user"></i>
+      <span>Account</span>
+    </a>
+  </nav>
+
+  <script type="module" src="assets/js/firebase-config.js"></script>
+  <script type="module" src="assets/js/auth.js"></script>
+  <script type="module" src="assets/js/products.js"></script>
+  <script type="module" src="assets/js/app.js"></script>
+</body>
+</html>
