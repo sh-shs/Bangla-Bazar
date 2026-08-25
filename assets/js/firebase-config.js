@@ -37,14 +37,16 @@ import {
     deleteObject
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
-// Default or window injected Firebase config object
+// Firebase config object
 const firebaseConfig = window.firebaseConfig || {
-    apiKey: "YOUR_FIREBASE_API_KEY",
-    authDomain: "bangla-bazar-kushtia.firebaseapp.com",
-    projectId: "bangla-bazar-kushtia",
-    storageBucket: "bangla-bazar-kushtia.appspot.com",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:abcdef1234567890"
+  apiKey: "AIzaSyAPbxQ9I5RL_5dOYDJvLoUyd4T-rOMQPdY",
+  authDomain: "bangla-bazar-shop.firebaseapp.com",
+  databaseURL: "https://bangla-bazar-shop-default-rtdb.firebaseio.com",
+  projectId: "bangla-bazar-shop",
+  storageBucket: "bangla-bazar-shop.firebasestorage.app",
+  messagingSenderId: "452097132694",
+  appId: "1:452097132694:web:65b32cc9e5dffc15cc5ab7",
+  measurementId: "G-4W3CLLVZ4T"
 };
 
 // Initialize Firebase App
