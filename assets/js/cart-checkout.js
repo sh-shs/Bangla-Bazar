@@ -136,22 +136,33 @@ export async function placeOrder(orderData) {
           }
         });
 
-        if (matchedCoupon && matchedCoupon.isActive !== false) {
-          const minSpend = Number(matchedCoupon.minSpend || 0);
-          if (calculatedSubtotal >= minSpend) {
-            const isPercent = matchedCoupon.discountType === 'percentage' || Boolean(matchedCoupon.discountPercent);
-            if (isPercent) {
-              calculatedDiscount = Math.round((calculatedSubtotal * Number(matchedCoupon.discountPercent || 0)) / 100);
-            } else {
-              calculatedDiscount = Number(matchedCoupon.flatDiscount || 0);
-            }
-            // Clamp discount to subtotal
-            calculatedDiscount = Math.min(calculatedDiscount, calculatedSubtotal);
-            verifiedCouponCode = providedCouponCode;
-          }
+        if (!matchedCoupon) {
+          throw new Error(`Coupon code "${providedCouponCode}" does not exist.`);
         }
+        if (matchedCoupon.isActive === false) {
+          throw new Error(`Coupon code "${providedCouponCode}" is currently inactive.`);
+        }
+
+        const minSpend = Number(matchedCoupon.minSpend || 0);
+        if (calculatedSubtotal < minSpend) {
+          throw new Error(`Minimum spend of ৳${minSpend} is required to apply coupon "${providedCouponCode}".`);
+        }
+
+        const isPercent = matchedCoupon.discountType === 'percentage' || Boolean(matchedCoupon.discountPercent);
+        if (isPercent) {
+          calculatedDiscount = Math.round((calculatedSubtotal * Number(matchedCoupon.discountPercent || 0)) / 100);
+        } else {
+          calculatedDiscount = Number(matchedCoupon.flatDiscount || 0);
+        }
+
+        // Clamp discount to subtotal so total cannot be negative
+        calculatedDiscount = Math.min(calculatedDiscount, calculatedSubtotal);
+        verifiedCouponCode = providedCouponCode;
       } catch (couponErr) {
         console.warn('Coupon re-validation warning:', couponErr);
+        if (couponErr.message && couponErr.message.includes('Coupon code')) {
+          throw couponErr;
+        }
       }
     }
 

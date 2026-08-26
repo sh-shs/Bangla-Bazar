@@ -16,11 +16,12 @@ import {
   uploadBytesResumable,
   getDownloadURL
 } from './firebase-config.js';
-import { SUPER_ADMIN_EMAIL, currentUser, userProfile } from './auth.js';
+import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_EMAIL, currentUser, userProfile } from './auth.js';
 
 export function isSuperAdminUser(user, profile) {
   if (!user) return false;
-  if (user.email && user.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) return true;
+  const userEmail = (user.email || '').toLowerCase();
+  if (SUPER_ADMIN_EMAILS.some(email => email.toLowerCase() === userEmail)) return true;
   return profile && profile.role === 'admin';
 }
 
@@ -113,19 +114,21 @@ export async function createCategory(categoryData) {
     throw new Error('Valid category slug is required.');
   }
 
-  // Check unique slug in Firestore
-  const q = query(collection(db, 'categories'), where('slug', '==', slug));
-  const snap = await getDocs(q);
-  if (!snap.empty) {
+  // Fetch all existing categories to check duplicate name and duplicate slug
+  const allCategories = await fetchCategoriesFromDB();
+  const nameLower = name.toLowerCase();
+  const duplicateName = allCategories.find(c => (c.name || '').toLowerCase().trim() === nameLower);
+  if (duplicateName) {
+    throw new Error('A category with this name already exists. Please use a unique category name.');
+  }
+
+  const duplicateSlug = allCategories.find(c => (c.slug || c.id || '').toLowerCase().trim() === slug);
+  if (duplicateSlug) {
     throw new Error('This category slug already exists. Please use a unique slug.');
   }
 
   const docId = slug;
   const docRef = doc(db, 'categories', docId);
-  const existingDoc = await getDoc(docRef);
-  if (existingDoc.exists()) {
-    throw new Error('This category already exists.');
-  }
 
   const payload = {
     name,
@@ -154,11 +157,16 @@ export async function updateCategory(catId, categoryData) {
     slug = generateCategorySlug(slug);
   }
 
-  // Check unique slug if slug matches another document
-  const q = query(collection(db, 'categories'), where('slug', '==', slug));
-  const snap = await getDocs(q);
-  const duplicate = snap.docs.find(d => d.id !== catId);
-  if (duplicate) {
+  // Check unique name and slug among other categories
+  const allCategories = await fetchCategoriesFromDB();
+  const nameLower = name.toLowerCase();
+  const duplicateName = allCategories.find(c => c.id !== catId && (c.name || '').toLowerCase().trim() === nameLower);
+  if (duplicateName) {
+    throw new Error('A category with this name already exists on another category.');
+  }
+
+  const duplicateSlug = allCategories.find(c => c.id !== catId && (c.slug || c.id || '').toLowerCase().trim() === slug);
+  if (duplicateSlug) {
     throw new Error('This category slug already exists on another category.');
   }
 

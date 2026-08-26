@@ -17,7 +17,11 @@ import {
   serverTimestamp
 } from './firebase-config.js';
 
-export const SUPER_ADMIN_EMAIL = 'banglabazaroffical@gmail.com';
+export const SUPER_ADMIN_EMAILS = [
+  'banglabazaroffical@gmail.com',
+  'banglabazarofficial@gmail.com'
+];
+export const SUPER_ADMIN_EMAIL = SUPER_ADMIN_EMAILS[0];
 
 export let currentUser = null;
 export let userProfile = null;
@@ -36,34 +40,48 @@ function notifyAuthStateListeners() {
 onAuthStateChanged(auth, async (user) => {
   currentUser = user;
   if (user) {
-    const isSuperAdmin = (user.email && user.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase());
+    const userEmailLower = (user.email || '').toLowerCase();
+    const isSuperAdmin = SUPER_ADMIN_EMAILS.some(email => email.toLowerCase() === userEmailLower);
 
     // Fetch user profile document from Firestore
     const userDocRef = doc(db, 'users', user.uid);
-    let snap = await getDoc(userDocRef);
+    try {
+      let snap = await getDoc(userDocRef);
 
-    if (!snap.exists()) {
-      // Create user record if missing
-      const initialData = {
+      if (!snap.exists()) {
+        // Create user record if missing
+        const initialData = {
+          uid: user.uid,
+          email: user.email || '',
+          displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
+          photoURL: user.photoURL || '',
+          role: isSuperAdmin ? 'admin' : 'customer',
+          sellerStatus: isSuperAdmin ? 'approved' : 'none', // none, pending, approved, suspended
+          wishlist: [],
+          createdAt: serverTimestamp()
+        };
+        await setDoc(userDocRef, initialData);
+        userProfile = initialData;
+      } else {
+        userProfile = snap.data();
+        // Ensure super admin role is enforced
+        if (isSuperAdmin && userProfile.role !== 'admin') {
+          await updateDoc(userDocRef, { role: 'admin', sellerStatus: 'approved' });
+          userProfile.role = 'admin';
+          userProfile.sellerStatus = 'approved';
+        }
+      }
+    } catch (err) {
+      console.error('Error loading/creating user profile in Firestore:', err);
+      // Fallback profile object if network or permission error occurs
+      userProfile = {
         uid: user.uid,
         email: user.email || '',
-        displayName: user.displayName || user.email.split('@')[0],
-        photoURL: user.photoURL || '',
+        displayName: user.displayName || 'User',
         role: isSuperAdmin ? 'admin' : 'customer',
-        sellerStatus: isSuperAdmin ? 'approved' : 'none', // none, pending, approved, suspended
-        wishlist: [],
-        createdAt: serverTimestamp()
+        sellerStatus: isSuperAdmin ? 'approved' : 'none',
+        wishlist: []
       };
-      await setDoc(userDocRef, initialData);
-      userProfile = initialData;
-    } else {
-      userProfile = snap.data();
-      // Ensure super admin role is enforced
-      if (isSuperAdmin && userProfile.role !== 'admin') {
-        await updateDoc(userDocRef, { role: 'admin', sellerStatus: 'approved' });
-        userProfile.role = 'admin';
-        userProfile.sellerStatus = 'approved';
-      }
     }
   } else {
     userProfile = null;

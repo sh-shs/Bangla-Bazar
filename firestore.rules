@@ -10,8 +10,10 @@ service cloud.firestore {
     // Helper function to check if user is Super Admin
     function isSuperAdmin() {
       return isSignedIn() && (
-        request.auth.token.email == 'banglabazaroffical@gmail.com' ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+        request.auth.token.email.lower() == 'banglabazaroffical@gmail.com' ||
+        request.auth.token.email.lower() == 'banglabazarofficial@gmail.com' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
       );
     }
 
