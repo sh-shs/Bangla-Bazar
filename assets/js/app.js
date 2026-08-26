@@ -1,5 +1,5 @@
 // Main Application Script (UI Wiring, Search, Cart State, Mobile Nav)
-import { fetchPublishedProducts, fetchBanners, renderProductCard, DEFAULT_CATEGORIES } from './products.js';
+import { fetchPublishedProducts, fetchBanners, renderProductCard, DEFAULT_CATEGORIES, DEFAULT_BANNERS } from './products.js';
 import { toggleWishlist, isProductInWishlist } from './auth.js';
 
 // Global Cart State (localStorage backed)
@@ -155,13 +155,15 @@ export function initCarousel(banners) {
   container.innerHTML = banners.map(b => {
     const imgSrc = (b.image && !b.image.startsWith('PASTE_CLOUDINARY_URL')) ? b.image : (b.fallbackImage || b.image);
     const linkUrl = b.linkTo || 'shop.html';
+    const hasOverlay = (b.title && b.title.trim()) || (b.subtitle && b.subtitle.trim());
     return `
       <div class="carousel-slide" onclick="window.location.href='${linkUrl}'" style="cursor: pointer;">
         <img src="${imgSrc}" alt="${b.title || 'Banner'}" onerror="this.src='${b.fallbackImage || 'https://via.placeholder.com/1200x400?text=Bangla+Bazar'}'">
+        ${hasOverlay ? `
         <div class="banner-overlay">
           <h2>${b.title || ''}</h2>
           <p>${b.subtitle || ''}</p>
-        </div>
+        </div>` : ''}
       </div>
     `;
   }).join('');
@@ -215,10 +217,8 @@ export function initCarousel(banners) {
   startAutoRotate();
 }
 
-import { DEFAULT_BANNERS } from './products.js';
-
 // Initializer on Page Load
-document.addEventListener('DOMContentLoaded', async () => {
+async function initApp() {
   updateCartUI();
 
   // If on homepage, render catalog sections
@@ -266,4 +266,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderGrid('best-sellers-products', p => p.isBestSeller);
     renderGrid('recommended-products', p => p.isFeatured);
   }
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}

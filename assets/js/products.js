@@ -54,26 +54,20 @@ export async function fetchProductBySlugOrId(identifier) {
 export const DEFAULT_BANNERS = [
   {
     id: 'banner_1',
-    image: 'assets/images/banner1.png',
-    fallbackImage: 'assets/images/banner1.png',
-    title: 'Grand Wholesale Offer!',
-    subtitle: 'Up to 50% discount on local items across Kushtia',
+    image: 'assets/banners/banner-1.jpg',
+    fallbackImage: 'assets/banners/banner-1.jpg',
     linkTo: 'offers.html'
   },
   {
     id: 'banner_2',
-    image: 'assets/images/banner2.png',
-    fallbackImage: 'assets/images/banner2.png',
-    title: 'Trending Electronics & Gadgets',
-    subtitle: 'Best prices guaranteed on top brands',
+    image: 'assets/banners/banner-2.jpg',
+    fallbackImage: 'assets/banners/banner-2.jpg',
     linkTo: 'shop.html?category=electronics'
   },
   {
     id: 'banner_3',
-    image: 'assets/images/banner3.png',
-    fallbackImage: 'assets/images/banner3.png',
-    title: 'Kushtia Special Local Deals',
-    subtitle: 'Flat delivery ৳100 inside Kushtia town',
+    image: 'assets/banners/banner-3.jpg',
+    fallbackImage: 'assets/banners/banner-3.jpg',
     linkTo: 'shop.html'
   }
 ];
