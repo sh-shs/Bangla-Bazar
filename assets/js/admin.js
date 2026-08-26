@@ -92,10 +92,15 @@ export async function updateCategory(catId, data) {
 }
 
 export async function fetchCategoriesFromDB() {
-  const snap = await getDocs(collection(db, 'categories'));
-  const list = [];
-  snap.forEach(d => list.push({ id: d.id, ...d.data() }));
-  return list;
+  try {
+    const snap = await getDocs(collection(db, 'categories'));
+    const list = [];
+    snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+    return list;
+  } catch (err) {
+    console.error('Error fetching categories from DB:', err);
+    return [];
+  }
 }
 
 export async function deleteCategoryFromDB(catId) {
@@ -106,10 +111,15 @@ export async function deleteCategoryFromDB(catId) {
 // 3. Sellers & Customers Management Functions
 // -------------------------------------------------------------
 export async function fetchUsersFromDB() {
-  const snap = await getDocs(collection(db, 'users'));
-  const users = [];
-  snap.forEach(d => users.push({ id: d.id, ...d.data() }));
-  return users;
+  try {
+    const snap = await getDocs(collection(db, 'users'));
+    const users = [];
+    snap.forEach(d => users.push({ id: d.id, ...d.data() }));
+    return users;
+  } catch (err) {
+    console.error('Error fetching users from DB:', err);
+    return [];
+  }
 }
 
 export async function updateSellerStatus(userId, status) {
@@ -135,10 +145,15 @@ export async function deleteUserDoc(userId) {
 // 4. Order Management Functions
 // -------------------------------------------------------------
 export async function fetchOrdersFromDB() {
-  const snap = await getDocs(collection(db, 'orders'));
-  const orders = [];
-  snap.forEach(d => orders.push({ id: d.id, ...d.data() }));
-  return orders;
+  try {
+    const snap = await getDocs(collection(db, 'orders'));
+    const orders = [];
+    snap.forEach(d => orders.push({ id: d.id, ...d.data() }));
+    return orders;
+  } catch (err) {
+    console.error('Error fetching orders from DB:', err);
+    return [];
+  }
 }
 
 export async function updateOrderStatus(orderId, orderStatus) {
@@ -181,10 +196,15 @@ export async function updateCoupon(couponId, data) {
 }
 
 export async function fetchCoupons() {
-  const snap = await getDocs(collection(db, 'coupons'));
-  const coupons = [];
-  snap.forEach(d => coupons.push({ id: d.id, ...d.data() }));
-  return coupons;
+  try {
+    const snap = await getDocs(collection(db, 'coupons'));
+    const coupons = [];
+    snap.forEach(d => coupons.push({ id: d.id, ...d.data() }));
+    return coupons;
+  } catch (err) {
+    console.error('Error fetching coupons from DB:', err);
+    return [];
+  }
 }
 
 export async function deleteCoupon(couponId) {
@@ -231,10 +251,15 @@ export async function updateBanner(bannerId, data, newImageFile = null) {
 }
 
 export async function fetchBannersFromDB() {
-  const snap = await getDocs(collection(db, 'banners'));
-  const banners = [];
-  snap.forEach(d => banners.push({ id: d.id, ...d.data() }));
-  return banners;
+  try {
+    const snap = await getDocs(collection(db, 'banners'));
+    const banners = [];
+    snap.forEach(d => banners.push({ id: d.id, ...d.data() }));
+    return banners;
+  } catch (err) {
+    console.error('Error fetching banners from DB:', err);
+    return [];
+  }
 }
 
 export async function deleteBannerFromDB(bannerId) {
