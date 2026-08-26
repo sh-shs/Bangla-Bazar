@@ -237,6 +237,11 @@ export function initCarousel(banners) {
 async function initApp() {
   updateCartUI();
 
+  const copyrightYearEl = document.getElementById('copyright-year');
+  if (copyrightYearEl) {
+    copyrightYearEl.textContent = new Date().getFullYear();
+  }
+
   // If on homepage, render catalog sections
   const trendingGrid = document.getElementById('trending-products');
   if (trendingGrid) {
