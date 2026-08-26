@@ -8,55 +8,108 @@
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-  <div class="page-top-bar" style="background-color: #05261E;">
-    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
-    <span class="page-title"><i class="fas fa-user-shield"></i> Bangla Bazar Super Admin</span>
+  <!-- Top Header Bar -->
+  <div class="admin-top-bar">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+      <div class="brand-title">
+        <div class="admin-shield-icon"><i class="fas fa-user-shield"></i></div>
+        <span>Bangla Bazar <span style="font-weight: 400; font-size: 0.85em; opacity: 0.85;">Admin Panel</span></span>
+      </div>
+    </div>
+    <span class="admin-badge-role"><i class="fas fa-crown"></i> Super Admin</span>
   </div>
 
-  <div class="section-wrapper">
-    <!-- Admin Navigation Tabs -->
-    <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px;">
-      <button class="btn-primary" id="adm-tab-dash" onclick="switchAdminTab('dash')">Dashboard</button>
-      <button class="btn-outline" id="adm-tab-products" onclick="switchAdminTab('products')">Products</button>
-      <button class="btn-outline" id="adm-tab-categories" onclick="switchAdminTab('categories')">Categories</button>
-      <button class="btn-outline" id="adm-tab-sellers" onclick="switchAdminTab('sellers')">Sellers</button>
-      <button class="btn-outline" id="adm-tab-customers" onclick="switchAdminTab('customers')">Customers</button>
-      <button class="btn-outline" id="adm-tab-orders" onclick="switchAdminTab('orders')">Orders</button>
-      <button class="btn-outline" id="adm-tab-coupons" onclick="switchAdminTab('coupons')">Coupons</button>
-      <button class="btn-outline" id="adm-tab-settings" onclick="switchAdminTab('settings')">Settings</button>
-      <button class="btn-outline" id="adm-tab-banners" onclick="switchAdminTab('banners')">Banners</button>
+  <div class="section-wrapper" style="max-width: 1280px; margin: 0 auto; padding-top: 20px;">
+
+    <!-- Modern Scrollable Pill Navigation Bar -->
+    <div class="admin-nav-container">
+      <div class="admin-nav-scroll">
+        <button class="admin-tab-btn active" id="adm-tab-dash" onclick="switchAdminTab('dash')">
+          <i class="fas fa-chart-pie"></i> Dashboard
+        </button>
+        <button class="admin-tab-btn" id="adm-tab-products" onclick="switchAdminTab('products')">
+          <i class="fas fa-box-open"></i> Products
+        </button>
+        <button class="admin-tab-btn" id="adm-tab-categories" onclick="switchAdminTab('categories')">
+          <i class="fas fa-tags"></i> Categories
+        </button>
+        <button class="admin-tab-btn" id="adm-tab-sellers" onclick="switchAdminTab('sellers')">
+          <i class="fas fa-store"></i> Sellers
+        </button>
+        <button class="admin-tab-btn" id="adm-tab-customers" onclick="switchAdminTab('customers')">
+          <i class="fas fa-users"></i> Customers
+        </button>
+        <button class="admin-tab-btn" id="adm-tab-orders" onclick="switchAdminTab('orders')">
+          <i class="fas fa-shopping-bag"></i> Orders
+        </button>
+        <button class="admin-tab-btn" id="adm-tab-coupons" onclick="switchAdminTab('coupons')">
+          <i class="fas fa-ticket-alt"></i> Coupons
+        </button>
+        <button class="admin-tab-btn" id="adm-tab-settings" onclick="switchAdminTab('settings')">
+          <i class="fas fa-sliders-h"></i> Settings
+        </button>
+        <button class="admin-tab-btn" id="adm-tab-banners" onclick="switchAdminTab('banners')">
+          <i class="fas fa-images"></i> Banners
+        </button>
+      </div>
     </div>
 
     <!-- Section 1: Dashboard Overview -->
     <div id="sec-dash">
-      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px;">
-        <div class="glass-card" style="text-align: center;">
-          <i class="fas fa-chart-line" style="font-size: 1.5rem; color: var(--accent-color);"></i>
-          <div style="font-size: 1.2rem; font-weight: bold; margin-top: 4px;" id="stat-total-sales">৳0</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">Total Sales Volume</div>
+      <div class="admin-stats-grid">
+        <!-- Card 1: Sales Volume (Emerald/Green) -->
+        <div class="stat-card-premium stat-card-emerald">
+          <div class="stat-icon-wrapper">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-total-sales">৳0</div>
+            <div class="stat-label">Total Sales Volume</div>
+          </div>
         </div>
-        <div class="glass-card" style="text-align: center;">
-          <i class="fas fa-shopping-cart" style="font-size: 1.5rem; color: var(--primary-color);"></i>
-          <div style="font-size: 1.2rem; font-weight: bold; margin-top: 4px;" id="stat-total-orders">0</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">Total Orders Placed</div>
+
+        <!-- Card 2: Orders Placed (Royal Blue) -->
+        <div class="stat-card-premium stat-card-blue">
+          <div class="stat-icon-wrapper">
+            <i class="fas fa-shopping-cart"></i>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-total-orders">0</div>
+            <div class="stat-label">Total Orders Placed</div>
+          </div>
         </div>
-        <div class="glass-card" style="text-align: center;">
-          <i class="fas fa-store" style="font-size: 1.5rem; color: var(--warning-color);"></i>
-          <div style="font-size: 1.2rem; font-weight: bold; margin-top: 4px;" id="stat-pending-sellers">0</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">Pending Sellers</div>
+
+        <!-- Card 3: Pending Sellers (Amber/Orange) -->
+        <div class="stat-card-premium stat-card-amber">
+          <div class="stat-icon-wrapper">
+            <i class="fas fa-store"></i>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-pending-sellers">0</div>
+            <div class="stat-label">Pending Sellers</div>
+          </div>
         </div>
-        <div class="glass-card" style="text-align: center;">
-          <i class="fas fa-users" style="font-size: 1.5rem; color: var(--success-color);"></i>
-          <div style="font-size: 1.2rem; font-weight: bold; margin-top: 4px;" id="stat-total-users">0</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">Registered Customers</div>
+
+        <!-- Card 4: Registered Customers (Purple/Teal) -->
+        <div class="stat-card-premium stat-card-purple">
+          <div class="stat-icon-wrapper">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-total-users">0</div>
+            <div class="stat-label">Registered Customers</div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Section 2: Product Management -->
     <div id="sec-products" style="display: none;">
-      <div class="glass-card" style="margin-bottom: 20px;">
-        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-plus-circle"></i> Add / Edit Product (Admin)</h3>
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-plus-circle"></i> Add / Edit Product (Admin)</h3>
+        </div>
 
         <form id="admin-product-form">
           <input type="hidden" id="adm-p-id">
@@ -66,7 +119,7 @@
             <input type="text" id="adm-p-name" class="form-control" required placeholder="Full title">
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
             <div class="form-group">
               <label class="form-label">Category *</label>
               <select id="adm-p-category" class="form-control" required>
@@ -88,7 +141,7 @@
             </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
             <div class="form-group">
               <label class="form-label">Brand</label>
               <input type="text" id="adm-p-brand" class="form-control" placeholder="Brand Name">
@@ -99,7 +152,7 @@
             </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
             <div class="form-group">
               <label class="form-label">Regular Price (৳) *</label>
               <input type="number" id="adm-p-reg-price" class="form-control" required placeholder="1200">
@@ -110,7 +163,7 @@
             </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
             <div class="form-group">
               <label class="form-label">Stock Quantity *</label>
               <input type="number" id="adm-p-stock" class="form-control" required value="20">
@@ -147,27 +200,31 @@
           </div>
 
           <!-- Feature Flags -->
-          <div style="display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; background: #F8F9FA; padding: 10px; border-radius: 6px;">
-            <label><input type="checkbox" id="adm-flag-featured"> Featured</label>
-            <label><input type="checkbox" id="adm-flag-flash"> Flash Sale</label>
-            <label><input type="checkbox" id="adm-flag-trending"> Trending</label>
-            <label><input type="checkbox" id="adm-flag-bestseller"> Best Seller</label>
+          <div class="admin-flag-grid">
+            <label><input type="checkbox" id="adm-flag-featured"> <i class="fas fa-star" style="color: #F59E0B;"></i> Featured</label>
+            <label><input type="checkbox" id="adm-flag-flash"> <i class="fas fa-bolt" style="color: #EF4444;"></i> Flash Sale</label>
+            <label><input type="checkbox" id="adm-flag-trending"> <i class="fas fa-fire" style="color: #F97316;"></i> Trending</label>
+            <label><input type="checkbox" id="adm-flag-bestseller"> <i class="fas fa-award" style="color: #8B5CF6;"></i> Best Seller</label>
           </div>
 
-          <button type="submit" id="adm-p-submit-btn" class="btn-accent" style="width: 100%; padding: 10px; font-weight: bold;">Publish Product</button>
+          <button type="submit" id="adm-p-submit-btn" class="btn-accent" style="width: 100%; padding: 12px; font-weight: bold; border-radius: 12px; box-shadow: 0 4px 14px rgba(245, 130, 10, 0.35);">Publish Product</button>
         </form>
       </div>
 
-      <div class="glass-card">
-        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-boxes"></i> Published Products</h3>
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-boxes"></i> Published Products</h3>
+        </div>
         <div id="admin-products-list"></div>
       </div>
     </div>
 
     <!-- Section: Category Management -->
     <div id="sec-categories" style="display: none;">
-      <div class="glass-card" style="margin-bottom: 16px;">
-        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-tags"></i> Add Category</h3>
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-tags"></i> Add Category</h3>
+        </div>
         <form id="adm-category-form">
           <div class="form-group">
             <label class="form-label">Category Name *</label>
@@ -177,49 +234,60 @@
             <label class="form-label">FontAwesome Icon Class (Optional)</label>
             <input type="text" id="cat-icon" class="form-control" placeholder="e.g. fa-leaf">
           </div>
-          <button type="submit" class="btn-primary">Add Category</button>
+          <button type="submit" class="btn-primary" style="border-radius: 10px; padding: 10px 20px;">Add Category</button>
         </form>
       </div>
-      <div class="glass-card">
-        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;">Existing Categories</h3>
+
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-list"></i> Existing Categories</h3>
+        </div>
         <div id="admin-categories-list"></div>
       </div>
     </div>
 
     <!-- Section 3: Seller Approval & Management -->
     <div id="sec-sellers" style="display: none;">
-      <div class="glass-card">
-        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-users-cog"></i> Seller Approval Requests</h3>
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-users-cog"></i> Seller Approval Requests</h3>
+        </div>
         <div id="admin-sellers-list"></div>
       </div>
     </div>
 
     <!-- Section: Customer Management -->
     <div id="sec-customers" style="display: none;">
-      <div class="glass-card">
-        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-users"></i> Registered Customers</h3>
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-users"></i> Registered Customers</h3>
+        </div>
         <div id="admin-customers-list"></div>
       </div>
     </div>
 
     <!-- Section 4: Order Status Management -->
     <div id="sec-orders" style="display: none;">
-      <div class="glass-card">
-        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-truck"></i> All Customer Orders</h3>
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-truck"></i> All Customer Orders</h3>
+        </div>
         <div id="admin-orders-list"></div>
       </div>
     </div>
 
     <!-- Section: Coupon Management -->
     <div id="sec-coupons" style="display: none;">
-      <div class="glass-card" style="margin-bottom: 16px;">
-        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-ticket-alt"></i> Create Coupon</h3>
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-ticket-alt"></i> Create Coupon</h3>
+        </div>
         <form id="adm-coupon-form">
           <div class="form-group">
             <label class="form-label">Coupon Code *</label>
             <input type="text" id="cpn-code" class="form-control" required placeholder="e.g. KUSHTIA50" style="text-transform: uppercase;">
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px;">
             <div class="form-group">
               <label class="form-label">Discount %</label>
               <input type="number" id="cpn-percent" class="form-control" placeholder="10">
@@ -233,19 +301,24 @@
             <label class="form-label">Minimum Spend (৳)</label>
             <input type="number" id="cpn-min" class="form-control" placeholder="500">
           </div>
-          <button type="submit" class="btn-accent">Create Coupon</button>
+          <button type="submit" class="btn-accent" style="border-radius: 10px; padding: 10px 20px;">Create Coupon</button>
         </form>
       </div>
-      <div class="glass-card">
-        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;">Active Coupons</h3>
+
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-tags"></i> Active Coupons</h3>
+        </div>
         <div id="admin-coupons-list"></div>
       </div>
     </div>
 
     <!-- Section 5: Delivery & Payment Settings -->
     <div id="sec-settings" style="display: none;">
-      <div class="glass-card" style="margin-bottom: 16px;">
-        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-truck-loading"></i> Delivery Charge Settings</h3>
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-truck-loading"></i> Delivery Charge Settings</h3>
+        </div>
         <form id="adm-delivery-form">
           <div class="form-group">
             <label class="form-label">Inside Kushtia Delivery Charge (৳) *</label>
@@ -255,29 +328,35 @@
             <label class="form-label">Outside Kushtia Delivery Charge (৳) *</label>
             <input type="number" id="charge-outside" class="form-control" value="160" required>
           </div>
-          <button type="submit" class="btn-primary">Save Delivery Settings</button>
+          <button type="submit" class="btn-primary" style="border-radius: 10px; padding: 10px 20px;">Save Delivery Settings</button>
         </form>
       </div>
 
-      <div class="glass-card">
-        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-money-bill-wave"></i> Payment Settings</h3>
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-money-bill-wave"></i> Payment Settings</h3>
+        </div>
         <form id="adm-payment-form">
           <div class="form-group">
             <label class="form-label">bKash Merchant / Personal Mobile Number</label>
             <input type="text" id="bkash-num-setting" class="form-control" value="01342697743" required>
           </div>
           <div class="form-group">
-            <label><input type="checkbox" id="cod-toggle-setting" checked> Enable Cash on Delivery (COD)</label>
+            <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer;">
+              <input type="checkbox" id="cod-toggle-setting" checked> Enable Cash on Delivery (COD)
+            </label>
           </div>
-          <button type="submit" class="btn-primary">Save Payment Settings</button>
+          <button type="submit" class="btn-primary" style="border-radius: 10px; padding: 10px 20px;">Save Payment Settings</button>
         </form>
       </div>
     </div>
 
     <!-- Section 6: Banners Management -->
     <div id="sec-banners" style="display: none;">
-      <div class="glass-card">
-        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-image"></i> Homepage Banners</h3>
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-image"></i> Homepage Banners</h3>
+        </div>
         <form id="adm-banner-form">
           <div class="form-group">
             <label class="form-label">Banner Title</label>
@@ -291,7 +370,7 @@
             <label class="form-label">Banner Image File</label>
             <input type="file" id="banner-file" class="form-control" accept="image/*">
           </div>
-          <button type="submit" class="btn-accent">Upload Banner</button>
+          <button type="submit" class="btn-accent" style="border-radius: 10px; padding: 10px 20px;">Upload Banner</button>
         </form>
       </div>
     </div>
@@ -317,7 +396,7 @@
         const sec = document.getElementById(`sec-${t}`);
         if (sec) sec.style.display = t === tab ? 'block' : 'none';
         const btn = document.getElementById(`adm-tab-${t}`);
-        if (btn) btn.className = t === tab ? 'btn-primary' : 'btn-outline';
+        if (btn) btn.className = t === tab ? 'admin-tab-btn active' : 'admin-tab-btn';
       });
     };
 
