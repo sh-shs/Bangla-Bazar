@@ -47,20 +47,36 @@
   <script type="module" src="assets/js/app.js"></script>
   <script type="module">
     import { fetchPublishedProducts, renderProductCard } from './assets/js/products.js';
-    import { getLocalWishlist, userProfile } from './assets/js/auth.js';
+    import { getLocalWishlist, onAuthStateUpdate } from './assets/js/auth.js';
 
-    document.addEventListener('DOMContentLoaded', async () => {
+    async function renderWishlist(user, profile) {
+      const grid = document.getElementById('wishlist-products-grid');
+      if (!grid) return;
+
       const allProducts = await fetchPublishedProducts();
-      const wishlistIds = (userProfile && userProfile.wishlist) ? userProfile.wishlist : getLocalWishlist();
+      const wishlistIds = (profile && profile.wishlist) ? profile.wishlist : getLocalWishlist();
       const wishlistedProducts = allProducts.filter(p => wishlistIds.includes(p.id));
 
-      const grid = document.getElementById('wishlist-products-grid');
       if (wishlistedProducts.length > 0) {
         grid.innerHTML = wishlistedProducts.map(renderProductCard).join('');
       } else {
         grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #777; padding: 40px;">Your wishlist is currently empty.</p>';
       }
-    });
+    }
+
+    function initWishlistPage() {
+      onAuthStateUpdate((user, profile) => {
+        renderWishlist(user, profile);
+      });
+      // Initial render in case auth state listener fired previously
+      renderWishlist(null, null);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initWishlistPage);
+    } else {
+      initWishlistPage();
+    }
   </script>
 </body>
 </html>

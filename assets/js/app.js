@@ -4,7 +4,13 @@ import { toggleWishlist, isProductInWishlist } from './auth.js';
 
 // Global Cart State (localStorage backed)
 export function getCart() {
-  return JSON.parse(localStorage.getItem('bb_cart') || '[]');
+  try {
+    const data = localStorage.getItem('bb_cart');
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    console.warn('Error parsing cart from localStorage:', e);
+    return [];
+  }
 }
 
 export function saveCart(cart) {

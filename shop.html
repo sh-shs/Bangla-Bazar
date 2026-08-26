@@ -59,7 +59,7 @@
     import { fetchPublishedProducts, renderProductCard, DEFAULT_CATEGORIES } from './assets/js/products.js';
     import { initSearch } from './assets/js/app.js';
 
-    document.addEventListener('DOMContentLoaded', async () => {
+    async function initShopPage() {
       const products = await fetchPublishedProducts();
       initSearch(products);
 
@@ -69,14 +69,16 @@
 
       // Filter tabs
       const filterBar = document.getElementById('category-filter-bar');
-      filterBar.innerHTML = `<button class="btn-outline ${!selectedCategory ? 'btn-primary' : ''}" onclick="window.location.href='shop.html'" style="padding: 4px 12px; font-size: 0.8rem; white-space: nowrap;">All</button>` +
-        DEFAULT_CATEGORIES.map(c => `
-          <button class="btn-outline ${selectedCategory === c.id ? 'btn-primary' : ''}"
-            onclick="window.location.href='shop.html?category=${c.id}'"
-            style="padding: 4px 12px; font-size: 0.8rem; white-space: nowrap;">
-            ${c.name}
-          </button>
-        `).join('');
+      if (filterBar) {
+        filterBar.innerHTML = `<button class="btn-outline ${!selectedCategory ? 'btn-primary' : ''}" onclick="window.location.href='shop.html'" style="padding: 4px 12px; font-size: 0.8rem; white-space: nowrap;">All</button>` +
+          DEFAULT_CATEGORIES.map(c => `
+            <button class="btn-outline ${selectedCategory === c.id ? 'btn-primary' : ''}"
+              onclick="window.location.href='shop.html?category=${c.id}'"
+              style="padding: 4px 12px; font-size: 0.8rem; white-space: nowrap;">
+              ${c.name}
+            </button>
+          `).join('');
+      }
 
       let displayed = products;
       if (selectedCategory) {
@@ -87,12 +89,20 @@
       if (filterParam === 'bestseller') displayed = displayed.filter(p => p.isBestSeller);
 
       const grid = document.getElementById('shop-products-grid');
-      if (displayed.length > 0) {
-        grid.innerHTML = displayed.map(renderProductCard).join('');
-      } else {
-        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #777; padding: 40px;">No products match your selected filter.</p>';
+      if (grid) {
+        if (displayed.length > 0) {
+          grid.innerHTML = displayed.map(renderProductCard).join('');
+        } else {
+          grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #777; padding: 40px;">No products match your selected filter.</p>';
+        }
       }
-    });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initShopPage);
+    } else {
+      initShopPage();
+    }
   </script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 // Multi-Vendor Seller Dashboard Management Module
 import {
   db,
+  auth,
   storage,
   collection,
   addDoc,
@@ -15,7 +16,6 @@ import {
   getDownloadURL
 } from './firebase-config.js';
 import { currentUser, userProfile } from './auth.js';
-import { showToast } from './app.js';
 
 // Apply for Seller Registration
 export async function applyForSeller(storeName, phone, nid, address) {
@@ -23,10 +23,10 @@ export async function applyForSeller(storeName, phone, nid, address) {
 
   const sellerPayload = {
     sellerStatus: 'pending',
-    storeName,
-    sellerPhone: phone,
-    sellerNID: nid,
-    sellerAddress: address,
+    storeName: storeName ? storeName.trim() : '',
+    sellerPhone: phone ? phone.trim() : '',
+    sellerNID: nid ? nid.trim() : '',
+    sellerAddress: address ? address.trim() : '',
     sellerRequestedAt: new Date()
   };
 
@@ -36,7 +36,7 @@ export async function applyForSeller(storeName, phone, nid, address) {
 
 // Client-side Image Resizing/Compression to avoid multi-MB uploads on mobile
 export async function compressImage(file, maxDimension = 1200, quality = 0.85) {
-  if (!file || !file.type.startsWith('image/')) return file;
+  if (!file || !file.type || !file.type.startsWith('image/')) return file;
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -141,55 +141,76 @@ export async function uploadMediaFile(file, folderPath = 'products/images', time
 
 // Add or Update Seller Product
 export async function saveSellerProduct(productData, productId = null) {
-  const activeUser = currentUser || auth.currentUser;
+  try {
+    const activeUser = currentUser || auth.currentUser;
 
-  const payload = {
-    ...productData,
-    sellerId: activeUser ? activeUser.uid : 'admin',
-    sellerName: userProfile?.storeName || (activeUser ? activeUser.displayName : null) || 'Bangla Bazar Admin',
-    updatedAt: new Date()
-  };
+    const payload = {
+      ...productData,
+      sellerId: activeUser ? activeUser.uid : 'admin',
+      sellerName: userProfile?.storeName || (activeUser ? activeUser.displayName : null) || 'Bangla Bazar Admin',
+      updatedAt: new Date()
+    };
 
-  if (productId) {
-    await updateDoc(doc(db, 'products', productId), payload);
-    return productId;
-  } else {
-    payload.createdAt = new Date();
-    payload.status = 'published';
-    const docRef = await addDoc(collection(db, 'products'), payload);
-    return docRef.id;
+    if (productId) {
+      await updateDoc(doc(db, 'products', productId), payload);
+      return productId;
+    } else {
+      payload.createdAt = new Date();
+      payload.status = 'published';
+      const docRef = await addDoc(collection(db, 'products'), payload);
+      return docRef.id;
+    }
+  } catch (err) {
+    console.error('Error in saveSellerProduct:', err);
+    throw err;
   }
 }
 
 // Fetch Products belonging exclusively to logged in Seller
 export async function fetchMyProducts() {
-  if (!currentUser) return [];
-  const q = query(collection(db, 'products'), where('sellerId', '==', currentUser.uid));
-  const snap = await getDocs(q);
-  const list = [];
-  snap.forEach(d => list.push({ id: d.id, ...d.data() }));
-  return list;
+  try {
+    if (!currentUser) return [];
+    const q = query(collection(db, 'products'), where('sellerId', '==', currentUser.uid));
+    const snap = await getDocs(q);
+    const list = [];
+    snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+    return list;
+  } catch (err) {
+    console.warn('Error fetching seller products:', err);
+    return [];
+  }
 }
 
 // Delete Product (Seller's own)
 export async function deleteSellerProduct(productId) {
-  if (!currentUser) return;
-  await deleteDoc(doc(db, 'products', productId));
+  try {
+    if (!currentUser) return;
+    await deleteDoc(doc(db, 'products', productId));
+  } catch (err) {
+    console.error('Error deleting seller product:', err);
+    throw err;
+  }
 }
 
 // Fetch Orders containing Seller's Products using array-contains
 export async function fetchMyOrders() {
-  if (!currentUser) return [];
-  const q = query(collection(db, 'orders'), where('sellerIds', 'array-contains', currentUser.uid));
-  const snap = await getDocs(q);
-  const myOrders = [];
+  try {
+    if (!currentUser) return [];
+    const q = query(collection(db, 'orders'), where('sellerIds', 'array-contains', currentUser.uid));
+    const snap = await getDocs(q);
+    const myOrders = [];
 
-  snap.forEach(docSnap => {
-    const order = { id: docSnap.id, ...docSnap.data() };
-    const sellerItems = order.items.filter(item => item.sellerId === currentUser.uid);
-    if (sellerItems.length > 0) {
-      myOrders.push({ ...order, items: sellerItems });
-    }
-  });
-  return myOrders;
+    snap.forEach(docSnap => {
+      const order = { id: docSnap.id, ...docSnap.data() };
+      const items = Array.isArray(order.items) ? order.items : [];
+      const sellerItems = items.filter(item => item.sellerId === currentUser.uid);
+      if (sellerItems.length > 0) {
+        myOrders.push({ ...order, items: sellerItems });
+      }
+    });
+    return myOrders;
+  } catch (err) {
+    console.warn('Error fetching seller orders:', err);
+    return [];
+  }
 }

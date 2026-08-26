@@ -4,10 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Special Offers - Bangla Bazar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-  <div class="page-top-bar"><button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button><span class="page-title">Special Offers</span></div>
+  <div class="page-top-bar">
+    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+    <span class="page-title">Special Offers</span>
+  </div>
   <div class="section-wrapper">
     <div style="background: linear-gradient(135deg, var(--primary-color), var(--primary-hover)); color: #FFF; padding: 30px 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
       <h2 style="color: var(--accent-color); font-size: 1.8rem; font-weight: 800;">OFFER OFFER OFFER</h2>
@@ -16,22 +20,31 @@
     <div class="product-grid" id="offers-grid"></div>
   </div>
   <script type="module" src="assets/js/firebase-config.js"></script>
+  <script type="module" src="assets/js/auth.js"></script>
   <script type="module" src="assets/js/products.js"></script>
+  <script type="module" src="assets/js/app.js"></script>
   <script type="module">
     import { fetchPublishedProducts, renderProductCard } from './assets/js/products.js';
-    document.addEventListener('DOMContentLoaded', async () => {
-      const products = await fetchPublishedProducts();
-      const discounted = products.filter(p => p.discountPrice && Number(p.discountPrice) < Number(p.regularPrice));
-      const grid = document.getElementById('offers-grid');
-      if (discounted.length > 0) {
-        grid.innerHTML = discounted.map(renderProductCard).join('');
-      } else {
-        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #777; padding: 40px;">No current promotional offers found.</p>';
-      }
-    });
+
+    function initOffersPage() {
+      fetchPublishedProducts().then(products => {
+        const discounted = products.filter(p => p.discountPrice && Number(p.discountPrice) < Number(p.regularPrice));
+        const grid = document.getElementById('offers-grid');
+        if (grid) {
+          if (discounted.length > 0) {
+            grid.innerHTML = discounted.map(renderProductCard).join('');
+          } else {
+            grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #777; padding: 40px;">No current promotional offers found.</p>';
+          }
+        }
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initOffersPage);
+    } else {
+      initOffersPage();
+    }
   </script>
-  <script type="module" src="assets/js/firebase-config.js"></script>
-  <script type="module" src="assets/js/auth.js"></script>
-  <script type="module" src="assets/js/app.js"></script>
 </body>
 </html>
