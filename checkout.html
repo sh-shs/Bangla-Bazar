@@ -118,7 +118,7 @@
           <label style="display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; opacity: 0.6; cursor: not-allowed;">
             <input type="radio" name="payment_method" value="nagad" disabled>
             <div>
-              <strong>Nagad Payment <span style="font-size: 0.7rem; background: var(--warning-color); color: #FFF; padding: 1px 6px; border-radius: 4px;">Coming Soon</span></strong>
+              <strong>Nagad Payment <span style="font-size: 0.7rem; background: var(--warning-color); color: #FFF; padding: 1px 4px; border-radius: 4px;">Coming Soon</span></strong>
               <div style="font-size: 0.75rem; color: var(--text-muted);">Disabled in v1</div>
             </div>
           </label>
@@ -164,7 +164,7 @@
 
     let appliedDiscount = 0;
 
-    document.addEventListener('DOMContentLoaded', async () => {
+    async function initCheckoutPage() {
       await loadDeliverySettings();
       let cart = getCart();
 
@@ -189,8 +189,8 @@
 
       // Pre-fill customer info if logged in
       if (currentUser && userProfile) {
-        document.getElementById('cust-name').value = userProfile.displayName || '';
-        document.getElementById('cust-email').value = userProfile.email || '';
+        if (document.getElementById('cust-name')) document.getElementById('cust-name').value = userProfile.displayName || '';
+        if (document.getElementById('cust-email')) document.getElementById('cust-email').value = userProfile.email || '';
       }
 
       // Dropdown Elements
@@ -198,6 +198,8 @@
       const distSelect = document.getElementById('select-district');
       const thanaSelect = document.getElementById('select-thana');
       const unionSelect = document.getElementById('select-union');
+
+      if (!divSelect || !distSelect || !thanaSelect || !unionSelect) return;
 
       // Populate Divisions (all 8 divisions of Bangladesh)
       Object.keys(BANGLADESH_LOCATIONS).forEach(div => {
@@ -289,12 +291,12 @@
       const bkashFields = document.getElementById('bkash-fields');
       paymentRadios.forEach(radio => {
         radio.addEventListener('change', (e) => {
-          bkashFields.style.display = e.target.value === 'bkash' ? 'block' : 'none';
+          if (bkashFields) bkashFields.style.display = e.target.value === 'bkash' ? 'block' : 'none';
         });
       });
 
       // Coupon Validation Listener
-      document.getElementById('apply-coupon-btn').addEventListener('click', async () => {
+      document.getElementById('apply-coupon-btn')?.addEventListener('click', async () => {
         const inputCode = document.getElementById('coupon-code').value.trim().toUpperCase();
         const msgEl = document.getElementById('coupon-msg');
         if (!inputCode) {
@@ -354,62 +356,70 @@
 
       // Form Submission
       const form = document.getElementById('checkout-form');
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const submitBtn = document.getElementById('place-order-btn');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Processing Order...';
+      if (form) {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const submitBtn = document.getElementById('place-order-btn');
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Processing Order...';
 
-        const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
-        const bkashTxnId = document.getElementById('bkash-txnid').value.trim();
+          const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+          const bkashTxnId = document.getElementById('bkash-txnid').value.trim();
 
-        if (paymentMethod === 'bkash' && !bkashTxnId) {
-          showToast('Please enter your bKash Transaction ID');
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Place Order Now';
-          return;
-        }
+          if (paymentMethod === 'bkash' && !bkashTxnId) {
+            showToast('Please enter your bKash Transaction ID');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Place Order Now';
+            return;
+          }
 
-        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const district = distSelect.value;
-        const deliveryCharge = calculateDeliveryCharge(district);
-        const totalAmount = Math.max(0, subtotal + deliveryCharge - appliedDiscount);
+          const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+          const district = distSelect.value;
+          const deliveryCharge = calculateDeliveryCharge(district);
+          const totalAmount = Math.max(0, subtotal + deliveryCharge - appliedDiscount);
 
-        const orderPayload = {
-          items: cart,
-          customerInfo: {
-            name: document.getElementById('cust-name').value.trim(),
-            phone: document.getElementById('cust-phone').value.trim(),
-            email: document.getElementById('cust-email').value.trim()
-          },
-          shippingAddress: {
-            division: divSelect.value,
-            district: district,
-            thana: thanaSelect.value,
-            union: unionSelect.value,
-            village: document.getElementById('cust-village').value.trim(),
-            notes: document.getElementById('cust-notes').value.trim()
-          },
-          subtotal,
-          deliveryCharge,
-          couponCode: appliedDiscount > 0 ? document.getElementById('coupon-code').value.trim().toUpperCase() : '',
-          discountAmount: appliedDiscount,
-          totalAmount,
-          paymentMethod,
-          bKashTxnId: paymentMethod === 'bkash' ? bkashTxnId : null
-        };
+          const orderPayload = {
+            items: cart,
+            customerInfo: {
+              name: document.getElementById('cust-name').value.trim(),
+              phone: document.getElementById('cust-phone').value.trim(),
+              email: document.getElementById('cust-email').value.trim()
+            },
+            shippingAddress: {
+              division: divSelect.value,
+              district: district,
+              thana: thanaSelect.value,
+              union: unionSelect.value,
+              village: document.getElementById('cust-village').value.trim(),
+              notes: document.getElementById('cust-notes').value.trim()
+            },
+            subtotal,
+            deliveryCharge,
+            couponCode: appliedDiscount > 0 ? document.getElementById('coupon-code').value.trim().toUpperCase() : '',
+            discountAmount: appliedDiscount,
+            totalAmount,
+            paymentMethod,
+            bKashTxnId: paymentMethod === 'bkash' ? bkashTxnId : null
+          };
 
-        try {
-          const orderId = await placeOrder(orderPayload);
-          showToast('Order Placed Successfully!');
-          window.location.href = `order-success.html?orderId=${orderId}`;
-        } catch (err) {
-          showToast('Failed to place order. Please try again.');
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Place Order Now';
-        }
-      });
-    });
+          try {
+            const orderId = await placeOrder(orderPayload);
+            showToast('Order Placed Successfully!');
+            window.location.href = `order-success.html?orderId=${orderId}`;
+          } catch (err) {
+            showToast('Failed to place order. Please try again.');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Place Order Now';
+          }
+        });
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initCheckoutPage);
+    } else {
+      initCheckoutPage();
+    }
   </script>
 </body>
 </html>

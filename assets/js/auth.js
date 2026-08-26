@@ -94,7 +94,13 @@ function updateHeaderAuthUI() {
 
 // Wishlist Helpers (supports logged in sync + guest local storage)
 export function getLocalWishlist() {
-  return JSON.parse(localStorage.getItem('bb_wishlist') || '[]');
+  try {
+    const data = localStorage.getItem('bb_wishlist');
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    console.warn('Error reading wishlist from localStorage:', e);
+    return [];
+  }
 }
 
 export async function toggleWishlist(productId) {

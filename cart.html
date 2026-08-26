@@ -65,9 +65,16 @@
   <script type="module" src="assets/js/app.js"></script>
   <script type="module">
     import { renderCartItemsPage } from './assets/js/cart-checkout.js';
-    document.addEventListener('DOMContentLoaded', () => {
+
+    function initCartPage() {
       renderCartItemsPage();
-    });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initCartPage);
+    } else {
+      initCartPage();
+    }
   </script>
 </body>
 </html>

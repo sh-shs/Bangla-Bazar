@@ -74,88 +74,98 @@
     import { loginWithEmail, registerWithEmail, loginWithGoogle, resetPassword } from './assets/js/auth.js';
     import { showToast } from './assets/js/app.js';
 
-    let isSignUp = false;
+    function initLoginPage() {
+      let isSignUp = false;
 
-    const toggleBtn = document.getElementById('toggle-mode-btn');
-    const groupName = document.getElementById('group-name');
-    const submitBtn = document.getElementById('auth-submit-btn');
-    const prompt = document.getElementById('toggle-prompt');
+      const toggleBtn = document.getElementById('toggle-mode-btn');
+      const groupName = document.getElementById('group-name');
+      const submitBtn = document.getElementById('auth-submit-btn');
+      const togglePromptEl = document.getElementById('toggle-prompt');
 
-    toggleBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      isSignUp = !isSignUp;
-      if (isSignUp) {
-        groupName.style.display = 'block';
-        submitBtn.textContent = 'Create Account';
-        prompt.textContent = 'Already have an account?';
-        toggleBtn.textContent = 'Login';
-      } else {
-        groupName.style.display = 'none';
-        submitBtn.textContent = 'Login';
-        prompt.textContent = "Don't have an account?";
-        toggleBtn.textContent = 'Sign Up';
-      }
-    });
-
-    document.getElementById('google-signin-btn').addEventListener('click', async () => {
-      try {
-        await loginWithGoogle();
-        showToast('Signed in with Google!');
-        window.location.href = 'index.html';
-      } catch (err) {
-        showToast(err.message || 'Google Sign-in failed');
-      }
-    });
-
-    document.getElementById('auth-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('auth-email').value.trim();
-      const pass = document.getElementById('auth-pass').value.trim();
-      const name = document.getElementById('auth-name').value.trim();
-
-      if (!email || !pass) {
-        showToast('Please enter both email and password.');
-        return;
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          isSignUp = !isSignUp;
+          if (isSignUp) {
+            groupName.style.display = 'block';
+            submitBtn.textContent = 'Create Account';
+            togglePromptEl.textContent = 'Already have an account?';
+            toggleBtn.textContent = 'Login';
+          } else {
+            groupName.style.display = 'none';
+            submitBtn.textContent = 'Login';
+            togglePromptEl.textContent = "Don't have an account?";
+            toggleBtn.textContent = 'Sign Up';
+          }
+        });
       }
 
-      if (isSignUp && !name) {
-        showToast('Please enter your full name.');
-        return;
-      }
-
-      submitBtn.disabled = true;
-      try {
-        if (isSignUp) {
-          await registerWithEmail(email, pass, name);
-          showToast('Account Created!');
-        } else {
-          await loginWithEmail(email, pass);
-          showToast('Welcome back!');
-        }
-        window.location.href = 'index.html';
-      } catch (err) {
-        showToast(err.message || 'Authentication error');
-      } finally {
-        submitBtn.disabled = false;
-      }
-    });
-
-    document.getElementById('forgot-pass-btn').addEventListener('click', async (e) => {
-      e.preventDefault();
-      const email = prompt('Enter your registered email address for password reset:');
-      if (email) {
+      document.getElementById('google-signin-btn')?.addEventListener('click', async () => {
         try {
-          await resetPassword(email);
-          showToast('Password reset link sent to your email.');
+          await loginWithGoogle();
+          showToast('Signed in with Google!');
+          window.location.href = 'index.html';
         } catch (err) {
-          showToast(err.message || 'Failed to send reset email.');
+          showToast(err.message || 'Google Sign-in failed');
         }
-      }
-    });
+      });
 
-    document.getElementById('otp-stub-btn').addEventListener('click', () => {
-      showToast('Mobile OTP Login is coming soon!');
-    });
+      document.getElementById('auth-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('auth-email').value.trim();
+        const pass = document.getElementById('auth-pass').value.trim();
+        const name = document.getElementById('auth-name').value.trim();
+
+        if (!email || !pass) {
+          showToast('Please enter both email and password.');
+          return;
+        }
+
+        if (isSignUp && !name) {
+          showToast('Please enter your full name.');
+          return;
+        }
+
+        submitBtn.disabled = true;
+        try {
+          if (isSignUp) {
+            await registerWithEmail(email, pass, name);
+            showToast('Account Created!');
+          } else {
+            await loginWithEmail(email, pass);
+            showToast('Welcome back!');
+          }
+          window.location.href = 'index.html';
+        } catch (err) {
+          showToast(err.message || 'Authentication error');
+        } finally {
+          submitBtn.disabled = false;
+        }
+      });
+
+      document.getElementById('forgot-pass-btn')?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const emailInput = window.prompt('Enter your registered email address for password reset:');
+        if (emailInput && emailInput.trim()) {
+          try {
+            await resetPassword(emailInput.trim());
+            showToast('Password reset link sent to your email.');
+          } catch (err) {
+            showToast(err.message || 'Failed to send reset email.');
+          }
+        }
+      });
+
+      document.getElementById('otp-stub-btn')?.addEventListener('click', () => {
+        showToast('Mobile OTP Login is coming soon!');
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initLoginPage);
+    } else {
+      initLoginPage();
+    }
   </script>
 </body>
 </html>
