@@ -59,6 +59,13 @@
         </div>
 
         <div class="form-group">
+          <label class="form-label">Union *</label>
+          <select id="select-union" class="form-control" required disabled>
+            <option value="">Select Union</option>
+          </select>
+        </div>
+
+        <div class="form-group">
           <label class="form-label">Village / Area / House / Street *</label>
           <input type="text" id="cust-village" class="form-control" required placeholder="House No, Road, Village or Area name">
         </div>
@@ -149,16 +156,25 @@
   <script type="module" src="assets/js/auth.js"></script>
   <script type="module" src="assets/js/app.js"></script>
   <script type="module">
-    import { BANGLADESH_LOCATIONS } from './assets/js/locations.js';
     import { loadDeliverySettings, calculateDeliveryCharge, placeOrder } from './assets/js/cart-checkout.js';
     import { getCart, showToast } from './assets/js/app.js';
     import { currentUser, userProfile } from './assets/js/auth.js';
     import { fetchCoupons } from './assets/js/admin.js';
 
     let appliedDiscount = 0;
+    let bdGeoData = {};
 
     document.addEventListener('DOMContentLoaded', async () => {
       await loadDeliverySettings();
+
+      // Load Bangladesh static Geo JSON data (Division -> District -> Upazila -> Union)
+      try {
+        const res = await fetch('data/bd-geo.json');
+        bdGeoData = await res.json();
+      } catch (err) {
+        console.error('Failed to load bd-geo.json reference data:', err);
+      }
+
       let cart = getCart();
 
       // Support "Buy Now" flow via URL query params
@@ -186,32 +202,44 @@
         document.getElementById('cust-email').value = userProfile.email || '';
       }
 
-      // Populate Divisions
       const divSelect = document.getElementById('select-division');
       const distSelect = document.getElementById('select-district');
       const thanaSelect = document.getElementById('select-thana');
+      const unionSelect = document.getElementById('select-union');
 
-      Object.keys(BANGLADESH_LOCATIONS).forEach(div => {
+      // Helper reset functions for cascading dropdowns
+      function resetDistricts() {
+        distSelect.innerHTML = '<option value="">Select District</option>';
+        distSelect.disabled = true;
+      }
+
+      function resetThanas() {
+        thanaSelect.innerHTML = '<option value="">Select Thana / Upazila</option>';
+        thanaSelect.disabled = true;
+      }
+
+      function resetUnions() {
+        unionSelect.innerHTML = '<option value="">Select Union</option>';
+        unionSelect.disabled = true;
+      }
+
+      // Populate Divisions
+      divSelect.innerHTML = '<option value="">Select Division</option>';
+      Object.keys(bdGeoData).forEach(div => {
         const opt = document.createElement('option');
         opt.value = div;
         opt.textContent = div;
         divSelect.appendChild(opt);
       });
 
-      // Default to Khulna -> Kushtia
-      divSelect.value = "Khulna";
-      populateDistricts("Khulna");
-      distSelect.value = "Kushtia";
-      populateThanas("Khulna", "Kushtia");
+      function populateDistricts(divName) {
+        resetDistricts();
+        resetThanas();
+        resetUnions();
 
-      function populateDistricts(div) {
-        distSelect.innerHTML = '<option value="">Select District</option>';
-        distSelect.disabled = false;
-        thanaSelect.innerHTML = '<option value="">Select Thana / Upazila</option>';
-        thanaSelect.disabled = true;
-
-        if (BANGLADESH_LOCATIONS[div]) {
-          Object.keys(BANGLADESH_LOCATIONS[div]).forEach(dist => {
+        if (divName && bdGeoData[divName]) {
+          distSelect.disabled = false;
+          Object.keys(bdGeoData[divName]).forEach(dist => {
             const opt = document.createElement('option');
             opt.value = dist;
             opt.textContent = dist;
@@ -220,15 +248,32 @@
         }
       }
 
-      function populateThanas(div, dist) {
-        thanaSelect.innerHTML = '<option value="">Select Thana / Upazila</option>';
-        thanaSelect.disabled = false;
-        if (BANGLADESH_LOCATIONS[div] && BANGLADESH_LOCATIONS[div][dist]) {
-          BANGLADESH_LOCATIONS[div][dist].forEach(th => {
+      function populateThanas(divName, distName) {
+        resetThanas();
+        resetUnions();
+
+        if (divName && distName && bdGeoData[divName]?.[distName]) {
+          thanaSelect.disabled = false;
+          Object.keys(bdGeoData[divName][distName]).forEach(th => {
             const opt = document.createElement('option');
             opt.value = th;
             opt.textContent = th;
             thanaSelect.appendChild(opt);
+          });
+        }
+      }
+
+      function populateUnions(divName, distName, thanaName) {
+        resetUnions();
+
+        if (divName && distName && thanaName && bdGeoData[divName]?.[distName]?.[thanaName]) {
+          unionSelect.disabled = false;
+          const unions = bdGeoData[divName][distName][thanaName];
+          unions.forEach(u => {
+            const opt = document.createElement('option');
+            opt.value = u;
+            opt.textContent = u;
+            unionSelect.appendChild(opt);
           });
         }
       }
@@ -239,10 +284,12 @@
       });
 
       distSelect.addEventListener('change', (e) => {
-        if (divSelect.value && e.target.value) {
-          populateThanas(divSelect.value, e.target.value);
-        }
+        populateThanas(divSelect.value, e.target.value);
         recalculateTotals();
+      });
+
+      thanaSelect.addEventListener('change', (e) => {
+        populateUnions(divSelect.value, distSelect.value, e.target.value);
       });
 
       // Radio Payment Handler
@@ -347,6 +394,7 @@
             division: divSelect.value,
             district: district,
             thana: thanaSelect.value,
+            union: unionSelect.value,
             village: document.getElementById('cust-village').value.trim(),
             notes: document.getElementById('cust-notes').value.trim()
           },

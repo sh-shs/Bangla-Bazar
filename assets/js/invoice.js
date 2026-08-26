@@ -58,9 +58,9 @@ export function generatePDFInvoice(order) {
           </div>
           <div>
             <strong>Shipping Address:</strong><br>
-            ${order.shippingAddress?.village || ''}, ${order.shippingAddress?.thana || ''}<br>
-            ${order.shippingAddress?.upazila || ''}, ${order.shippingAddress?.district || ''}<br>
-            ${order.shippingAddress?.division || ''}
+            ${order.shippingAddress?.village || ''}<br>
+            ${order.shippingAddress?.union ? order.shippingAddress.union + ', ' : ''}${order.shippingAddress?.thana || order.shippingAddress?.upazila || ''}<br>
+            ${order.shippingAddress?.district || ''}, ${order.shippingAddress?.division || ''}
           </div>
         </div>
 
