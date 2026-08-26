@@ -231,6 +231,12 @@ export function initCarousel(banners) {
 async function initApp() {
   updateCartUI();
 
+  // Dynamically update copyright year in footer
+  const yearEl = document.getElementById('copyright-year');
+  if (yearEl) {
+    yearEl.textContent = new Date().getFullYear();
+  }
+
   // If on homepage, render catalog sections
   const trendingGrid = document.getElementById('trending-products');
   if (trendingGrid) {
