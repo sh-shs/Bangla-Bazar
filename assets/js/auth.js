@@ -127,37 +127,81 @@ export function isProductInWishlist(productId) {
   return getLocalWishlist().includes(productId);
 }
 
+// Firebase Auth Error Code Helper
+function getFriendlyAuthErrorMessage(error) {
+  if (!error) return 'An unexpected authentication error occurred.';
+  const code = error.code || '';
+  switch (code) {
+    case 'auth/invalid-credential':
+    case 'auth/wrong-password':
+    case 'auth/user-not-found':
+      return 'Invalid email or password. Please check your credentials and try again.';
+    case 'auth/email-already-in-use':
+      return 'An account already exists with this email address. Please login instead.';
+    case 'auth/invalid-email':
+      return 'Please enter a valid email address.';
+    case 'auth/weak-password':
+      return 'Password should be at least 6 characters long.';
+    case 'auth/popup-closed-by-user':
+      return 'Sign-in popup closed before completion. Please try again.';
+    case 'auth/network-request-failed':
+      return 'Network error. Please check your internet connection.';
+    case 'auth/too-many-requests':
+      return 'Too many unsuccessful attempts. Please try again later.';
+    default:
+      return error.message || 'Authentication failed. Please try again.';
+  }
+}
+
 // Auth Actions
 export async function registerWithEmail(email, password, displayName) {
-  const cred = await createUserWithEmailAndPassword(auth, email, password);
-  await updateProfile(cred.user, { displayName });
-  const isSuperAdmin = (email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase());
-  const initialData = {
-    uid: cred.user.uid,
-    email: email,
-    displayName: displayName,
-    photoURL: '',
-    role: isSuperAdmin ? 'admin' : 'customer',
-    sellerStatus: isSuperAdmin ? 'approved' : 'none',
-    wishlist: [],
-    createdAt: serverTimestamp()
-  };
-  await setDoc(doc(db, 'users', cred.user.uid), initialData);
-  return cred.user;
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    if (displayName) {
+      await updateProfile(cred.user, { displayName });
+    }
+    const isSuperAdmin = (email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase());
+    const initialData = {
+      uid: cred.user.uid,
+      email: email,
+      displayName: displayName || email.split('@')[0],
+      photoURL: '',
+      role: isSuperAdmin ? 'admin' : 'customer',
+      sellerStatus: isSuperAdmin ? 'approved' : 'none',
+      wishlist: [],
+      createdAt: serverTimestamp()
+    };
+    await setDoc(doc(db, 'users', cred.user.uid), initialData);
+    return cred.user;
+  } catch (error) {
+    throw new Error(getFriendlyAuthErrorMessage(error));
+  }
 }
 
 export async function loginWithEmail(email, password) {
-  const cred = await signInWithEmailAndPassword(auth, email, password);
-  return cred.user;
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    return cred.user;
+  } catch (error) {
+    throw new Error(getFriendlyAuthErrorMessage(error));
+  }
 }
 
 export async function loginWithGoogle() {
-  const result = await signInWithPopup(auth, googleProvider);
-  return result.user;
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    return result.user;
+  } catch (error) {
+    throw new Error(getFriendlyAuthErrorMessage(error));
+  }
 }
 
 export async function resetPassword(email) {
-  return await sendPasswordResetEmail(auth, email);
+  try {
+    return await sendPasswordResetEmail(auth, email);
+  } catch (error) {
+    throw new Error(getFriendlyAuthErrorMessage(error));
+  }
 }
 
 export async function logoutUser() {
