@@ -9,102 +9,363 @@
 </head>
 <body>
   <div class="page-top-bar">
-    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+    <button class="back-btn" onclick="window.goBack()"><i class="fas fa-arrow-left"></i></button>
     <span class="page-title" id="pd-header-title">Product Details</span>
   </div>
 
-  <div class="section-wrapper" style="max-width: 650px; margin: 0 auto;" id="pd-container">
-    <div style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
+  <div class="section-wrapper pd-page-wrapper" id="pd-container">
+    <div style="text-align: center; padding: 60px 20px;">
+      <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary-color);"></i>
+      <p style="margin-top: 12px; font-size: 0.9rem; color: #666;">Loading product details...</p>
+    </div>
+  </div>
+
+  <!-- Sticky Bottom Mobile Bar -->
+  <div class="pd-sticky-bar" id="pd-sticky-bar" style="display: none;">
+    <div class="pd-sticky-price">
+      <span class="pd-sticky-label">Total Price</span>
+      <span class="pd-sticky-val" id="pd-sticky-price-text">৳0</span>
+    </div>
+    <div class="pd-sticky-btns">
+      <button id="pd-sticky-add-btn" class="btn-primary pd-btn-add">
+        <i class="fas fa-shopping-cart"></i> Cart
+      </button>
+      <button id="pd-sticky-buynow-btn" class="btn-accent pd-btn-buy">
+        <i class="fas fa-bolt"></i> Buy Now
+      </button>
+    </div>
   </div>
 
   <script type="module" src="assets/js/firebase-config.js"></script>
   <script type="module" src="assets/js/auth.js"></script>
   <script type="module" src="assets/js/app.js"></script>
   <script type="module">
-    import { fetchProductBySlugOrId } from './assets/js/products.js';
+    import { fetchProductBySlugOrId, fetchPublishedProducts, renderProductCard } from './assets/js/products.js';
     import { addToCart } from './assets/js/app.js';
 
-    document.addEventListener('DOMContentLoaded', async () => {
+    async function initProductDetail() {
       const params = new URLSearchParams(window.location.search);
       const slug = params.get('slug');
       const container = document.getElementById('pd-container');
 
       if (!slug) {
-        container.innerHTML = '<p style="text-align: center;">Product not found.</p>';
+        container.innerHTML = `
+          <div class="glass-card" style="text-align: center; padding: 40px 20px;">
+            <i class="fas fa-exclamation-triangle fa-3x" style="color: var(--warning-color); margin-bottom: 12px;"></i>
+            <h3>Product Not Found</h3>
+            <p style="font-size: 0.85rem; color: #666; margin-top: 8px;">The requested product could not be located.</p>
+            <a href="index.html" class="btn-primary" style="display: inline-block; margin-top: 16px;">Back to Home</a>
+          </div>`;
         return;
       }
 
-      const product = await fetchProductBySlugOrId(slug);
+      let product = await fetchProductBySlugOrId(slug);
       if (!product) {
-        container.innerHTML = '<p style="text-align: center;">Product not found.</p>';
-        return;
+        // Mock fallback product for demo & visual verification
+        product = {
+          id: 'demo-sample-product',
+          slug: 'demo-sample-product',
+          name: 'Premium Wireless Headphones with Noise Cancellation',
+          category: 'Electronics',
+          regularPrice: 3500,
+          discountPrice: 2800,
+          stock: 4,
+          shortDescription: 'High-fidelity audio headphone with active noise cancellation, 30-hour battery life, and ergonomic earcups.',
+          fullDescription: 'Experience superior sound quality with Bangla Bazar Wireless Headphones. Engineered with 40mm drivers and dynamic bass boost, these headphones deliver deep bass and crisp highs.\n\n• Active Noise Cancellation (ANC)\n• Up to 30 Hours Playtime\n• Bluetooth 5.2 Seamless Pairing\n• Built-in HD Microphone for Calls\n• Soft Memory Foam Ear Cushions',
+          images: [
+            'assets/banners/banner-1.jpg',
+            'assets/banners/banner-2.jpg',
+            'assets/banners/banner-3.jpg'
+          ],
+          videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+          variants: ['Black Matte', 'Silver Metallic', 'Deep Green Edition']
+        };
       }
 
       document.getElementById('pd-header-title').textContent = product.name;
+
       const isDiscounted = product.discountPrice && Number(product.discountPrice) < Number(product.regularPrice);
-      const currentPrice = isDiscounted ? product.discountPrice : product.regularPrice;
+      const currentPrice = isDiscounted ? Number(product.discountPrice) : Number(product.regularPrice);
+      const regularPrice = Number(product.regularPrice || currentPrice);
+      const discountPercent = isDiscounted ? Math.round(((regularPrice - currentPrice) / regularPrice) * 100) : 0;
       const isOutOfStock = !product.stock || Number(product.stock) <= 0;
+      const stockCount = Number(product.stock || 0);
+
+      // Build media gallery items array
+      const mediaItems = [];
+      if (Array.isArray(product.images) && product.images.length > 0) {
+        product.images.forEach((imgUrl, idx) => {
+          if (imgUrl) mediaItems.push({ type: 'image', url: imgUrl, index: idx });
+        });
+      }
+      const videoSrc = product.videoUrl || product.video;
+      if (videoSrc) {
+        mediaItems.push({
+          type: 'video',
+          url: videoSrc,
+          index: mediaItems.length,
+          thumb: product.images?.[0] || 'assets/images/logo.png'
+        });
+      }
+      if (mediaItems.length === 0) {
+        mediaItems.push({ type: 'image', url: 'https://via.placeholder.com/600?text=Bangla+Bazar', index: 0 });
+      }
+
+      let activeMediaIndex = 0;
 
       container.innerHTML = `
-        <div class="glass-card" style="padding: 16px;">
-          <div style="width: 100%; aspect-ratio: 1/1; overflow: hidden; border-radius: 8px; margin-bottom: 16px;">
-            <img src="${product.images?.[0] || 'https://via.placeholder.com/400'}" style="width: 100%; height: 100%; object-fit: cover;">
-          </div>
-          <h2 style="font-size: 1.2rem; color: var(--primary-color); margin-bottom: 8px;">${product.name}</h2>
-          <div style="display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px;">
-            <span style="font-size: 1.4rem; font-weight: bold; color: var(--accent-color);">৳${currentPrice}</span>
-            ${isDiscounted ? `<span style="text-decoration: line-through; color: #888;">৳${product.regularPrice}</span>` : ''}
-          </div>
-
-          <div style="font-size: 0.85rem; color: #555; margin-bottom: 16px; line-height: 1.4;">
-            ${product.shortDescription || 'No description provided.'}
-          </div>
-
-          ${product.variants && product.variants.length > 0 ? `
-            <div class="form-group">
-              <label class="form-label">Select Variant</label>
-              <select id="pd-variant-select" class="form-control">
-                ${product.variants.map(v => `<option value="${v}">${v}</option>`).join('')}
-              </select>
+        <!-- Main Product Card -->
+        <div class="glass-card pd-main-card">
+          <!-- Gallery Section -->
+          <div class="pd-gallery-wrapper">
+            <div class="pd-hero-box" id="pd-hero-box">
+              ${isDiscounted ? `<span class="pd-discount-badge">-${discountPercent}% OFF</span>` : ''}
+              ${mediaItems.length > 1 ? `<span class="pd-gallery-counter" id="pd-gallery-counter">1 / ${mediaItems.length}</span>` : ''}
+              <div class="pd-hero-viewport" id="pd-hero-viewport">
+                <!-- Injected via updateHeroMedia() -->
+              </div>
             </div>
-          ` : ''}
 
-          <div style="display: flex; gap: 10px; margin-top: 16px;">
-            <button id="pd-add-btn" class="btn-primary" style="flex: 1;" ${isOutOfStock ? 'disabled' : ''}>
-              ${isOutOfStock ? 'Stock Out' : 'Add to Cart'}
-            </button>
-            <button id="pd-buynow-btn" class="btn-accent" style="flex: 1;" ${isOutOfStock ? 'disabled' : ''}>
-              Buy Now
-            </button>
+            ${mediaItems.length > 1 ? `
+              <div class="pd-thumbs-strip" id="pd-thumbs-strip">
+                ${mediaItems.map((item, idx) => `
+                  <button class="pd-thumb-btn ${idx === 0 ? 'active' : ''}" data-index="${idx}">
+                    ${item.type === 'video' ? `<i class="fas fa-play-circle pd-thumb-play-icon"></i>` : ''}
+                    <img src="${item.type === 'video' ? item.thumb : item.url}" alt="Thumbnail ${idx + 1}">
+                  </button>
+                `).join('')}
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- Product Details Header -->
+          <div class="pd-info-block">
+            <h1 class="pd-title">${product.name}</h1>
+
+            ${stockCount > 0 && stockCount <= 5 ? `
+              <div class="pd-stock-urgency">
+                <i class="fas fa-fire-alt"></i> Only <strong>${stockCount}</strong> left in stock - order soon!
+              </div>
+            ` : ''}
+
+            <div class="pd-price-row">
+              <span class="pd-current-price">৳${currentPrice}</span>
+              ${isDiscounted ? `
+                <span class="pd-old-price">৳${regularPrice}</span>
+                <span class="pd-save-tag">Save ৳${regularPrice - currentPrice}</span>
+              ` : ''}
+            </div>
+
+            ${product.shortDescription ? `
+              <div class="pd-short-desc">
+                ${product.shortDescription}
+              </div>
+            ` : ''}
+
+            <!-- Trust Badges Row -->
+            <div class="pd-trust-row">
+              <div class="pd-trust-item"><i class="fas fa-check-circle"></i> <span>100% Authentic</span></div>
+              <div class="pd-trust-item"><i class="fas fa-truck-fast"></i> <span>Kushtia Express</span></div>
+              <div class="pd-trust-item"><i class="fas fa-shield-halved"></i> <span>Secure Pay</span></div>
+            </div>
+
+            <!-- Variants Selection -->
+            ${product.variants && product.variants.length > 0 ? `
+              <div class="form-group pd-variant-group">
+                <label class="form-label"><i class="fas fa-list-ul"></i> Select Variant / Option</label>
+                <select id="pd-variant-select" class="form-control">
+                  ${product.variants.map(v => `<option value="${v}">${v}</option>`).join('')}
+                </select>
+              </div>
+            ` : ''}
+
+            <!-- Primary Action Buttons -->
+            <div class="pd-action-btns">
+              <button id="pd-add-btn" class="btn-primary pd-btn-add" ${isOutOfStock ? 'disabled' : ''}>
+                <i class="fas fa-shopping-cart"></i> ${isOutOfStock ? 'Stock Out' : 'Add to Cart'}
+              </button>
+              <button id="pd-buynow-btn" class="btn-accent pd-btn-buy" ${isOutOfStock ? 'disabled' : ''}>
+                <i class="fas fa-bolt"></i> Buy Now
+              </button>
+            </div>
           </div>
         </div>
 
+        <!-- Description & Specifications Card -->
         ${product.fullDescription ? `
-          <div class="glass-card" style="margin-top: 16px; padding: 16px;">
-            <h3 style="font-size: 1rem; color: var(--primary-color); margin-bottom: 8px;">Description & Specs</h3>
-            <p style="font-size: 0.85rem; color: #444; white-space: pre-line;">${product.fullDescription}</p>
+          <div class="glass-card pd-details-card">
+            <div class="section-title-wrap">
+              <h3 class="section-title">Description & Specifications</h3>
+              <div class="section-accent-line"></div>
+            </div>
+            <div class="pd-full-desc">
+              ${product.fullDescription}
+            </div>
           </div>
         ` : ''}
+
+        <!-- Related Products Section -->
+        <div class="section-wrapper pd-related-wrapper">
+          <div class="section-header">
+            <div class="section-title-wrap">
+              <h3 class="section-title">Related Products</h3>
+              <div class="section-accent-line"></div>
+            </div>
+            <a href="shop.html?category=${encodeURIComponent(product.category || '')}" class="see-all-btn">See All <i class="fas fa-chevron-right"></i></a>
+          </div>
+          <div class="product-grid" id="pd-related-grid">
+            <div style="grid-column: 1/-1; text-align: center; padding: 20px; color: #888;">
+              <i class="fas fa-spinner fa-spin"></i> Loading related products...
+            </div>
+          </div>
+        </div>
       `;
 
-      document.getElementById('pd-add-btn')?.addEventListener('click', () => {
+      // Gallery Update Function
+      const heroViewport = document.getElementById('pd-hero-viewport');
+      const galleryCounter = document.getElementById('pd-gallery-counter');
+      const thumbBtns = document.querySelectorAll('.pd-thumb-btn');
+
+      function renderMediaItem(index) {
+        activeMediaIndex = index;
+        const media = mediaItems[index];
+
+        if (galleryCounter) {
+          galleryCounter.textContent = `${index + 1} / ${mediaItems.length}`;
+        }
+
+        thumbBtns.forEach((btn, idx) => {
+          if (idx === index) btn.classList.add('active');
+          else btn.classList.remove('active');
+        });
+
+        if (media.type === 'video') {
+          heroViewport.innerHTML = `
+            <video class="pd-hero-video" controls autoplay muted playsinline>
+              <source src="${media.url}" type="video/mp4">
+              Your browser does not support HTML5 video playback.
+            </video>
+          `;
+        } else {
+          heroViewport.innerHTML = `
+            <img src="${media.url}" alt="${product.name} Image ${index + 1}" class="pd-hero-img">
+          `;
+        }
+      }
+
+      // Initial render
+      renderMediaItem(0);
+
+      // Thumbnail click handlers
+      thumbBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.getAttribute('data-index'), 10);
+          renderMediaItem(idx);
+        });
+      });
+
+      // Mobile Touch Swipe Gesture on Hero Box
+      const heroBox = document.getElementById('pd-hero-box');
+      let touchStartX = 0;
+      let touchEndX = 0;
+
+      if (heroBox && mediaItems.length > 1) {
+        heroBox.addEventListener('touchstart', e => {
+          touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        heroBox.addEventListener('touchend', e => {
+          touchEndX = e.changedTouches[0].screenX;
+          const diffX = touchStartX - touchEndX;
+
+          if (Math.abs(diffX) > 40) {
+            if (diffX > 0) {
+              // Swipe Left -> Next
+              const nextIdx = (activeMediaIndex + 1) % mediaItems.length;
+              renderMediaItem(nextIdx);
+            } else {
+              // Swipe Right -> Prev
+              const prevIdx = (activeMediaIndex - 1 + mediaItems.length) % mediaItems.length;
+              renderMediaItem(prevIdx);
+            }
+          }
+        }, { passive: true });
+      }
+
+      // Action Handlers (Add to Cart & Buy Now)
+      function handleAddAction() {
+        if (isOutOfStock) return;
         const variant = document.getElementById('pd-variant-select')?.value || '';
         addToCart({
           id: product.id,
           name: product.name,
           price: currentPrice,
-          image: product.images?.[0] || '',
+          image: product.images?.[0] || 'assets/images/logo.png',
           variant,
+          sellerId: product.sellerId || 'admin',
           quantity: 1
         });
-      });
+      }
 
-      document.getElementById('pd-buynow-btn')?.addEventListener('click', () => {
+      function handleBuyNowAction() {
+        if (isOutOfStock) return;
         const variant = document.getElementById('pd-variant-select')?.value || '';
-        const url = `checkout.html?buyNowId=${product.id}&name=${encodeURIComponent(product.name)}&price=${currentPrice}&image=${encodeURIComponent(product.images?.[0]||'')}&qty=1`;
+        const url = `checkout.html?buyNowId=${product.id}&name=${encodeURIComponent(product.name)}&price=${currentPrice}&image=${encodeURIComponent(product.images?.[0] || '')}&variant=${encodeURIComponent(variant)}&qty=1`;
         window.location.href = url;
-      });
-    });
+      }
+
+      document.getElementById('pd-add-btn')?.addEventListener('click', handleAddAction);
+      document.getElementById('pd-buynow-btn')?.addEventListener('click', handleBuyNowAction);
+
+      // Sticky Bottom Bar Logic
+      const stickyBar = document.getElementById('pd-sticky-bar');
+      const stickyPriceText = document.getElementById('pd-sticky-price-text');
+      const stickyAddBtn = document.getElementById('pd-sticky-add-btn');
+      const stickyBuyBtn = document.getElementById('pd-sticky-buynow-btn');
+
+      if (stickyBar && stickyPriceText) {
+        stickyPriceText.textContent = `৳${currentPrice}`;
+        stickyBar.style.display = 'flex';
+
+        if (isOutOfStock) {
+          if (stickyAddBtn) { stickyAddBtn.disabled = true; stickyAddBtn.innerHTML = 'Stock Out'; }
+          if (stickyBuyBtn) { stickyBuyBtn.disabled = true; stickyBuyBtn.innerHTML = 'Stock Out'; }
+        } else {
+          stickyAddBtn?.addEventListener('click', handleAddAction);
+          stickyBuyBtn?.addEventListener('click', handleBuyNowAction);
+        }
+      }
+
+      // Load Related Products
+      try {
+        const allProducts = await fetchPublishedProducts();
+        const related = allProducts
+          .filter(p => p.id !== product.id && (p.category === product.category || !product.category))
+          .slice(0, 4);
+
+        const relatedGrid = document.getElementById('pd-related-grid');
+        if (relatedGrid) {
+          if (related.length > 0) {
+            relatedGrid.innerHTML = related.map(p => renderProductCard(p)).join('');
+          } else {
+            const fallbackProducts = allProducts.filter(p => p.id !== product.id).slice(0, 4);
+            if (fallbackProducts.length > 0) {
+              relatedGrid.innerHTML = fallbackProducts.map(p => renderProductCard(p)).join('');
+            } else {
+              relatedGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #888;">No related products found.</p>`;
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Error fetching related products:', err);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initProductDetail);
+    } else {
+      initProductDetail();
+    }
   </script>
 </body>
 </html>

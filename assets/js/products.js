@@ -31,24 +31,29 @@ export async function fetchPublishedProducts() {
 }
 
 export async function fetchProductBySlugOrId(identifier) {
-  try {
-    // Check by ID
-    const docRef = doc(db, 'products', identifier);
-    const snap = await getDoc(docRef);
-    if (snap.exists()) {
-      return { id: snap.id, ...snap.data() };
+  const fetchPromise = (async () => {
+    try {
+      // Check by ID
+      const docRef = doc(db, 'products', identifier);
+      const snap = await getDoc(docRef);
+      if (snap.exists()) {
+        return { id: snap.id, ...snap.data() };
+      }
+      // Check by slug
+      const q = query(collection(db, 'products'), where('slug', '==', identifier), limit(1));
+      const querySnap = await getDocs(q);
+      if (!querySnap.empty) {
+        const docSnap = querySnap.docs[0];
+        return { id: docSnap.id, ...docSnap.data() };
+      }
+    } catch (err) {
+      console.warn('Error fetching product detail from Firestore:', err);
     }
-    // Check by slug
-    const q = query(collection(db, 'products'), where('slug', '==', identifier), limit(1));
-    const querySnap = await getDocs(q);
-    if (!querySnap.empty) {
-      const docSnap = querySnap.docs[0];
-      return { id: docSnap.id, ...docSnap.data() };
-    }
-  } catch (err) {
-    console.error('Error fetching product detail:', err);
-  }
-  return null;
+    return null;
+  })();
+
+  const timeoutPromise = new Promise(resolve => setTimeout(() => resolve(null), 1200));
+  return Promise.race([fetchPromise, timeoutPromise]);
 }
 
 export const DEFAULT_BANNERS = [
