@@ -1,6 +1,6 @@
 // Cart & Checkout Module
 import { getCart, saveCart, showToast } from './app.js';
-import { db, collection, addDoc, serverTimestamp, doc, getDoc } from './firebase-config.js';
+import { db, collection, addDoc, getDocs, serverTimestamp, doc, getDoc } from './firebase-config.js';
 import { currentUser } from './auth.js';
 
 // Default delivery rates if not dynamically overridden in Firestore settings
@@ -99,22 +99,70 @@ window.removeCartItem = (index) => {
   renderCartItemsPage();
 };
 
-// Place Order into Firestore
+// Place Order into Firestore with Server-Side Recalculation
 export async function placeOrder(orderData) {
   try {
+    const items = (orderData.items || []).map(item => ({
+      id: item.id || item.productId || 'N/A',
+      name: item.name || 'Unnamed Product',
+      price: Number(item.price || 0),
+      quantity: Number(item.quantity || 1),
+      image: item.image || item.images?.[0] || 'https://via.placeholder.com/150',
+      variant: item.variant || item.selectedVariant || null,
+      sellerId: item.sellerId || 'admin'
+    }));
+
+    // Server-side recalculation of subtotal
+    const calculatedSubtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    // Server-side recalculation of delivery charge
+    const district = orderData.shippingAddress?.district || 'Kushtia';
+    await loadDeliverySettings();
+    const calculatedDelivery = calculateDeliveryCharge(district);
+
+    // Server-side coupon verification and recalculation
+    let calculatedDiscount = 0;
+    let verifiedCouponCode = '';
+
+    const providedCouponCode = (orderData.couponCode || '').toUpperCase().trim().replace(/\s+/g, '');
+    if (providedCouponCode) {
+      try {
+        const couponsSnap = await getDocs(collection(db, 'coupons'));
+        let matchedCoupon = null;
+        couponsSnap.forEach(d => {
+          const cData = d.data();
+          if ((cData.code || '').toUpperCase().trim().replace(/\s+/g, '') === providedCouponCode) {
+            matchedCoupon = { id: d.id, ...cData };
+          }
+        });
+
+        if (matchedCoupon && matchedCoupon.isActive !== false) {
+          const minSpend = Number(matchedCoupon.minSpend || 0);
+          if (calculatedSubtotal >= minSpend) {
+            const isPercent = matchedCoupon.discountType === 'percentage' || Boolean(matchedCoupon.discountPercent);
+            if (isPercent) {
+              calculatedDiscount = Math.round((calculatedSubtotal * Number(matchedCoupon.discountPercent || 0)) / 100);
+            } else {
+              calculatedDiscount = Number(matchedCoupon.flatDiscount || 0);
+            }
+            // Clamp discount to subtotal
+            calculatedDiscount = Math.min(calculatedDiscount, calculatedSubtotal);
+            verifiedCouponCode = providedCouponCode;
+          }
+        }
+      } catch (couponErr) {
+        console.warn('Coupon re-validation warning:', couponErr);
+      }
+    }
+
+    // Ensure total amount cannot be negative (floor at 0)
+    const calculatedTotalAmount = Math.max(0, calculatedSubtotal + calculatedDelivery - calculatedDiscount);
+
     // Collect all sellerIds involved in this order for Firestore Security Rule scope
-    const sellerIds = Array.from(new Set(orderData.items.map(item => item.sellerId || 'admin')));
+    const sellerIds = Array.from(new Set(items.map(item => item.sellerId || 'admin')));
 
     const sanitizedOrder = {
-      items: (orderData.items || []).map(item => ({
-        id: item.id || item.productId || 'N/A',
-        name: item.name || 'Unnamed Product',
-        price: Number(item.price || 0),
-        quantity: Number(item.quantity || 1),
-        image: item.image || item.images?.[0] || 'https://via.placeholder.com/150',
-        variant: item.variant || item.selectedVariant || null,
-        sellerId: item.sellerId || 'admin'
-      })),
+      items,
       customerInfo: {
         name: orderData.customerInfo?.name || 'Not provided',
         phone: orderData.customerInfo?.phone || 'Not provided',
@@ -128,11 +176,11 @@ export async function placeOrder(orderData) {
         village: orderData.shippingAddress?.village || 'Not provided',
         notes: orderData.shippingAddress?.notes || ''
       },
-      subtotal: Number(orderData.subtotal || 0),
-      deliveryCharge: Number(orderData.deliveryCharge || 0),
-      couponCode: orderData.couponCode || '',
-      discountAmount: Number(orderData.discountAmount || 0),
-      totalAmount: Number(orderData.totalAmount || 0),
+      subtotal: calculatedSubtotal,
+      deliveryCharge: calculatedDelivery,
+      couponCode: verifiedCouponCode,
+      discountAmount: calculatedDiscount,
+      totalAmount: calculatedTotalAmount,
       paymentMethod: orderData.paymentMethod || 'cod',
       bKashTxnId: orderData.bKashTxnId || null,
       sellerIds,

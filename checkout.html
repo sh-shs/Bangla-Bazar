@@ -462,36 +462,59 @@
 
       // Coupon Validation Listener
       document.getElementById('apply-coupon-btn')?.addEventListener('click', async () => {
-        const inputCode = document.getElementById('coupon-code').value.trim().toUpperCase();
+        const applyBtn = document.getElementById('apply-coupon-btn');
+        const inputCode = document.getElementById('coupon-code').value.trim().replace(/\s+/g, '').toUpperCase();
         const msgEl = document.getElementById('coupon-msg');
+
         if (!inputCode) {
           msgEl.style.color = 'var(--danger-color)';
           msgEl.textContent = 'Please enter a coupon code.';
+          appliedDiscount = 0;
+          recalculateTotals();
           return;
         }
 
-        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const coupons = await fetchCoupons();
-        const matched = coupons.find(c => c.code.toUpperCase() === inputCode);
+        applyBtn.disabled = true;
+        applyBtn.textContent = 'Checking...';
 
-        if (!matched) {
-          msgEl.style.color = 'var(--danger-color)';
-          msgEl.textContent = 'Invalid promo code.';
-          appliedDiscount = 0;
-        } else if (matched.minSpend && subtotal < matched.minSpend) {
-          msgEl.style.color = 'var(--warning-color)';
-          msgEl.textContent = `Minimum order amount of ৳${matched.minSpend} required.`;
-          appliedDiscount = 0;
-        } else {
-          if (matched.discountPercent) {
-            appliedDiscount = Math.round((subtotal * matched.discountPercent) / 100);
-          } else if (matched.flatDiscount) {
-            appliedDiscount = matched.flatDiscount;
+        try {
+          const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+          const coupons = await fetchCoupons();
+          const matched = coupons.find(c => (c.code || '').toUpperCase().trim() === inputCode);
+
+          if (!matched) {
+            msgEl.style.color = 'var(--danger-color)';
+            msgEl.textContent = 'Invalid coupon code.';
+            appliedDiscount = 0;
+          } else if (matched.isActive === false) {
+            msgEl.style.color = 'var(--danger-color)';
+            msgEl.textContent = 'This coupon is currently inactive.';
+            appliedDiscount = 0;
+          } else if (matched.minSpend && subtotal < Number(matched.minSpend)) {
+            msgEl.style.color = 'var(--warning-color)';
+            msgEl.textContent = `Minimum spend of ৳${matched.minSpend} is required for this coupon.`;
+            appliedDiscount = 0;
+          } else {
+            const isPercent = matched.discountType === 'percentage' || Boolean(matched.discountPercent);
+            if (isPercent) {
+              appliedDiscount = Math.round((subtotal * Number(matched.discountPercent || 0)) / 100);
+            } else {
+              appliedDiscount = Number(matched.flatDiscount || 0);
+            }
+            appliedDiscount = Math.min(appliedDiscount, subtotal);
+            msgEl.style.color = 'var(--success-color)';
+            msgEl.textContent = `Coupon Applied ✓ Discount: -৳${appliedDiscount}`;
           }
-          msgEl.style.color = 'var(--success-color)';
-          msgEl.textContent = `Coupon Applied! You saved ৳${appliedDiscount}`;
+        } catch (err) {
+          console.error('Coupon validation error:', err);
+          msgEl.style.color = 'var(--danger-color)';
+          msgEl.textContent = 'Unable to validate coupon code. Please try again.';
+          appliedDiscount = 0;
+        } finally {
+          applyBtn.disabled = false;
+          applyBtn.textContent = 'Apply';
+          recalculateTotals();
         }
-        recalculateTotals();
       });
 
       // Calculate totals

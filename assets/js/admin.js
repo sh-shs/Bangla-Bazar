@@ -74,19 +74,110 @@ export async function saveAdminGeneralSettings(data) {
 // -------------------------------------------------------------
 // 2. Category CRUD Functions
 // -------------------------------------------------------------
-export async function createCategory(name, iconClass, description = '') {
-  const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  await setDoc(doc(db, 'categories', id), {
-    name,
-    icon: iconClass || 'fa-folder',
-    description: description.trim(),
-    createdAt: new Date()
-  });
+export function generateCategorySlug(name) {
+  return (name || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
 
-export async function updateCategory(catId, data) {
+export async function createCategory(categoryData) {
+  // Accepts object or positional arguments for backward compatibility
+  let name, icon, description, slug, image, isActive;
+  if (typeof categoryData === 'string') {
+    name = categoryData;
+    icon = arguments[1] || 'fa-folder';
+    description = arguments[2] || '';
+    slug = generateCategorySlug(name);
+    image = '';
+    isActive = true;
+  } else {
+    name = categoryData.name;
+    slug = categoryData.slug;
+    description = categoryData.description;
+    image = categoryData.image;
+    icon = categoryData.icon;
+    isActive = categoryData.isActive;
+  }
+
+  name = (name || '').trim();
+  if (!name) {
+    throw new Error('Category name is required.');
+  }
+
+  slug = (slug || '').trim();
+  if (!slug) {
+    slug = generateCategorySlug(name);
+  } else {
+    slug = generateCategorySlug(slug);
+  }
+
+  if (!slug) {
+    throw new Error('Valid category slug is required.');
+  }
+
+  // Check unique slug in Firestore
+  const q = query(collection(db, 'categories'), where('slug', '==', slug));
+  const snap = await getDocs(q);
+  if (!snap.empty) {
+    throw new Error('This category slug already exists. Please use a unique slug.');
+  }
+
+  const docId = slug;
+  const docRef = doc(db, 'categories', docId);
+  const existingDoc = await getDoc(docRef);
+  if (existingDoc.exists()) {
+    throw new Error('This category already exists.');
+  }
+
+  const payload = {
+    name,
+    slug,
+    description: (description || '').trim(),
+    image: (image || '').trim(),
+    icon: (icon || 'fa-folder').trim(),
+    isActive: isActive !== false,
+    createdAt: new Date()
+  };
+
+  await setDoc(docRef, payload);
+  return { id: docId, ...payload };
+}
+
+export async function updateCategory(catId, categoryData) {
+  const name = (categoryData.name || '').trim();
+  if (!name) {
+    throw new Error('Category name is required.');
+  }
+
+  let slug = (categoryData.slug || '').trim();
+  if (!slug) {
+    slug = generateCategorySlug(name);
+  } else {
+    slug = generateCategorySlug(slug);
+  }
+
+  // Check unique slug if slug matches another document
+  const q = query(collection(db, 'categories'), where('slug', '==', slug));
+  const snap = await getDocs(q);
+  const duplicate = snap.docs.find(d => d.id !== catId);
+  if (duplicate) {
+    throw new Error('This category slug already exists on another category.');
+  }
+
+  const payload = {
+    name,
+    slug,
+    description: (categoryData.description || '').trim(),
+    image: (categoryData.image || '').trim(),
+    icon: (categoryData.icon || 'fa-folder').trim(),
+    isActive: categoryData.isActive !== false,
+    updatedAt: new Date()
+  };
+
+  await updateDoc(doc(db, 'categories', catId), payload);
+}
+
+export async function toggleCategoryStatus(catId, currentStatus) {
   await updateDoc(doc(db, 'categories', catId), {
-    ...data,
+    isActive: !currentStatus,
     updatedAt: new Date()
   });
 }
@@ -95,7 +186,15 @@ export async function fetchCategoriesFromDB() {
   try {
     const snap = await getDocs(collection(db, 'categories'));
     const list = [];
-    snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+    snap.forEach(d => {
+      const data = d.data();
+      list.push({
+        id: d.id,
+        slug: data.slug || d.id,
+        isActive: data.isActive !== false,
+        ...data
+      });
+    });
     return list;
   } catch (err) {
     console.error('Error fetching categories from DB:', err);
@@ -177,20 +276,90 @@ export async function deleteOrderDoc(orderId) {
 // -------------------------------------------------------------
 // 5. Coupon CRUD Functions
 // -------------------------------------------------------------
-export async function createCoupon(code, discountPercent, flatDiscount, minSpend, isActive = true) {
-  await addDoc(collection(db, 'coupons'), {
-    code: code.toUpperCase().trim(),
-    discountPercent: Number(discountPercent || 0),
-    flatDiscount: Number(flatDiscount || 0),
-    minSpend: Number(minSpend || 0),
-    isActive: Boolean(isActive),
-    createdAt: new Date()
-  });
+export function normalizeCouponCode(code) {
+  return (code || '').toUpperCase().trim().replace(/\s+/g, '');
 }
 
-export async function updateCoupon(couponId, data) {
+export function validateCouponData(data, existingCoupons = [], currentId = null) {
+  const code = normalizeCouponCode(data.code);
+  if (!code) {
+    throw new Error('Coupon code is required.');
+  }
+
+  // Check unique coupon code
+  const duplicate = existingCoupons.find(c => normalizeCouponCode(c.code) === code && c.id !== currentId);
+  if (duplicate) {
+    throw new Error('This coupon code already exists. Please use a unique coupon code.');
+  }
+
+  const discountType = data.discountType || 'percentage';
+  let discountPercent = 0;
+  let flatDiscount = 0;
+
+  if (discountType === 'percentage') {
+    discountPercent = Number(data.discountPercent);
+    if (isNaN(discountPercent) || discountPercent <= 0 || discountPercent > 100) {
+      throw new Error('Discount percentage must be between 1 and 100.');
+    }
+  } else if (discountType === 'flat') {
+    flatDiscount = Number(data.flatDiscount);
+    if (isNaN(flatDiscount) || flatDiscount <= 0) {
+      throw new Error('Flat discount amount must be greater than 0.');
+    }
+  } else {
+    throw new Error('Invalid discount type selected.');
+  }
+
+  const minSpend = Number(data.minSpend || 0);
+  if (isNaN(minSpend) || minSpend < 0) {
+    throw new Error('Minimum spend must be 0 or a positive number.');
+  }
+
+  return {
+    code,
+    discountType,
+    discountPercent,
+    flatDiscount,
+    minSpend,
+    isActive: data.isActive !== false
+  };
+}
+
+export async function createCoupon(couponData) {
+  // Support legacy positional arguments for backward compatibility
+  let data;
+  if (typeof couponData === 'string') {
+    const discountPercent = Number(arguments[1] || 0);
+    const flatDiscount = Number(arguments[2] || 0);
+    data = {
+      code: couponData,
+      discountType: discountPercent > 0 ? 'percentage' : 'flat',
+      discountPercent,
+      flatDiscount,
+      minSpend: Number(arguments[3] || 0),
+      isActive: arguments[4] !== false
+    };
+  } else {
+    data = couponData;
+  }
+
+  const existingCoupons = await fetchCoupons();
+  const validated = validateCouponData(data, existingCoupons);
+
+  const docRef = await addDoc(collection(db, 'coupons'), {
+    ...validated,
+    createdAt: new Date()
+  });
+
+  return { id: docRef.id, ...validated };
+}
+
+export async function updateCoupon(couponId, couponData) {
+  const existingCoupons = await fetchCoupons();
+  const validated = validateCouponData(couponData, existingCoupons, couponId);
+
   await updateDoc(doc(db, 'coupons', couponId), {
-    ...data,
+    ...validated,
     updatedAt: new Date()
   });
 }
@@ -199,7 +368,19 @@ export async function fetchCoupons() {
   try {
     const snap = await getDocs(collection(db, 'coupons'));
     const coupons = [];
-    snap.forEach(d => coupons.push({ id: d.id, ...d.data() }));
+    snap.forEach(d => {
+      const data = d.data();
+      coupons.push({
+        id: d.id,
+        code: normalizeCouponCode(data.code),
+        discountType: data.discountType || (data.discountPercent ? 'percentage' : 'flat'),
+        discountPercent: Number(data.discountPercent || 0),
+        flatDiscount: Number(data.flatDiscount || 0),
+        minSpend: Number(data.minSpend || 0),
+        isActive: data.isActive !== false,
+        ...data
+      });
+    });
     return coupons;
   } catch (err) {
     console.error('Error fetching coupons from DB:', err);

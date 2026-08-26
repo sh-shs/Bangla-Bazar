@@ -1,5 +1,5 @@
 // Main Application Script (UI Wiring, Search, Cart State, Mobile Nav)
-import { fetchPublishedProducts, fetchBanners, renderProductCard, DEFAULT_CATEGORIES, DEFAULT_BANNERS } from './products.js';
+import { fetchPublishedProducts, fetchBanners, renderProductCard, fetchActiveCategories, DEFAULT_CATEGORIES, DEFAULT_BANNERS } from './products.js';
 import { toggleWishlist, isProductInWishlist } from './auth.js';
 
 // Global Cart State (localStorage backed)
@@ -260,6 +260,19 @@ async function initApp() {
           <span class="category-name">${cat.name}</span>
         </div>
       `).join('');
+
+      fetchActiveCategories().then(cats => {
+        if (cats && cats.length > 0) {
+          catGrid.innerHTML = cats.map(cat => `
+            <div class="category-card" onclick="window.location.href='shop.html?category=${cat.id}'">
+              <div class="category-icon-box">
+                ${cat.image ? `<img src="${cat.image}" style="width:28px; height:28px; object-fit:cover; border-radius:4px;">` : `<i class="fas ${cat.icon || 'fa-folder'}"></i>`}
+              </div>
+              <span class="category-name">${cat.name}</span>
+            </div>
+          `).join('');
+        }
+      }).catch(err => console.warn('Error loading active categories:', err));
     }
 
     // Initialize carousel immediately with default local banners
