@@ -43,10 +43,26 @@
     import { fetchProductBySlugOrId, fetchPublishedProducts, renderProductCard } from './assets/js/products.js';
     import { addToCart } from './assets/js/app.js';
 
+    let currentRequestSlug = null;
+
     async function initProductDetail() {
       const params = new URLSearchParams(window.location.search);
       const slug = params.get('slug');
+      currentRequestSlug = slug;
+
       const container = document.getElementById('pd-container');
+      const stickyBar = document.getElementById('pd-sticky-bar');
+
+      // Reset gallery container and sticky bar state immediately before fetching
+      if (stickyBar) stickyBar.style.display = 'none';
+      if (container) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 60px 20px;">
+            <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary-color);"></i>
+            <p style="margin-top: 12px; font-size: 0.9rem; color: #666;">Loading product details...</p>
+          </div>
+        `;
+      }
 
       if (!slug) {
         container.innerHTML = `
@@ -60,26 +76,20 @@
       }
 
       let product = await fetchProductBySlugOrId(slug);
+
+      // Check if another request has been initiated while fetch was in-flight
+      if (currentRequestSlug !== slug) {
+        return;
+      }
       if (!product) {
-        // Mock fallback product for demo & visual verification
-        product = {
-          id: 'demo-sample-product',
-          slug: 'demo-sample-product',
-          name: 'Premium Wireless Headphones with Noise Cancellation',
-          category: 'Electronics',
-          regularPrice: 3500,
-          discountPrice: 2800,
-          stock: 4,
-          shortDescription: 'High-fidelity audio headphone with active noise cancellation, 30-hour battery life, and ergonomic earcups.',
-          fullDescription: 'Experience superior sound quality with Bangla Bazar Wireless Headphones. Engineered with 40mm drivers and dynamic bass boost, these headphones deliver deep bass and crisp highs.\n\n• Active Noise Cancellation (ANC)\n• Up to 30 Hours Playtime\n• Bluetooth 5.2 Seamless Pairing\n• Built-in HD Microphone for Calls\n• Soft Memory Foam Ear Cushions',
-          images: [
-            'assets/banners/banner-1.jpg',
-            'assets/banners/banner-2.jpg',
-            'assets/banners/banner-3.jpg'
-          ],
-          videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-          variants: ['Black Matte', 'Silver Metallic', 'Deep Green Edition']
-        };
+        container.innerHTML = `
+          <div class="glass-card" style="text-align: center; padding: 40px 20px;">
+            <i class="fas fa-exclamation-triangle fa-3x" style="color: var(--warning-color); margin-bottom: 12px;"></i>
+            <h3>Product Not Found</h3>
+            <p style="font-size: 0.85rem; color: #666; margin-top: 8px;">The requested product could not be located.</p>
+            <a href="index.html" class="btn-primary" style="display: inline-block; margin-top: 16px;">Back to Home</a>
+          </div>`;
+        return;
       }
 
       document.getElementById('pd-header-title').textContent = product.name;
@@ -104,11 +114,8 @@
           type: 'video',
           url: videoSrc,
           index: mediaItems.length,
-          thumb: product.images?.[0] || 'assets/images/logo.png'
+          thumb: product.images?.[0] || ''
         });
-      }
-      if (mediaItems.length === 0) {
-        mediaItems.push({ type: 'image', url: 'https://via.placeholder.com/600?text=Bangla+Bazar', index: 0 });
       }
 
       let activeMediaIndex = 0;
@@ -159,6 +166,16 @@
             ${product.shortDescription ? `
               <div class="pd-short-desc">
                 ${product.shortDescription}
+              </div>
+            ` : ''}
+
+            <!-- Product Specs Meta Info -->
+            ${(product.brand || product.sku || product.warranty || product.subCategory) ? `
+              <div class="pd-specs-meta" style="margin: 12px 0; font-size: 0.85rem; color: #555; display: flex; flex-wrap: wrap; gap: 12px; background: rgba(0,0,0,0.02); padding: 8px 12px; border-radius: 8px;">
+                ${product.brand ? `<div><strong>Brand:</strong> ${product.brand}</div>` : ''}
+                ${product.subCategory ? `<div><strong>Sub-category:</strong> ${product.subCategory}</div>` : ''}
+                ${product.sku ? `<div><strong>SKU:</strong> ${product.sku}</div>` : ''}
+                ${product.warranty ? `<div><strong>Warranty:</strong> ${product.warranty}</div>` : ''}
               </div>
             ` : ''}
 
@@ -318,7 +335,6 @@
       document.getElementById('pd-buynow-btn')?.addEventListener('click', handleBuyNowAction);
 
       // Sticky Bottom Bar Logic
-      const stickyBar = document.getElementById('pd-sticky-bar');
       const stickyPriceText = document.getElementById('pd-sticky-price-text');
       const stickyAddBtn = document.getElementById('pd-sticky-add-btn');
       const stickyBuyBtn = document.getElementById('pd-sticky-buynow-btn');
@@ -360,6 +376,8 @@
         console.warn('Error fetching related products:', err);
       }
     }
+
+    window.addEventListener('popstate', initProductDetail);
 
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', initProductDetail);

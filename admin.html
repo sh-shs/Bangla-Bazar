@@ -893,7 +893,7 @@
           isTrending: document.getElementById('adm-flag-trending').checked,
           isBestSeller: document.getElementById('adm-flag-bestseller').checked,
           sellerId: existingProduct ? existingProduct.sellerId || 'admin' : 'admin',
-          images: imageUrls.length > 0 ? imageUrls : (existingProduct?.images || ['https://via.placeholder.com/400?text=Bangla+Bazar'])
+          images: imageUrls.length > 0 ? imageUrls : (existingProduct?.images || [])
         };
 
         if (videoUrl) productPayload.video = videoUrl;
