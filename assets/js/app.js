@@ -37,8 +37,15 @@ export function updateCartUI() {
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-  // Update header cart badge
-  document.querySelectorAll('.cart-count-badge').forEach(el => el.textContent = totalItems);
+  // Update header & navigation cart badges dynamically
+  document.querySelectorAll('.cart-count-badge').forEach(el => {
+    el.textContent = totalItems;
+    if (el.classList.contains('nav-cart-badge')) {
+      el.style.display = totalItems > 0 ? 'flex' : 'none';
+    } else {
+      el.style.display = totalItems > 0 ? 'inline-flex' : 'inline-flex';
+    }
+  });
 
   // Update floating cart summary bubble
   const cartBubble = document.getElementById('floating-cart-bubble');
