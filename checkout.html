@@ -101,18 +101,24 @@
 
           <label style="display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;">
             <input type="radio" name="payment_method" value="bkash">
-            <div>
-              <strong>bKash Payment</strong>
-              <div style="font-size: 0.75rem; color: var(--text-muted);">Send Money to <strong>01342697743</strong></div>
+            <div style="flex: 1;">
+              <strong style="color: #E2136E;"><i class="fas fa-mobile-alt"></i> bKash Payment</strong>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Send Money & enter Transaction ID</div>
             </div>
+            <button type="button" id="open-bkash-modal-btn" style="display: none; background: #E2136E; color: #FFF; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; border: none;">Pay with bKash</button>
           </label>
 
-          <div id="bkash-fields" style="display: none; background: #FFF3E0; padding: 12px; border-radius: 6px; margin-top: 4px;">
-            <p style="font-size: 0.8rem; margin-bottom: 8px;">Please Send Money ৳<span id="bkash-total-display">0</span> to Merchant bKash: <strong>01342697743</strong> and enter TrxID below:</p>
-            <div class="form-group" style="margin-bottom: 0;">
-              <label class="form-label">bKash Transaction ID (TrxID) *</label>
-              <input type="text" id="bkash-txnid" class="form-control" placeholder="e.g. 9J7A6B5C4D">
+          <div id="bkash-status-card" style="display: none; background: #FDF2F8; border: 1px solid #FBCFE8; padding: 12px; border-radius: 8px; margin-top: 2px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 0.8rem; font-weight: 700; color: #BE185D;" id="bkash-status-text">bKash Payment Selected</div>
+                <div style="font-size: 0.75rem; color: #9D174D; margin-top: 2px;" id="bkash-trxid-confirmed">TrxID: <span id="confirmed-trxid-val" style="font-weight: 800; font-family: monospace;">Not Verified Yet</span></div>
+              </div>
+              <button type="button" id="reopen-bkash-modal-btn" style="background: #E2136E; color: #FFF; font-size: 0.75rem; font-weight: 700; padding: 6px 12px; border-radius: 6px; border: none;">
+                <i class="fas fa-edit"></i> <span id="bkash-btn-label">Enter TrxID</span>
+              </button>
             </div>
+            <input type="hidden" id="bkash-txnid">
           </div>
 
           <label style="display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; opacity: 0.6; cursor: not-allowed;">
@@ -150,6 +156,71 @@
       </div>
 
     </form>
+  </div>
+
+  <!-- Premium bKash Payment Gateway Modal -->
+  <div id="bkash-modal-overlay" class="bkash-modal-overlay">
+    <div class="bkash-modal-card">
+
+      <!-- Header with branding -->
+      <div class="bkash-modal-header">
+        <button type="button" class="bkash-close-btn" id="close-bkash-modal-btn" aria-label="Close modal">
+          <i class="fas fa-times"></i>
+        </button>
+        <div class="bkash-logo-wrap">
+          <div class="bkash-logo-icon"><i class="fas fa-wallet"></i></div>
+          <span class="bkash-logo-text">bKash</span>
+        </div>
+        <div class="bkash-online-badge">
+          <i class="fas fa-shield-alt"></i> Online Payment Gateway
+        </div>
+      </div>
+
+      <!-- Amount display -->
+      <div class="bkash-amount-section">
+        <div class="bkash-amount-label">Amount to Pay</div>
+        <div class="bkash-amount-value">৳<span id="bkash-modal-amount">0</span></div>
+      </div>
+
+      <!-- Magenta gradient instruction & input card -->
+      <div class="bkash-gradient-card">
+        <div class="bkash-gradient-title">
+          <i class="fas fa-paper-plane"></i> Send Money & Enter Transaction ID
+        </div>
+
+        <div class="bkash-trx-input-wrap">
+          <input type="text" id="bkash-modal-txnid" class="bkash-trx-input" placeholder="Enter 10-digit TrxID (e.g. 9J7A6B5C4D)" autocomplete="off">
+        </div>
+
+        <div id="bkash-modal-error" class="bkash-error-msg">
+          <i class="fas fa-exclamation-circle"></i> <span id="bkash-error-text">Please enter your bKash Transaction ID</span>
+        </div>
+
+        <div class="bkash-steps-title">Step-by-Step Instructions</div>
+        <ol class="bkash-steps-list">
+          <li data-step="1">Dial <strong>*247#</strong> on your bKash mobile, or open your <strong>bKash App</strong>.</li>
+          <li data-step="2">Select & tap <strong>"Send Money"</strong>.</li>
+          <li data-step="3">
+            Send money to Personal bKash Number:
+            <div class="bkash-number-box">
+              <span class="bkash-number-text" id="bkash-merchant-num">01342697743</span>
+              <button type="button" id="copy-bkash-num-btn" class="bkash-copy-btn">
+                <i class="far fa-copy"></i> <span id="copy-btn-text">Copy</span>
+              </button>
+            </div>
+          </li>
+          <li data-step="4">Enter exact Amount: <strong>৳<span id="bkash-modal-step-amount">0</span></strong></li>
+          <li data-step="5">Confirm order and enter your bKash <strong>PIN</strong>.</li>
+          <li data-step="6">Complete transaction and copy the <strong>Transaction ID (TrxID)</strong>.</li>
+          <li data-step="7">Paste or type the TrxID in the box above and tap <strong>Verify</strong> below.</li>
+        </ol>
+
+        <button type="button" id="verify-bkash-btn" class="bkash-verify-btn">
+          <i class="fas fa-check-circle"></i> Verify Transaction ID
+        </button>
+      </div>
+
+    </div>
   </div>
 
   <script type="module" src="assets/js/firebase-config.js"></script>
@@ -286,12 +357,106 @@
         populateUnions(divSelect.value, distSelect.value, e.target.value);
       });
 
+      // bKash Modal Elements
+      const bkashModalOverlay = document.getElementById('bkash-modal-overlay');
+      const closeBkashModalBtn = document.getElementById('close-bkash-modal-btn');
+      const reopenBkashModalBtn = document.getElementById('reopen-bkash-modal-btn');
+      const bkashStatusCard = document.getElementById('bkash-status-card');
+      const bkashModalTxnIdInput = document.getElementById('bkash-modal-txnid');
+      const bkashHiddenTxnInput = document.getElementById('bkash-txnid');
+      const bkashModalError = document.getElementById('bkash-modal-error');
+      const bkashErrorText = document.getElementById('bkash-error-text');
+      const copyBkashNumBtn = document.getElementById('copy-bkash-num-btn');
+      const copyBtnText = document.getElementById('copy-btn-text');
+      const verifyBkashBtn = document.getElementById('verify-bkash-btn');
+      const confirmedTrxidVal = document.getElementById('confirmed-trxid-val');
+      const bkashBtnLabel = document.getElementById('bkash-btn-label');
+
+      function openBkashModal() {
+        if (!bkashModalOverlay) return;
+        if (bkashModalError) bkashModalError.style.display = 'none';
+        // Pre-fill modal input with current hidden input value if available
+        if (bkashModalTxnIdInput && bkashHiddenTxnInput) {
+          bkashModalTxnIdInput.value = bkashHiddenTxnInput.value;
+        }
+        bkashModalOverlay.classList.add('active');
+      }
+
+      function closeBkashModal() {
+        if (bkashModalOverlay) {
+          bkashModalOverlay.classList.remove('active');
+        }
+      }
+
+      if (closeBkashModalBtn) {
+        closeBkashModalBtn.addEventListener('click', closeBkashModal);
+      }
+
+      if (reopenBkashModalBtn) {
+        reopenBkashModalBtn.addEventListener('click', openBkashModal);
+      }
+
+      if (bkashModalOverlay) {
+        bkashModalOverlay.addEventListener('click', (e) => {
+          if (e.target === bkashModalOverlay) {
+            closeBkashModal();
+          }
+        });
+      }
+
+      // Copy Merchant Number to Clipboard
+      if (copyBkashNumBtn) {
+        copyBkashNumBtn.addEventListener('click', () => {
+          const num = '01342697743';
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(num).then(() => {
+              copyBkashNumBtn.classList.add('copied');
+              if (copyBtnText) copyBtnText.textContent = 'Copied!';
+              setTimeout(() => {
+                copyBkashNumBtn.classList.remove('copied');
+                if (copyBtnText) copyBtnText.textContent = 'Copy';
+              }, 2000);
+            }).catch(() => {
+              showToast('Failed to copy. Merchant number: ' + num);
+            });
+          } else {
+            showToast('Merchant number: ' + num);
+          }
+        });
+      }
+
+      // Verify Transaction ID inside Modal
+      if (verifyBkashBtn) {
+        verifyBkashBtn.addEventListener('click', () => {
+          const trxVal = bkashModalTxnIdInput ? bkashModalTxnIdInput.value.trim() : '';
+          if (!trxVal) {
+            if (bkashModalError) {
+              bkashModalError.style.display = 'block';
+              if (bkashErrorText) bkashErrorText.textContent = 'Please enter your bKash Transaction ID';
+            }
+            return;
+          }
+
+          if (bkashModalError) bkashModalError.style.display = 'none';
+          if (bkashHiddenTxnInput) bkashHiddenTxnInput.value = trxVal;
+          if (confirmedTrxidVal) confirmedTrxidVal.textContent = trxVal;
+          if (bkashBtnLabel) bkashBtnLabel.textContent = 'Change TrxID';
+
+          showToast('bKash Transaction ID Saved!');
+          closeBkashModal();
+        });
+      }
+
       // Radio Payment Handler
       const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
-      const bkashFields = document.getElementById('bkash-fields');
       paymentRadios.forEach(radio => {
         radio.addEventListener('change', (e) => {
-          if (bkashFields) bkashFields.style.display = e.target.value === 'bkash' ? 'block' : 'none';
+          if (e.target.value === 'bkash') {
+            if (bkashStatusCard) bkashStatusCard.style.display = 'block';
+            openBkashModal();
+          } else {
+            if (bkashStatusCard) bkashStatusCard.style.display = 'none';
+          }
         });
       });
 
@@ -339,7 +504,11 @@
         document.getElementById('summary-subtotal').textContent = `৳${subtotal}`;
         document.getElementById('summary-delivery').textContent = `৳${deliveryCharge}`;
         document.getElementById('delivery-location-type').textContent = district.toLowerCase() === 'kushtia' ? 'Inside Kushtia ৳100' : 'Outside Kushtia ৳160';
-        document.getElementById('bkash-total-display').textContent = grandTotal;
+
+        const bkashModalAmount = document.getElementById('bkash-modal-amount');
+        const bkashModalStepAmount = document.getElementById('bkash-modal-step-amount');
+        if (bkashModalAmount) bkashModalAmount.textContent = grandTotal;
+        if (bkashModalStepAmount) bkashModalStepAmount.textContent = grandTotal;
 
         const discountRow = document.getElementById('discount-row');
         if (appliedDiscount > 0) {
@@ -368,6 +537,7 @@
 
           if (paymentMethod === 'bkash' && !bkashTxnId) {
             showToast('Please enter your bKash Transaction ID');
+            openBkashModal();
             submitBtn.disabled = false;
             submitBtn.textContent = 'Place Order Now';
             return;
