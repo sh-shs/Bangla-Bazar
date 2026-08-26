@@ -307,8 +307,10 @@
     import { showToast } from './assets/js/app.js';
     import { db, collection, getDocs, doc, deleteDoc } from './assets/js/firebase-config.js';
     import { saveSellerProduct, deleteSellerProduct, uploadMediaFile } from './assets/js/seller.js';
+    import { generatePDFInvoice } from './assets/js/invoice.js';
 
     let allAdminProducts = [];
+    let loadedOrdersMap = {};
 
     window.switchAdminTab = (tab) => {
       ['dash', 'products', 'categories', 'sellers', 'customers', 'orders', 'coupons', 'settings', 'banners'].forEach(t => {
@@ -357,30 +359,142 @@
       const ordersSnap = await getDocs(collection(db, 'orders'));
       let totalSales = 0;
       let orderCount = 0;
+      loadedOrdersMap = {};
       const ordersListContainer = document.getElementById('admin-orders-list');
       let ordersHTML = '';
 
-      ordersSnap.forEach(d => {
-        const o = { id: d.id, ...d.data() };
+      const ordersList = [];
+      ordersSnap.forEach(d => ordersList.push({ id: d.id, ...d.data() }));
+
+      // Sort newest first
+      ordersList.sort((a, b) => {
+        const timeA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0;
+        const timeB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : 0;
+        return timeB - timeA;
+      });
+
+      ordersList.forEach(o => {
         orderCount++;
         totalSales += Number(o.totalAmount || 0);
+        loadedOrdersMap[o.id] = o;
+
+        let orderDateStr = 'Not provided';
+        if (o.createdAt) {
+          if (o.createdAt.seconds) {
+            orderDateStr = new Date(o.createdAt.seconds * 1000).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+          } else {
+            orderDateStr = new Date(o.createdAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+          }
+        }
+
+        const items = Array.isArray(o.items) ? o.items : [];
+        const itemsListHTML = items.map(item => `
+          <div style="display: flex; gap: 10px; align-items: center; background: #F8F9FA; padding: 8px; border-radius: 6px; margin-bottom: 6px; border: 1px solid #E5E7EB;">
+            <img src="${item.image || (item.images && item.images[0]) || 'https://via.placeholder.com/50'}" style="width: 48px; height: 48px; object-fit: cover; border-radius: 4px; border: 1px solid #DDD;">
+            <div style="flex: 1;">
+              <div style="font-weight: 600; font-size: 0.85rem; color: #111;">${item.name || 'Unnamed Product'}</div>
+              <div style="font-size: 0.75rem; color: #666;">
+                Price: ৳${item.price || 0} | Qty: ${item.quantity || 1}
+                ${item.variant ? ` | <span style="color: var(--accent-color); font-weight: 600;">Variant: ${item.variant}</span>` : ''}
+                ${item.id ? ` | <span style="color: #777;">ID: ${item.id}</span>` : ''}
+              </div>
+            </div>
+            <div style="font-weight: bold; color: var(--primary-color); font-size: 0.9rem;">৳${(Number(item.price || 0) * Number(item.quantity || 1)).toLocaleString('bn-BD')}</div>
+          </div>
+        `).join('');
+
+        const custName = o.customerInfo?.name || 'Not provided';
+        const custPhone = o.customerInfo?.phone || 'Not provided';
+        const custEmail = o.customerInfo?.email || 'Not provided';
+
+        const division = o.shippingAddress?.division || 'Not provided';
+        const district = o.shippingAddress?.district || 'Not provided';
+        const thana = o.shippingAddress?.thana || o.shippingAddress?.upazila || 'Not provided';
+        const union = o.shippingAddress?.union || 'Not provided';
+        const village = o.shippingAddress?.village || 'Not provided';
+        const notes = o.shippingAddress?.notes || null;
+
+        const subtotal = Number(o.subtotal || items.reduce((s, i) => s + (Number(i.price || 0) * Number(i.quantity || 1)), 0));
+        const deliveryCharge = Number(o.deliveryCharge || 0);
+        const discountAmount = Number(o.discountAmount || 0);
+        const couponCode = o.couponCode || null;
+        const totalAmount = Number(o.totalAmount || Math.max(0, subtotal + deliveryCharge - discountAmount));
+
+        const paymentMethod = (o.paymentMethod || 'cod').toUpperCase();
+        const bKashTxnId = o.bKashTxnId || null;
 
         ordersHTML += `
-          <div style="background: #FFF; border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; margin-bottom: 10px; font-size: 0.85rem;">
-            <div style="display: flex; justify-content: space-between; font-weight: bold;">
-              <span>Order #${o.id.substring(0,6)} (৳${o.totalAmount})</span>
-              <select onchange="window.handleStatusChange('${o.id}', this.value)" style="padding: 2px 4px; font-size: 0.8rem;">
-                <option value="Pending" ${o.orderStatus==='Pending'?'selected':''}>Pending</option>
-                <option value="Confirmed" ${o.orderStatus==='Confirmed'?'selected':''}>Confirmed</option>
-                <option value="Packed" ${o.orderStatus==='Packed'?'selected':''}>Packed</option>
-                <option value="Shipped" ${o.orderStatus==='Shipped'?'selected':''}>Shipped</option>
-                <option value="Out for Delivery" ${o.orderStatus==='Out for Delivery'?'selected':''}>Out for Delivery</option>
-                <option value="Delivered" ${o.orderStatus==='Delivered'?'selected':''}>Delivered</option>
-                <option value="Cancelled" ${o.orderStatus==='Cancelled'?'selected':''}>Cancelled</option>
-              </select>
+          <div class="glass-card" style="margin-bottom: 16px; border: 1px solid #E0E0E0; padding: 16px;">
+            <!-- Order Header -->
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; margin-bottom: 12px; gap: 8px;">
+              <div>
+                <span style="font-weight: 800; font-size: 1rem; color: var(--primary-color);">Order ID: #${o.id}</span>
+                <div style="font-size: 0.75rem; color: #666; margin-top: 2px;"><i class="far fa-clock"></i> Date: ${orderDateStr}</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <label style="font-size: 0.8rem; font-weight: bold; color: #333;">Status:</label>
+                <select onchange="window.handleStatusChange('${o.id}', this.value)" style="padding: 4px 8px; font-size: 0.8rem; font-weight: bold; border-radius: 4px; border: 1px solid #CCC; background: #FFF;">
+                  <option value="Pending" ${o.orderStatus==='Pending'?'selected':''}>Pending</option>
+                  <option value="Confirmed" ${o.orderStatus==='Confirmed'?'selected':''}>Confirmed</option>
+                  <option value="Packed" ${o.orderStatus==='Packed'?'selected':''}>Packed</option>
+                  <option value="Shipped" ${o.orderStatus==='Shipped'?'selected':''}>Shipped</option>
+                  <option value="Out for Delivery" ${o.orderStatus==='Out for Delivery'?'selected':''}>Out for Delivery</option>
+                  <option value="Delivered" ${o.orderStatus==='Delivered'?'selected':''}>Delivered</option>
+                  <option value="Cancelled" ${o.orderStatus==='Cancelled'?'selected':''}>Cancelled</option>
+                </select>
+                <button onclick="window.downloadOrderInvoice('${o.id}')" class="btn-accent" style="padding: 6px 12px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 4px;">
+                  <i class="fas fa-file-pdf"></i> Download PDF
+                </button>
+              </div>
             </div>
-            <div>Customer: ${o.customerInfo?.name} (${o.customerInfo?.phone})</div>
-            <div>District: ${o.shippingAddress?.district} | Method: ${o.paymentMethod}</div>
+
+            <!-- 2-Column Info Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 14px;">
+              <!-- Customer Info Card -->
+              <div style="background: #F9FAFB; padding: 10px 12px; border-radius: 6px; border: 1px solid #E5E7EB; font-size: 0.82rem;">
+                <h4 style="color: var(--primary-color); font-size: 0.85rem; border-bottom: 1px solid #DDD; padding-bottom: 4px; margin-bottom: 6px;"><i class="fas fa-user"></i> Customer Information</h4>
+                <div><strong>Name:</strong> ${custName}</div>
+                <div><strong>Mobile:</strong> <a href="tel:${custPhone}" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">${custPhone}</a></div>
+                <div><strong>Email:</strong> ${custEmail}</div>
+              </div>
+
+              <!-- Delivery Address Card -->
+              <div style="background: #F9FAFB; padding: 10px 12px; border-radius: 6px; border: 1px solid #E5E7EB; font-size: 0.82rem;">
+                <h4 style="color: var(--primary-color); font-size: 0.85rem; border-bottom: 1px solid #DDD; padding-bottom: 4px; margin-bottom: 6px;"><i class="fas fa-map-marker-alt"></i> Delivery Address</h4>
+                <div><strong>Division:</strong> ${division}</div>
+                <div><strong>District:</strong> ${district}</div>
+                <div><strong>Upazila / Thana:</strong> ${thana}</div>
+                <div><strong>Union / Ward:</strong> ${union}</div>
+                <div><strong>Village / Area / Street:</strong> ${village}</div>
+                ${notes ? `<div style="font-style: italic; color: #666; margin-top: 2px;"><strong>Notes:</strong> ${notes}</div>` : ''}
+              </div>
+            </div>
+
+            <!-- Ordered Products Section -->
+            <div style="margin-bottom: 12px;">
+              <h4 style="color: var(--primary-color); font-size: 0.85rem; margin-bottom: 8px;"><i class="fas fa-shopping-bag"></i> Ordered Products (${items.length})</h4>
+              ${itemsListHTML.length > 0 ? itemsListHTML : '<p style="color:#777; font-size:0.8rem;">No products found in order.</p>'}
+            </div>
+
+            <!-- Payment & Summary Bar -->
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; background: #FFF3E0; padding: 12px; border-radius: 6px; border: 1px solid #FFE0B2; font-size: 0.82rem; gap: 10px;">
+              <div>
+                <h4 style="color: #E65100; font-size: 0.85rem; margin-bottom: 4px;"><i class="fas fa-credit-card"></i> Payment Details</h4>
+                <div><strong>Method:</strong> ${paymentMethod === 'COD' ? 'Cash on Delivery (COD)' : paymentMethod}</div>
+                <div><strong>Status:</strong> ${o.paymentStatus || (paymentMethod === 'COD' ? 'Pending' : 'Submitted')}</div>
+                ${bKashTxnId ? `<div style="color: #D84315; font-weight: bold; margin-top: 2px;">bKash TrxID: ${bKashTxnId}</div>` : ''}
+              </div>
+
+              <div style="text-align: right; min-width: 180px;">
+                <div>Subtotal: ৳${subtotal.toLocaleString('bn-BD')}</div>
+                ${discountAmount > 0 ? `<div style="color: var(--success-color);">Discount ${couponCode ? `(${couponCode})` : ''}: -৳${discountAmount.toLocaleString('bn-BD')}</div>` : ''}
+                <div>Delivery Charge: ৳${deliveryCharge.toLocaleString('bn-BD')}</div>
+                <div style="font-size: 1.05rem; font-weight: 800; color: var(--primary-color); margin-top: 4px; border-top: 1px solid #CCC; padding-top: 2px;">
+                  Total Amount: ৳${totalAmount.toLocaleString('bn-BD')}
+                </div>
+              </div>
+            </div>
+
           </div>
         `;
       });
@@ -494,6 +608,15 @@
     window.handleStatusChange = async (orderId, newStatus) => {
       await updateOrderStatus(orderId, newStatus);
       showToast('Order Status Updated');
+    };
+
+    window.downloadOrderInvoice = (orderId) => {
+      const order = loadedOrdersMap[orderId];
+      if (order) {
+        generatePDFInvoice(order);
+      } else {
+        showToast('Order details not loaded');
+      }
     };
 
     window.handleSellerApprove = async (userId, newStatus) => {

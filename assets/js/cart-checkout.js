@@ -99,14 +99,44 @@ export async function placeOrder(orderData) {
     // Collect all sellerIds involved in this order for Firestore Security Rule scope
     const sellerIds = Array.from(new Set(orderData.items.map(item => item.sellerId || 'admin')));
 
-    const docRef = await addDoc(collection(db, 'orders'), {
-      ...orderData,
+    const sanitizedOrder = {
+      items: (orderData.items || []).map(item => ({
+        id: item.id || item.productId || 'N/A',
+        name: item.name || 'Unnamed Product',
+        price: Number(item.price || 0),
+        quantity: Number(item.quantity || 1),
+        image: item.image || item.images?.[0] || 'https://via.placeholder.com/150',
+        variant: item.variant || item.selectedVariant || null,
+        sellerId: item.sellerId || 'admin'
+      })),
+      customerInfo: {
+        name: orderData.customerInfo?.name || 'Not provided',
+        phone: orderData.customerInfo?.phone || 'Not provided',
+        email: orderData.customerInfo?.email || 'Not provided'
+      },
+      shippingAddress: {
+        division: orderData.shippingAddress?.division || 'Not provided',
+        district: orderData.shippingAddress?.district || 'Not provided',
+        thana: orderData.shippingAddress?.thana || orderData.shippingAddress?.upazila || 'Not provided',
+        union: orderData.shippingAddress?.union || 'Not provided',
+        village: orderData.shippingAddress?.village || 'Not provided',
+        notes: orderData.shippingAddress?.notes || ''
+      },
+      subtotal: Number(orderData.subtotal || 0),
+      deliveryCharge: Number(orderData.deliveryCharge || 0),
+      couponCode: orderData.couponCode || '',
+      discountAmount: Number(orderData.discountAmount || 0),
+      totalAmount: Number(orderData.totalAmount || 0),
+      paymentMethod: orderData.paymentMethod || 'cod',
+      bKashTxnId: orderData.bKashTxnId || null,
       sellerIds,
       createdAt: serverTimestamp(),
       userId: currentUser ? currentUser.uid : 'guest',
       orderStatus: 'Pending',
       paymentStatus: orderData.paymentMethod === 'cod' ? 'Pending' : 'Submitted'
-    });
+    };
+
+    const docRef = await addDoc(collection(db, 'orders'), sanitizedOrder);
 
     // Clear cart on success
     localStorage.removeItem('bb_cart');

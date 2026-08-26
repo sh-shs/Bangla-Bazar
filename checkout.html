@@ -59,6 +59,11 @@
         </div>
 
         <div class="form-group">
+          <label class="form-label">Union / Ward (Optional)</label>
+          <input type="text" id="cust-union" class="form-control" placeholder="Union or Ward name / number">
+        </div>
+
+        <div class="form-group">
           <label class="form-label">Village / Area / House / Street *</label>
           <input type="text" id="cust-village" class="form-control" required placeholder="House No, Road, Village or Area name">
         </div>
@@ -347,11 +352,13 @@
             division: divSelect.value,
             district: district,
             thana: thanaSelect.value,
+            union: document.getElementById('cust-union') ? document.getElementById('cust-union').value.trim() : '',
             village: document.getElementById('cust-village').value.trim(),
             notes: document.getElementById('cust-notes').value.trim()
           },
           subtotal,
           deliveryCharge,
+          couponCode: appliedDiscount > 0 ? document.getElementById('coupon-code').value.trim().toUpperCase() : '',
           discountAmount: appliedDiscount,
           totalAmount,
           paymentMethod,
