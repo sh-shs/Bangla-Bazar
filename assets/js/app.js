@@ -40,6 +40,16 @@ export function updateCartUI() {
   // Update header cart badge
   document.querySelectorAll('.cart-count-badge').forEach(el => el.textContent = totalItems);
 
+  // Update bottom navigation cart badge
+  document.querySelectorAll('.cart-badge-bottom').forEach(badge => {
+    if (totalItems > 0) {
+      badge.textContent = totalItems;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  });
+
   // Update floating cart summary bubble
   const cartBubble = document.getElementById('floating-cart-bubble');
   if (cartBubble) {
