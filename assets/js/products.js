@@ -52,17 +52,7 @@ export async function fetchProductBySlugOrId(identifier) {
 }
 
 export async function fetchBanners() {
-  try {
-    const snap = await getDocs(collection(db, 'banners'));
-    const banners = [];
-    snap.forEach(docSnap => {
-      banners.push({ id: docSnap.id, ...docSnap.data() });
-    });
-    if (banners.length > 0) return banners;
-  } catch (e) {
-    console.warn('Banner fetch error, using default banners');
-  }
-  return [
+  const defaultBanners = [
     {
       id: 'banner_1',
       image: 'PASTE_CLOUDINARY_URL_HERE_BANNER_1',
@@ -88,6 +78,22 @@ export async function fetchBanners() {
       linkTo: 'shop.html'
     }
   ];
+
+  try {
+    const snap = await getDocs(collection(db, 'banners'));
+    const banners = [];
+    snap.forEach(docSnap => {
+      banners.push({ id: docSnap.id, ...docSnap.data() });
+    });
+    if (banners.length >= 3) return banners;
+    if (banners.length > 0) {
+      // If Firestore has fewer than 3 banners, append default banners to reach 3
+      return [...banners, ...defaultBanners.slice(banners.length)];
+    }
+  } catch (e) {
+    console.warn('Banner fetch error, using default banners');
+  }
+  return defaultBanners;
 }
 
 // Generate product card HTML snippet
