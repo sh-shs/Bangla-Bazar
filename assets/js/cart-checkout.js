@@ -11,7 +11,13 @@ let deliverySettings = {
 
 export async function loadDeliverySettings() {
   try {
-    const docSnap = await getDoc(doc(db, 'settings', 'delivery'));
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Delivery settings load timeout')), 1200)
+    );
+    const docSnap = await Promise.race([
+      getDoc(doc(db, 'settings', 'delivery')),
+      timeoutPromise
+    ]);
     if (docSnap.exists()) {
       deliverySettings = { ...deliverySettings, ...docSnap.data() };
     }
