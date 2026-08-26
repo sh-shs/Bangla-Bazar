@@ -583,12 +583,14 @@
         const imageUrls = [];
         for (let i = 0; i < imageFiles.length; i++) {
           const url = await uploadMediaFile(imageFiles[i], 'products/images');
-          imageUrls.push(url);
+          if (url) imageUrls.push(url);
         }
 
         const videoFile = document.getElementById('adm-p-video').files[0];
         let videoUrl = null;
         if (videoFile) videoUrl = await uploadMediaFile(videoFile, 'products/videos');
+
+        const productId = document.getElementById('adm-p-id').value || null;
 
         const productPayload = {
           name: document.getElementById('adm-p-name').value.trim(),
@@ -615,9 +617,10 @@
 
         if (videoUrl) productPayload.video = videoUrl;
 
-        await saveSellerProduct(productPayload, document.getElementById('adm-p-id').value || null);
+        await saveSellerProduct(productPayload, productId);
         showToast('Product published by Admin!');
         document.getElementById('admin-product-form').reset();
+        document.getElementById('adm-p-id').value = '';
         loadAdminData();
       } catch (err) {
         showToast(err.message || 'Error saving product');

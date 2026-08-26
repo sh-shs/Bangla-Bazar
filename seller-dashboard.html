@@ -250,7 +250,7 @@
         const imageUrls = [];
         for (let i = 0; i < imageFiles.length; i++) {
           const url = await uploadMediaFile(imageFiles[i], 'products/images');
-          imageUrls.push(url);
+          if (url) imageUrls.push(url);
         }
 
         const videoFile = document.getElementById('p-video-file').files[0];
