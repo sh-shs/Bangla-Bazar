@@ -575,37 +575,65 @@
     document.getElementById('admin-product-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('adm-p-submit-btn');
-      btn.disabled = true;
-      btn.textContent = 'Saving Product...';
 
-      try {
+      // Validation check
+      const name = document.getElementById('adm-p-name').value.trim();
+      const category = document.getElementById('adm-p-category').value;
+      const regPrice = document.getElementById('adm-p-reg-price').value;
+      const stock = document.getElementById('adm-p-stock').value;
+      const shortDesc = document.getElementById('adm-p-short-desc').value.trim();
+
+      if (!name || !category || !regPrice || !stock || !shortDesc) {
+        showToast('Please fill in all required fields marked with *');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Publishing Product...';
+
+      const publishPromise = (async () => {
         const imageFiles = document.getElementById('adm-p-images').files;
-        const imageUrls = [];
-        for (let i = 0; i < imageFiles.length; i++) {
-          const url = await uploadMediaFile(imageFiles[i], 'products/images');
-          if (url) imageUrls.push(url);
+        let imageUrls = [];
+
+        if (imageFiles.length > 0) {
+          btn.textContent = `Uploading ${imageFiles.length} images...`;
+          const uploadPromises = Array.from(imageFiles).map((file, idx) => {
+            return uploadMediaFile(file, 'products/images').then(url => {
+              btn.textContent = `Uploaded image ${idx + 1} of ${imageFiles.length}...`;
+              return url;
+            }).catch(err => {
+              console.warn(`Image ${idx + 1} upload failed:`, err);
+              return null;
+            });
+          });
+          const results = await Promise.all(uploadPromises);
+          imageUrls = results.filter(Boolean);
         }
 
         const videoFile = document.getElementById('adm-p-video').files[0];
         let videoUrl = null;
-        if (videoFile) videoUrl = await uploadMediaFile(videoFile, 'products/videos');
+        if (videoFile) {
+          btn.textContent = 'Uploading video...';
+          videoUrl = await uploadMediaFile(videoFile, 'products/videos').catch(() => null);
+        }
 
+        btn.textContent = 'Saving Product Data...';
         const productId = document.getElementById('adm-p-id').value || null;
 
         const productPayload = {
-          name: document.getElementById('adm-p-name').value.trim(),
-          category: document.getElementById('adm-p-category').value,
+          name,
+          category,
           subCategory: document.getElementById('adm-p-subcategory').value.trim(),
           brand: document.getElementById('adm-p-brand').value.trim(),
-          regularPrice: Number(document.getElementById('adm-p-reg-price').value),
+          regularPrice: Number(regPrice),
           discountPrice: document.getElementById('adm-p-disc-price').value ? Number(document.getElementById('adm-p-disc-price').value) : null,
-          stock: Number(document.getElementById('adm-p-stock').value),
+          stock: Number(stock),
           sku: document.getElementById('adm-p-sku').value.trim(),
           warranty: document.getElementById('adm-p-warranty').value.trim(),
           tags: document.getElementById('adm-p-tags').value ? document.getElementById('adm-p-tags').value.split(',').map(t=>t.trim()) : [],
-          shortDescription: document.getElementById('adm-p-short-desc').value.trim(),
+          shortDescription: shortDesc,
           fullDescription: document.getElementById('adm-p-full-desc').value.trim(),
-          slug: document.getElementById('adm-p-name').value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+          slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
           status: 'published',
           isFeatured: document.getElementById('adm-flag-featured').checked,
           isFlashSale: document.getElementById('adm-flag-flash').checked,
@@ -618,12 +646,21 @@
         if (videoUrl) productPayload.video = videoUrl;
 
         await saveSellerProduct(productPayload, productId);
-        showToast('Product published by Admin!');
+        showToast('Product Published Successfully!');
         document.getElementById('admin-product-form').reset();
         document.getElementById('adm-p-id').value = '';
         loadAdminData();
+      })();
+
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Product publishing timed out. Please check network connection.')), 45000);
+      });
+
+      try {
+        await Promise.race([publishPromise, timeoutPromise]);
       } catch (err) {
-        showToast(err.message || 'Error saving product');
+        console.error('Publishing error:', err);
+        showToast(err.message || 'Error publishing product. Please try again.');
       } finally {
         btn.disabled = false;
         btn.textContent = 'Publish Product';

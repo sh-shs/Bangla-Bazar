@@ -34,20 +34,74 @@ export async function applyForSeller(storeName, phone, nid, address) {
   return sellerPayload;
 }
 
-// Upload Media (Image or Video) with Cloudinary & Firebase Storage support & fast placeholder fallback
-export async function uploadMediaFile(file, folderPath = 'products/images') {
+// Client-side Image Resizing/Compression to avoid multi-MB uploads on mobile
+export async function compressImage(file, maxDimension = 1200, quality = 0.85) {
+  if (!file || !file.type.startsWith('image/')) return file;
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const compressedFile = new File([blob], file.name, {
+                type: 'image/jpeg',
+                lastModified: Date.now(),
+              });
+              resolve(compressedFile);
+            } else {
+              resolve(file);
+            }
+          },
+          'image/jpeg',
+          quality
+        );
+      };
+      img.onerror = () => resolve(file);
+      img.src = e.target.result;
+    };
+    reader.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
+}
+
+// Upload Media (Image or Video) with Cloudinary, Firebase Storage fallback & fast placeholder fallback
+export async function uploadMediaFile(file, folderPath = 'products/images', timeoutMs = 15000) {
   if (!file) return null;
+
+  // Compress image client-side if it's an image
+  const uploadFile = file.type && file.type.startsWith('image/') ? await compressImage(file) : file;
 
   // 1. Try Cloudinary Unauthenticated Upload first
   try {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', uploadFile);
     formData.append('upload_preset', 'Bangla Bazar');
-    const isVideo = file.type && file.type.startsWith('video');
+    const isVideo = uploadFile.type && uploadFile.type.startsWith('video');
     const resourceType = isVideo ? 'video' : 'image';
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
     const res = await fetch(`https://api.cloudinary.com/v1_1/vhc6a9gy/${resourceType}/upload`, {
       method: 'POST',
@@ -67,9 +121,9 @@ export async function uploadMediaFile(file, folderPath = 'products/images') {
   // 2. Try Firebase Storage with 5s timeout
   try {
     const uploadPromise = (async () => {
-      const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+      const fileName = `${Date.now()}_${uploadFile.name.replace(/\s+/g, '_')}`;
       const storageRef = ref(storage, `${folderPath}/${fileName}`);
-      const uploadTask = await uploadBytesResumable(storageRef, file);
+      const uploadTask = await uploadBytesResumable(storageRef, uploadFile);
       return await getDownloadURL(uploadTask.ref);
     })();
 
@@ -81,7 +135,7 @@ export async function uploadMediaFile(file, folderPath = 'products/images') {
   }
 
   // 3. Clean static image URL fallback (never generates huge Base64 strings to avoid 1MB Firestore limit)
-  const cleanName = encodeURIComponent(file.name.substring(0, 20));
+  const cleanName = encodeURIComponent(uploadFile.name.substring(0, 20));
   return `https://via.placeholder.com/600x400/0B4D3C/FFFFFF?text=${cleanName}`;
 }
 

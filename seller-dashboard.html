@@ -239,37 +239,63 @@
     document.getElementById('product-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('save-p-btn');
-      btn.disabled = true;
-      btn.textContent = 'Uploading Media & Saving...';
 
-      try {
+      // Form validation check
+      const name = document.getElementById('p-name').value.trim();
+      const category = document.getElementById('p-category').value;
+      const regPrice = document.getElementById('p-regular-price').value;
+      const stock = document.getElementById('p-stock').value;
+      const shortDesc = document.getElementById('p-short-desc').value.trim();
+
+      if (!name || !category || !regPrice || !stock || !shortDesc) {
+        showToast('Please fill in all required fields marked with *');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Publishing Product...';
+
+      const publishPromise = (async () => {
         const pId = document.getElementById('edit-product-id').value || null;
 
-        // Handle File Uploads
+        // Handle File Uploads in parallel with progress updates
         const imageFiles = document.getElementById('p-images-file').files;
-        const imageUrls = [];
-        for (let i = 0; i < imageFiles.length; i++) {
-          const url = await uploadMediaFile(imageFiles[i], 'products/images');
-          if (url) imageUrls.push(url);
+        let imageUrls = [];
+
+        if (imageFiles.length > 0) {
+          btn.textContent = `Uploading ${imageFiles.length} images...`;
+          const uploadPromises = Array.from(imageFiles).map((file, idx) => {
+            return uploadMediaFile(file, 'products/images').then(url => {
+              btn.textContent = `Uploaded image ${idx + 1} of ${imageFiles.length}...`;
+              return url;
+            }).catch(err => {
+              console.warn(`Image ${idx + 1} upload failed:`, err);
+              return null;
+            });
+          });
+          const results = await Promise.all(uploadPromises);
+          imageUrls = results.filter(Boolean);
         }
 
         const videoFile = document.getElementById('p-video-file').files[0];
         let videoUrl = null;
         if (videoFile) {
-          videoUrl = await uploadMediaFile(videoFile, 'products/videos');
+          btn.textContent = 'Uploading video...';
+          videoUrl = await uploadMediaFile(videoFile, 'products/videos').catch(() => null);
         }
 
-        const slug = document.getElementById('p-name').value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        btn.textContent = 'Saving Product Data...';
+        const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
         const productPayload = {
-          name: document.getElementById('p-name').value.trim(),
-          category: document.getElementById('p-category').value,
+          name,
+          category,
           subCategory: document.getElementById('p-subcategory').value.trim(),
-          regularPrice: Number(document.getElementById('p-regular-price').value),
+          regularPrice: Number(regPrice),
           discountPrice: document.getElementById('p-discount-price').value ? Number(document.getElementById('p-discount-price').value) : null,
-          stock: Number(document.getElementById('p-stock').value),
+          stock: Number(stock),
           sku: document.getElementById('p-sku').value.trim(),
-          shortDescription: document.getElementById('p-short-desc').value.trim(),
+          shortDescription: shortDesc,
           fullDescription: document.getElementById('p-full-desc').value.trim(),
           slug,
           status: 'published',
@@ -287,7 +313,16 @@
         document.getElementById('edit-product-id').value = '';
         switchSellerTab('products');
         loadSellerDashboardData();
+      })();
+
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Product publishing timed out. Please check network connection.')), 45000);
+      });
+
+      try {
+        await Promise.race([publishPromise, timeoutPromise]);
       } catch (err) {
+        console.error('Publishing error:', err);
         showToast(err.message || 'Error saving product');
       } finally {
         btn.disabled = false;
