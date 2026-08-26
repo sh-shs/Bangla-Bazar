@@ -676,7 +676,7 @@
 
     async function loadAllAdminData() {
       try {
-        await Promise.all([
+        await Promise.allSettled([
           loadProductsData(),
           loadCategoriesData(),
           loadUsersData(),
@@ -688,7 +688,6 @@
         updateDashboardMetrics();
       } catch (err) {
         console.error('Error loading admin data:', err);
-        showToast('Error loading admin panel data.');
       }
     }
 
@@ -697,29 +696,46 @@
     // -------------------------------------------------------------
     function updateDashboardMetrics() {
       let totalSales = 0;
-      let orderCount = adminState.orders.length;
-      adminState.orders.forEach(o => {
-        if (o.orderStatus !== 'Cancelled') {
+      const orders = Array.isArray(adminState.orders) ? adminState.orders : [];
+      let orderCount = orders.length;
+
+      orders.forEach(o => {
+        if (o && o.orderStatus !== 'Cancelled') {
           totalSales += Number(o.totalAmount || 0);
         }
       });
 
-      let pendingSellers = adminState.sellers.filter(s => s.sellerStatus === 'pending').length;
-      let customerCount = adminState.customers.length;
+      const sellers = Array.isArray(adminState.sellers) ? adminState.sellers : [];
+      let pendingSellers = sellers.filter(s => s && s.sellerStatus === 'pending').length;
 
-      document.getElementById('stat-total-sales').textContent = `৳${totalSales.toLocaleString('bn-BD')}`;
-      document.getElementById('stat-total-orders').textContent = orderCount;
-      document.getElementById('stat-pending-sellers').textContent = pendingSellers;
-      document.getElementById('stat-total-users').textContent = customerCount;
+      const customers = Array.isArray(adminState.customers) ? adminState.customers : [];
+      let customerCount = customers.length;
+
+      const elTotalSales = document.getElementById('stat-total-sales');
+      if (elTotalSales) elTotalSales.textContent = `৳${totalSales.toLocaleString('bn-BD')}`;
+
+      const elTotalOrders = document.getElementById('stat-total-orders');
+      if (elTotalOrders) elTotalOrders.textContent = orderCount;
+
+      const elPendingSellers = document.getElementById('stat-pending-sellers');
+      if (elPendingSellers) elPendingSellers.textContent = pendingSellers;
+
+      const elTotalUsers = document.getElementById('stat-total-users');
+      if (elTotalUsers) elTotalUsers.textContent = customerCount;
     }
 
     // -------------------------------------------------------------
     // Products CRUD & Table
     // -------------------------------------------------------------
     async function loadProductsData() {
-      const snap = await getDocs(collection(db, 'products'));
-      adminState.products = [];
-      snap.forEach(d => adminState.products.push({ id: d.id, ...d.data() }));
+      try {
+        const snap = await getDocs(collection(db, 'products'));
+        adminState.products = [];
+        snap.forEach(d => adminState.products.push({ id: d.id, ...d.data() }));
+      } catch (err) {
+        console.error('Error loading products data:', err);
+        adminState.products = [];
+      }
       renderProductsTable();
     }
 
@@ -915,7 +931,12 @@
     // Categories CRUD & Table
     // -------------------------------------------------------------
     async function loadCategoriesData() {
-      adminState.categories = await fetchCategoriesFromDB();
+      try {
+        adminState.categories = (await fetchCategoriesFromDB()) || [];
+      } catch (err) {
+        console.error('Error loading categories data:', err);
+        adminState.categories = [];
+      }
       populateCategoryDropdowns();
       renderCategoriesTable();
     }
@@ -1044,9 +1065,15 @@
     // Sellers & Customers Management
     // -------------------------------------------------------------
     async function loadUsersData() {
-      const allUsers = await fetchUsersFromDB();
-      adminState.sellers = allUsers.filter(u => u.sellerStatus && u.sellerStatus !== 'none');
-      adminState.customers = allUsers;
+      try {
+        const allUsers = (await fetchUsersFromDB()) || [];
+        adminState.sellers = allUsers.filter(u => u && u.sellerStatus && u.sellerStatus !== 'none');
+        adminState.customers = allUsers;
+      } catch (err) {
+        console.error('Error loading users data:', err);
+        adminState.sellers = [];
+        adminState.customers = [];
+      }
       renderSellersTable();
       renderCustomersTable();
     }
@@ -1226,13 +1253,22 @@
     // Orders Management
     // -------------------------------------------------------------
     async function loadOrdersData() {
-      adminState.orders = await fetchOrdersFromDB();
-      // Sort newest first
-      adminState.orders.sort((a, b) => {
-        const timeA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : (a.createdAt || 0);
-        const timeB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : (b.createdAt || 0);
-        return timeB - timeA;
-      });
+      try {
+        const orders = (await fetchOrdersFromDB()) || [];
+        if (Array.isArray(orders)) {
+          orders.sort((a, b) => {
+            const timeA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : (a.createdAt || 0);
+            const timeB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : (b.createdAt || 0);
+            return timeB - timeA;
+          });
+          adminState.orders = orders;
+        } else {
+          adminState.orders = [];
+        }
+      } catch (err) {
+        console.error('Error loading orders data:', err);
+        adminState.orders = [];
+      }
       renderOrdersList();
     }
 
@@ -1376,7 +1412,12 @@
     // Coupon Management
     // -------------------------------------------------------------
     async function loadCouponsData() {
-      adminState.coupons = await fetchCoupons();
+      try {
+        adminState.coupons = (await fetchCoupons()) || [];
+      } catch (err) {
+        console.error('Error loading coupons data:', err);
+        adminState.coupons = [];
+      }
       renderCouponsTable();
     }
 
@@ -1490,19 +1531,31 @@
     // Settings Management
     // -------------------------------------------------------------
     async function loadSettingsData() {
-      adminState.settings = await fetchAdminSettings();
-      if (adminState.settings.delivery) {
-        document.getElementById('charge-inside').value = adminState.settings.delivery.insideKushtia || 100;
-        document.getElementById('charge-outside').value = adminState.settings.delivery.outsideKushtia || 160;
-      }
-      if (adminState.settings.payment) {
-        document.getElementById('bkash-num-setting').value = adminState.settings.payment.bKashNumber || '01342697743';
-        document.getElementById('cod-toggle-setting').checked = adminState.settings.payment.codEnabled !== false;
-      }
-      if (adminState.settings.general) {
-        document.getElementById('gen-site-name').value = adminState.settings.general.siteName || 'Bangla Bazar';
-        document.getElementById('gen-hotline').value = adminState.settings.general.hotline || '+8809658183506';
-        document.getElementById('gen-support-email').value = adminState.settings.general.supportEmail || 'saripofficialsupport@gmail.com';
+      try {
+        adminState.settings = (await fetchAdminSettings()) || {};
+        if (adminState.settings.delivery) {
+          const elInside = document.getElementById('charge-inside');
+          if (elInside) elInside.value = adminState.settings.delivery.insideKushtia ?? 100;
+          const elOutside = document.getElementById('charge-outside');
+          if (elOutside) elOutside.value = adminState.settings.delivery.outsideKushtia ?? 160;
+        }
+        if (adminState.settings.payment) {
+          const elBkash = document.getElementById('bkash-num-setting');
+          if (elBkash) elBkash.value = adminState.settings.payment.bKashNumber || '01342697743';
+          const elCod = document.getElementById('cod-toggle-setting');
+          if (elCod) elCod.checked = adminState.settings.payment.codEnabled !== false;
+        }
+        if (adminState.settings.general) {
+          const elName = document.getElementById('gen-site-name');
+          if (elName) elName.value = adminState.settings.general.siteName || 'Bangla Bazar';
+          const elHotline = document.getElementById('gen-hotline');
+          if (elHotline) elHotline.value = adminState.settings.general.hotline || '+8809658183506';
+          const elEmail = document.getElementById('gen-support-email');
+          if (elEmail) elEmail.value = adminState.settings.general.supportEmail || 'saripofficialsupport@gmail.com';
+        }
+      } catch (err) {
+        console.error('Error loading settings data:', err);
+        adminState.settings = {};
       }
     }
 
@@ -1538,7 +1591,12 @@
     // Banner Management
     // -------------------------------------------------------------
     async function loadBannersData() {
-      adminState.banners = await fetchBannersFromDB();
+      try {
+        adminState.banners = (await fetchBannersFromDB()) || [];
+      } catch (err) {
+        console.error('Error loading banners data:', err);
+        adminState.banners = [];
+      }
       renderBannersTable();
     }
 
