@@ -43,10 +43,26 @@
     import { fetchProductBySlugOrId, fetchPublishedProducts, renderProductCard } from './assets/js/products.js';
     import { addToCart } from './assets/js/app.js';
 
+    let currentRequestSlug = null;
+
     async function initProductDetail() {
       const params = new URLSearchParams(window.location.search);
       const slug = params.get('slug');
+      currentRequestSlug = slug;
+
       const container = document.getElementById('pd-container');
+      const stickyBar = document.getElementById('pd-sticky-bar');
+
+      // Reset gallery container and sticky bar state immediately before fetching
+      if (stickyBar) stickyBar.style.display = 'none';
+      if (container) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 60px 20px;">
+            <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary-color);"></i>
+            <p style="margin-top: 12px; font-size: 0.9rem; color: #666;">Loading product details...</p>
+          </div>
+        `;
+      }
 
       if (!slug) {
         container.innerHTML = `
@@ -60,6 +76,11 @@
       }
 
       let product = await fetchProductBySlugOrId(slug);
+
+      // Check if another request has been initiated while fetch was in-flight
+      if (currentRequestSlug !== slug) {
+        return;
+      }
       if (!product) {
         // Mock fallback product for demo & visual verification
         product = {
@@ -73,11 +94,9 @@
           shortDescription: 'High-fidelity audio headphone with active noise cancellation, 30-hour battery life, and ergonomic earcups.',
           fullDescription: 'Experience superior sound quality with Bangla Bazar Wireless Headphones. Engineered with 40mm drivers and dynamic bass boost, these headphones deliver deep bass and crisp highs.\n\n• Active Noise Cancellation (ANC)\n• Up to 30 Hours Playtime\n• Bluetooth 5.2 Seamless Pairing\n• Built-in HD Microphone for Calls\n• Soft Memory Foam Ear Cushions',
           images: [
-            'assets/banners/banner-1.jpg',
-            'assets/banners/banner-2.jpg',
-            'assets/banners/banner-3.jpg'
+            'assets/images/logo.png'
           ],
-          videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+          videoUrl: null,
           variants: ['Black Matte', 'Silver Metallic', 'Deep Green Edition']
         };
       }
@@ -318,7 +337,6 @@
       document.getElementById('pd-buynow-btn')?.addEventListener('click', handleBuyNowAction);
 
       // Sticky Bottom Bar Logic
-      const stickyBar = document.getElementById('pd-sticky-bar');
       const stickyPriceText = document.getElementById('pd-sticky-price-text');
       const stickyAddBtn = document.getElementById('pd-sticky-add-btn');
       const stickyBuyBtn = document.getElementById('pd-sticky-buynow-btn');
@@ -360,6 +378,8 @@
         console.warn('Error fetching related products:', err);
       }
     }
+
+    window.addEventListener('popstate', initProductDetail);
 
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', initProductDetail);
