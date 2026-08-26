@@ -996,12 +996,14 @@
         name: c.name
       }));
 
-      const combined = [...dbActiveCats];
-      defaultCats.forEach(c => {
-        if (!combined.some(x => x.id === c.id || x.name.toLowerCase() === c.name.toLowerCase())) {
-          combined.push(c);
-        }
-      });
+      const combined = dbActiveCats.length > 0 ? [...dbActiveCats] : [...defaultCats];
+      if (dbActiveCats.length > 0) {
+        defaultCats.forEach(c => {
+          if (!combined.some(x => x.id === c.id || x.name.toLowerCase() === c.name.toLowerCase())) {
+            combined.push(c);
+          }
+        });
+      }
 
       select.innerHTML = combined.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
       if (filterSelect) {
