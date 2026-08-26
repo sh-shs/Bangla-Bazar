@@ -59,8 +59,10 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Union / Ward (Optional)</label>
-          <input type="text" id="cust-union" class="form-control" placeholder="Union or Ward name / number">
+          <label class="form-label">Union / Ward *</label>
+          <select id="select-union" class="form-control" required disabled>
+            <option value="">Select Union / Ward</option>
+          </select>
         </div>
 
         <div class="form-group">
@@ -191,11 +193,13 @@
         document.getElementById('cust-email').value = userProfile.email || '';
       }
 
-      // Populate Divisions
+      // Dropdown Elements
       const divSelect = document.getElementById('select-division');
       const distSelect = document.getElementById('select-district');
       const thanaSelect = document.getElementById('select-thana');
+      const unionSelect = document.getElementById('select-union');
 
+      // Populate Divisions (all 8 divisions of Bangladesh)
       Object.keys(BANGLADESH_LOCATIONS).forEach(div => {
         const opt = document.createElement('option');
         opt.value = div;
@@ -203,19 +207,15 @@
         divSelect.appendChild(opt);
       });
 
-      // Default to Khulna -> Kushtia
-      divSelect.value = "Khulna";
-      populateDistricts("Khulna");
-      distSelect.value = "Kushtia";
-      populateThanas("Khulna", "Kushtia");
-
+      // Populate Districts based on selected Division
       function populateDistricts(div) {
         distSelect.innerHTML = '<option value="">Select District</option>';
-        distSelect.disabled = false;
-        thanaSelect.innerHTML = '<option value="">Select Thana / Upazila</option>';
-        thanaSelect.disabled = true;
+        distSelect.disabled = !div;
 
-        if (BANGLADESH_LOCATIONS[div]) {
+        // Reset dependent child dropdowns
+        populateThanas(div, '');
+
+        if (div && BANGLADESH_LOCATIONS[div]) {
           Object.keys(BANGLADESH_LOCATIONS[div]).forEach(dist => {
             const opt = document.createElement('option');
             opt.value = dist;
@@ -225,11 +225,16 @@
         }
       }
 
+      // Populate Upazilas / Thanas based on selected District
       function populateThanas(div, dist) {
         thanaSelect.innerHTML = '<option value="">Select Thana / Upazila</option>';
-        thanaSelect.disabled = false;
-        if (BANGLADESH_LOCATIONS[div] && BANGLADESH_LOCATIONS[div][dist]) {
-          BANGLADESH_LOCATIONS[div][dist].forEach(th => {
+        thanaSelect.disabled = !(div && dist);
+
+        // Reset dependent child dropdown
+        populateUnions(div, dist, '');
+
+        if (div && dist && BANGLADESH_LOCATIONS[div] && BANGLADESH_LOCATIONS[div][dist]) {
+          Object.keys(BANGLADESH_LOCATIONS[div][dist]).forEach(th => {
             const opt = document.createElement('option');
             opt.value = th;
             opt.textContent = th;
@@ -238,16 +243,45 @@
         }
       }
 
+      // Populate Unions / Wards based on selected Upazila
+      function populateUnions(div, dist, thana) {
+        unionSelect.innerHTML = '<option value="">Select Union / Ward</option>';
+        unionSelect.disabled = !(div && dist && thana);
+
+        if (div && dist && thana && BANGLADESH_LOCATIONS[div] && BANGLADESH_LOCATIONS[div][dist] && BANGLADESH_LOCATIONS[div][dist][thana]) {
+          const unions = BANGLADESH_LOCATIONS[div][dist][thana];
+          if (Array.isArray(unions)) {
+            unions.forEach(u => {
+              const opt = document.createElement('option');
+              opt.value = u;
+              opt.textContent = u;
+              unionSelect.appendChild(opt);
+            });
+          }
+        }
+      }
+
+      // Default Initial Selection (Khulna -> Kushtia -> Kushtia Sadar)
+      divSelect.value = "Khulna";
+      populateDistricts("Khulna");
+      distSelect.value = "Kushtia";
+      populateThanas("Khulna", "Kushtia");
+      thanaSelect.value = "Kushtia Sadar";
+      populateUnions("Khulna", "Kushtia", "Kushtia Sadar");
+
+      // Cascading Change Listeners with Automatic Reset Logic
       divSelect.addEventListener('change', (e) => {
         populateDistricts(e.target.value);
         recalculateTotals();
       });
 
       distSelect.addEventListener('change', (e) => {
-        if (divSelect.value && e.target.value) {
-          populateThanas(divSelect.value, e.target.value);
-        }
+        populateThanas(divSelect.value, e.target.value);
         recalculateTotals();
+      });
+
+      thanaSelect.addEventListener('change', (e) => {
+        populateUnions(divSelect.value, distSelect.value, e.target.value);
       });
 
       // Radio Payment Handler
@@ -352,7 +386,7 @@
             division: divSelect.value,
             district: district,
             thana: thanaSelect.value,
-            union: document.getElementById('cust-union') ? document.getElementById('cust-union').value.trim() : '',
+            union: unionSelect.value,
             village: document.getElementById('cust-village').value.trim(),
             notes: document.getElementById('cust-notes').value.trim()
           },
