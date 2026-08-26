@@ -215,6 +215,8 @@ export function initCarousel(banners) {
   startAutoRotate();
 }
 
+import { DEFAULT_BANNERS } from './products.js';
+
 // Initializer on Page Load
 document.addEventListener('DOMContentLoaded', async () => {
   updateCartUI();
@@ -222,10 +224,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // If on homepage, render catalog sections
   const trendingGrid = document.getElementById('trending-products');
   if (trendingGrid) {
-    const banners = await fetchBanners();
-    initCarousel(banners);
-
-    // Render Categories
+    // 1. Render default categories and initial banner immediately (non-blocking)
     const catGrid = document.getElementById('category-grid');
     if (catGrid) {
       catGrid.innerHTML = DEFAULT_CATEGORIES.map(cat => `
@@ -235,6 +234,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>
       `).join('');
     }
+
+    // Initialize carousel immediately with default local banners
+    initCarousel(DEFAULT_BANNERS);
+
+    // 2. Fetch remote banners asynchronously without blocking static components
+    fetchBanners().then(banners => {
+      if (banners && banners.length > 0) {
+        initCarousel(banners);
+      }
+    }).catch(err => console.warn('Banner fetch error:', err));
 
     const products = await fetchPublishedProducts();
     initSearch(products);
