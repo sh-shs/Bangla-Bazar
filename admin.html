@@ -58,44 +58,33 @@
     <!-- Section 1: Dashboard Overview -->
     <div id="sec-dash">
       <div class="admin-stats-grid">
-        <!-- Card 1: Sales Volume (Emerald/Green) -->
+        <!-- Card 1: Sales Volume -->
         <div class="stat-card-premium stat-card-emerald">
-          <div class="stat-icon-wrapper">
-            <i class="fas fa-chart-line"></i>
-          </div>
+          <div class="stat-icon-wrapper"><i class="fas fa-chart-line"></i></div>
           <div class="stat-info">
             <div class="stat-value" id="stat-total-sales">৳0</div>
             <div class="stat-label">Total Sales Volume</div>
           </div>
         </div>
-
-        <!-- Card 2: Orders Placed (Royal Blue) -->
+        <!-- Card 2: Orders Placed -->
         <div class="stat-card-premium stat-card-blue">
-          <div class="stat-icon-wrapper">
-            <i class="fas fa-shopping-cart"></i>
-          </div>
+          <div class="stat-icon-wrapper"><i class="fas fa-shopping-cart"></i></div>
           <div class="stat-info">
             <div class="stat-value" id="stat-total-orders">0</div>
             <div class="stat-label">Total Orders Placed</div>
           </div>
         </div>
-
-        <!-- Card 3: Pending Sellers (Amber/Orange) -->
+        <!-- Card 3: Pending Sellers -->
         <div class="stat-card-premium stat-card-amber">
-          <div class="stat-icon-wrapper">
-            <i class="fas fa-store"></i>
-          </div>
+          <div class="stat-icon-wrapper"><i class="fas fa-store"></i></div>
           <div class="stat-info">
             <div class="stat-value" id="stat-pending-sellers">0</div>
             <div class="stat-label">Pending Sellers</div>
           </div>
         </div>
-
-        <!-- Card 4: Registered Customers (Purple/Teal) -->
+        <!-- Card 4: Registered Customers -->
         <div class="stat-card-premium stat-card-purple">
-          <div class="stat-icon-wrapper">
-            <i class="fas fa-users"></i>
-          </div>
+          <div class="stat-icon-wrapper"><i class="fas fa-users"></i></div>
           <div class="stat-info">
             <div class="stat-value" id="stat-total-users">0</div>
             <div class="stat-label">Registered Customers</div>
@@ -108,40 +97,250 @@
     <div id="sec-products" style="display: none;">
       <div class="admin-section-card">
         <div class="admin-section-header">
-          <h3 class="admin-section-title"><i class="fas fa-plus-circle"></i> Add / Edit Product (Admin)</h3>
+          <h3 class="admin-section-title"><i class="fas fa-boxes"></i> Product Inventory</h3>
+          <button class="btn-accent" onclick="window.openProductModal()"><i class="fas fa-plus"></i> Add New Product</button>
         </div>
 
+        <div class="admin-toolbar">
+          <div class="admin-search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="prod-search" class="admin-search-input" placeholder="Search product name, SKU, vendor..." oninput="window.renderProductsTable()">
+          </div>
+          <select id="prod-category-filter" class="admin-filter-select" onchange="window.renderProductsTable()">
+            <option value="all">All Categories</option>
+          </select>
+        </div>
+
+        <div id="admin-products-list"></div>
+      </div>
+    </div>
+
+    <!-- Section 3: Category Management -->
+    <div id="sec-categories" style="display: none;">
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-tags"></i> Product Categories</h3>
+          <button class="btn-primary" onclick="window.openCategoryModal()"><i class="fas fa-plus"></i> Add Category</button>
+        </div>
+
+        <div class="admin-toolbar">
+          <div class="admin-search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="cat-search" class="admin-search-input" placeholder="Search category..." oninput="window.renderCategoriesTable()">
+          </div>
+        </div>
+
+        <div id="admin-categories-list"></div>
+      </div>
+    </div>
+
+    <!-- Section 4: Seller Approval & Management -->
+    <div id="sec-sellers" style="display: none;">
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-store"></i> Seller Accounts & Applications</h3>
+        </div>
+
+        <div class="admin-toolbar">
+          <div class="admin-search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="seller-search" class="admin-search-input" placeholder="Search store, owner name, email..." oninput="window.renderSellersTable()">
+          </div>
+          <select id="seller-status-filter" class="admin-filter-select" onchange="window.renderSellersTable()">
+            <option value="all">All Seller Statuses</option>
+            <option value="pending">Pending Approval</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+            <option value="suspended">Suspended</option>
+          </select>
+        </div>
+
+        <div id="admin-sellers-list"></div>
+      </div>
+    </div>
+
+    <!-- Section 5: Customer Management -->
+    <div id="sec-customers" style="display: none;">
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-users"></i> Registered Customers</h3>
+        </div>
+
+        <div class="admin-toolbar">
+          <div class="admin-search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="cust-search" class="admin-search-input" placeholder="Search customer name, email..." oninput="window.renderCustomersTable()">
+          </div>
+          <select id="cust-role-filter" class="admin-filter-select" onchange="window.renderCustomersTable()">
+            <option value="all">All Roles</option>
+            <option value="customer">Customer</option>
+            <option value="seller">Seller</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+
+        <div id="admin-customers-list"></div>
+      </div>
+    </div>
+
+    <!-- Section 6: Order Status Management -->
+    <div id="sec-orders" style="display: none;">
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-truck"></i> All Customer Orders</h3>
+        </div>
+
+        <div class="admin-toolbar">
+          <div class="admin-search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="order-search" class="admin-search-input" placeholder="Search Order ID, Customer, Phone..." oninput="window.renderOrdersList()">
+          </div>
+          <select id="order-status-filter" class="admin-filter-select" onchange="window.renderOrdersList()">
+            <option value="all">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Confirmed">Confirmed</option>
+            <option value="Packed">Packed</option>
+            <option value="Shipped">Shipped</option>
+            <option value="Out for Delivery">Out for Delivery</option>
+            <option value="Delivered">Delivered</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div id="admin-orders-list"></div>
+      </div>
+    </div>
+
+    <!-- Section 7: Coupon Management -->
+    <div id="sec-coupons" style="display: none;">
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-ticket-alt"></i> Discount Coupons</h3>
+          <button class="btn-accent" onclick="window.openCouponModal()"><i class="fas fa-plus"></i> Create Coupon</button>
+        </div>
+
+        <div class="admin-toolbar">
+          <div class="admin-search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="coupon-search" class="admin-search-input" placeholder="Search coupon code..." oninput="window.renderCouponsTable()">
+          </div>
+        </div>
+
+        <div id="admin-coupons-list"></div>
+      </div>
+    </div>
+
+    <!-- Section 8: Delivery, Payment & General Settings -->
+    <div id="sec-settings" style="display: none;">
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-truck-loading"></i> Delivery Charge Settings</h3>
+        </div>
+        <form id="adm-delivery-form">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
+            <div class="form-group">
+              <label class="form-label">Inside Kushtia Charge (৳) *</label>
+              <input type="number" id="charge-inside" class="form-control" value="100" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Outside Kushtia Charge (৳) *</label>
+              <input type="number" id="charge-outside" class="form-control" value="160" required>
+            </div>
+          </div>
+          <button type="submit" class="btn-primary" style="border-radius: 10px; padding: 10px 20px;">Save Delivery Settings</button>
+        </form>
+      </div>
+
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-money-bill-wave"></i> Payment Settings</h3>
+        </div>
+        <form id="adm-payment-form">
+          <div class="form-group">
+            <label class="form-label">bKash Merchant / Personal Mobile Number *</label>
+            <input type="text" id="bkash-num-setting" class="form-control" value="01342697743" required>
+          </div>
+          <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer;">
+              <input type="checkbox" id="cod-toggle-setting" checked> Enable Cash on Delivery (COD)
+            </label>
+          </div>
+          <button type="submit" class="btn-primary" style="border-radius: 10px; padding: 10px 20px;">Save Payment Settings</button>
+        </form>
+      </div>
+
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-globe"></i> General Shop Info Settings</h3>
+        </div>
+        <form id="adm-general-form">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
+            <div class="form-group">
+              <label class="form-label">Site Name</label>
+              <input type="text" id="gen-site-name" class="form-control" value="Bangla Bazar">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Hotline Phone</label>
+              <input type="text" id="gen-hotline" class="form-control" value="+8809658183506">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Support Email</label>
+              <input type="email" id="gen-support-email" class="form-control" value="saripofficialsupport@gmail.com">
+            </div>
+          </div>
+          <button type="submit" class="btn-primary" style="border-radius: 10px; padding: 10px 20px;">Save General Settings</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Section 9: Banners Management -->
+    <div id="sec-banners" style="display: none;">
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-image"></i> Homepage Hero Banners</h3>
+          <button class="btn-accent" onclick="window.openBannerModal()"><i class="fas fa-plus"></i> Add Banner</button>
+        </div>
+
+        <div class="admin-toolbar">
+          <div class="admin-search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="banner-search" class="admin-search-input" placeholder="Search banner title..." oninput="window.renderBannersTable()">
+          </div>
+        </div>
+
+        <div id="admin-banners-list"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODALS -->
+
+  <!-- Modal 1: Product Add/Edit -->
+  <div id="modal-product" class="admin-modal-overlay">
+    <div class="admin-modal">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title" id="modal-product-title"><i class="fas fa-box-open"></i> Add New Product</h3>
+        <button class="admin-modal-close" onclick="window.closeModal('modal-product')">&times;</button>
+      </div>
+      <div class="admin-modal-body">
         <form id="admin-product-form">
           <input type="hidden" id="adm-p-id">
-
           <div class="form-group">
-            <label class="form-label">Product Name *</label>
-            <input type="text" id="adm-p-name" class="form-control" required placeholder="Full title">
+            <label class="form-label">Product Title *</label>
+            <input type="text" id="adm-p-name" class="form-control" required placeholder="Full Product Title">
           </div>
-
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
             <div class="form-group">
               <label class="form-label">Category *</label>
-              <select id="adm-p-category" class="form-control" required>
-                <option value="electronics">Electronics</option>
-                <option value="fashion">Fashion</option>
-                <option value="home-living">Home & Living</option>
-                <option value="kitchen">Kitchen</option>
-                <option value="beauty">Beauty</option>
-                <option value="health">Health</option>
-                <option value="baby-care">Baby Care</option>
-                <option value="sports">Sports</option>
-                <option value="lighting">Lighting</option>
-                <option value="gadgets">Gadgets</option>
-              </select>
+              <select id="adm-p-category" class="form-control" required></select>
             </div>
             <div class="form-group">
               <label class="form-label">Sub-category</label>
               <input type="text" id="adm-p-subcategory" class="form-control" placeholder="Sub-category">
             </div>
           </div>
-
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
             <div class="form-group">
               <label class="form-label">Brand</label>
               <input type="text" id="adm-p-brand" class="form-control" placeholder="Brand Name">
@@ -151,8 +350,7 @@
               <input type="text" id="adm-p-sku" class="form-control" placeholder="SKU-101">
             </div>
           </div>
-
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
             <div class="form-group">
               <label class="form-label">Regular Price (৳) *</label>
               <input type="number" id="adm-p-reg-price" class="form-control" required placeholder="1200">
@@ -162,8 +360,7 @@
               <input type="number" id="adm-p-disc-price" class="form-control" placeholder="990">
             </div>
           </div>
-
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
             <div class="form-group">
               <label class="form-label">Stock Quantity *</label>
               <input type="number" id="adm-p-stock" class="form-control" required value="20">
@@ -173,121 +370,166 @@
               <input type="text" id="adm-p-warranty" class="form-control" placeholder="e.g. 1 Year Official">
             </div>
           </div>
-
           <div class="form-group">
             <label class="form-label">Tags (comma separated)</label>
             <input type="text" id="adm-p-tags" class="form-control" placeholder="electronics, offer, kushtia">
           </div>
-
           <div class="form-group">
             <label class="form-label">Short Description *</label>
             <input type="text" id="adm-p-short-desc" class="form-control" required placeholder="Brief bullet overview">
           </div>
-
           <div class="form-group">
             <label class="form-label">Full Description</label>
-            <textarea id="adm-p-full-desc" class="form-control" rows="3" placeholder="Detailed specs"></textarea>
+            <textarea id="adm-p-full-desc" class="form-control" rows="3" placeholder="Detailed product specs"></textarea>
           </div>
-
           <div class="form-group">
-            <label class="form-label">Product Images (Multiple file upload to Firebase Storage)</label>
+            <label class="form-label">Product Images (Upload multi-files)</label>
             <input type="file" id="adm-p-images" class="form-control" multiple accept="image/*">
           </div>
-
           <div class="form-group">
             <label class="form-label">Product Video (Optional upload)</label>
             <input type="file" id="adm-p-video" class="form-control" accept="video/*">
           </div>
-
-          <!-- Feature Flags -->
           <div class="admin-flag-grid">
             <label><input type="checkbox" id="adm-flag-featured"> <i class="fas fa-star" style="color: #F59E0B;"></i> Featured</label>
             <label><input type="checkbox" id="adm-flag-flash"> <i class="fas fa-bolt" style="color: #EF4444;"></i> Flash Sale</label>
             <label><input type="checkbox" id="adm-flag-trending"> <i class="fas fa-fire" style="color: #F97316;"></i> Trending</label>
             <label><input type="checkbox" id="adm-flag-bestseller"> <i class="fas fa-award" style="color: #8B5CF6;"></i> Best Seller</label>
           </div>
-
-          <button type="submit" id="adm-p-submit-btn" class="btn-accent" style="width: 100%; padding: 12px; font-weight: bold; border-radius: 12px; box-shadow: 0 4px 14px rgba(245, 130, 10, 0.35);">Publish Product</button>
+          <div class="admin-modal-footer">
+            <button type="button" class="btn-outline" onclick="window.closeModal('modal-product')">Cancel</button>
+            <button type="submit" id="adm-p-submit-btn" class="btn-accent">Save Product</button>
+          </div>
         </form>
       </div>
-
-      <div class="admin-section-card">
-        <div class="admin-section-header">
-          <h3 class="admin-section-title"><i class="fas fa-boxes"></i> Published Products</h3>
-        </div>
-        <div id="admin-products-list"></div>
-      </div>
     </div>
+  </div>
 
-    <!-- Section: Category Management -->
-    <div id="sec-categories" style="display: none;">
-      <div class="admin-section-card">
-        <div class="admin-section-header">
-          <h3 class="admin-section-title"><i class="fas fa-tags"></i> Add Category</h3>
-        </div>
+  <!-- Modal 2: Category Add/Edit -->
+  <div id="modal-category" class="admin-modal-overlay">
+    <div class="admin-modal" style="max-width: 480px;">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title" id="modal-category-title"><i class="fas fa-tags"></i> Add Category</h3>
+        <button class="admin-modal-close" onclick="window.closeModal('modal-category')">&times;</button>
+      </div>
+      <div class="admin-modal-body">
         <form id="adm-category-form">
+          <input type="hidden" id="cat-id">
           <div class="form-group">
             <label class="form-label">Category Name *</label>
             <input type="text" id="cat-name" class="form-control" required placeholder="e.g. Organic Food">
           </div>
           <div class="form-group">
-            <label class="form-label">FontAwesome Icon Class (Optional)</label>
+            <label class="form-label">FontAwesome Icon Class</label>
             <input type="text" id="cat-icon" class="form-control" placeholder="e.g. fa-leaf">
           </div>
-          <button type="submit" class="btn-primary" style="border-radius: 10px; padding: 10px 20px;">Add Category</button>
+          <div class="form-group">
+            <label class="form-label">Description (Optional)</label>
+            <textarea id="cat-desc" class="form-control" rows="2" placeholder="Brief category description"></textarea>
+          </div>
+          <div class="admin-modal-footer">
+            <button type="button" class="btn-outline" onclick="window.closeModal('modal-category')">Cancel</button>
+            <button type="submit" class="btn-primary">Save Category</button>
+          </div>
         </form>
       </div>
+    </div>
+  </div>
 
-      <div class="admin-section-card">
-        <div class="admin-section-header">
-          <h3 class="admin-section-title"><i class="fas fa-list"></i> Existing Categories</h3>
-        </div>
-        <div id="admin-categories-list"></div>
+  <!-- Modal 3: Seller Edit -->
+  <div id="modal-seller" class="admin-modal-overlay">
+    <div class="admin-modal" style="max-width: 540px;">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title"><i class="fas fa-user-edit"></i> Edit Seller Details</h3>
+        <button class="admin-modal-close" onclick="window.closeModal('modal-seller')">&times;</button>
+      </div>
+      <div class="admin-modal-body">
+        <form id="adm-seller-form">
+          <input type="hidden" id="seller-id">
+          <div class="form-group">
+            <label class="form-label">Store / Business Name *</label>
+            <input type="text" id="seller-store-name" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Owner Name</label>
+            <input type="text" id="seller-owner-name" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone / WhatsApp</label>
+            <input type="text" id="seller-phone" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">NID Number</label>
+            <input type="text" id="seller-nid" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Seller Approval Status</label>
+            <select id="seller-status-select" class="form-control">
+              <option value="pending">Pending Approval</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+              <option value="suspended">Suspended</option>
+            </select>
+          </div>
+          <div class="admin-modal-footer">
+            <button type="button" class="btn-outline" onclick="window.closeModal('modal-seller')">Cancel</button>
+            <button type="submit" class="btn-accent">Update Seller</button>
+          </div>
+        </form>
       </div>
     </div>
+  </div>
 
-    <!-- Section 3: Seller Approval & Management -->
-    <div id="sec-sellers" style="display: none;">
-      <div class="admin-section-card">
-        <div class="admin-section-header">
-          <h3 class="admin-section-title"><i class="fas fa-users-cog"></i> Seller Approval Requests</h3>
-        </div>
-        <div id="admin-sellers-list"></div>
+  <!-- Modal 4: Customer Edit -->
+  <div id="modal-customer" class="admin-modal-overlay">
+    <div class="admin-modal" style="max-width: 480px;">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title"><i class="fas fa-user-cog"></i> Edit Customer Account</h3>
+        <button class="admin-modal-close" onclick="window.closeModal('modal-customer')">&times;</button>
+      </div>
+      <div class="admin-modal-body">
+        <form id="adm-customer-form">
+          <input type="hidden" id="cust-id">
+          <div class="form-group">
+            <label class="form-label">Customer Name</label>
+            <input type="text" id="cust-name-input" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input type="text" id="cust-phone-input" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Account Role</label>
+            <select id="cust-role-select" class="form-control">
+              <option value="customer">Customer</option>
+              <option value="seller">Seller</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="admin-modal-footer">
+            <button type="button" class="btn-outline" onclick="window.closeModal('modal-customer')">Cancel</button>
+            <button type="submit" class="btn-primary">Save Changes</button>
+          </div>
+        </form>
       </div>
     </div>
+  </div>
 
-    <!-- Section: Customer Management -->
-    <div id="sec-customers" style="display: none;">
-      <div class="admin-section-card">
-        <div class="admin-section-header">
-          <h3 class="admin-section-title"><i class="fas fa-users"></i> Registered Customers</h3>
-        </div>
-        <div id="admin-customers-list"></div>
+  <!-- Modal 5: Coupon Add/Edit -->
+  <div id="modal-coupon" class="admin-modal-overlay">
+    <div class="admin-modal" style="max-width: 480px;">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title" id="modal-coupon-title"><i class="fas fa-ticket-alt"></i> Create Coupon</h3>
+        <button class="admin-modal-close" onclick="window.closeModal('modal-coupon')">&times;</button>
       </div>
-    </div>
-
-    <!-- Section 4: Order Status Management -->
-    <div id="sec-orders" style="display: none;">
-      <div class="admin-section-card">
-        <div class="admin-section-header">
-          <h3 class="admin-section-title"><i class="fas fa-truck"></i> All Customer Orders</h3>
-        </div>
-        <div id="admin-orders-list"></div>
-      </div>
-    </div>
-
-    <!-- Section: Coupon Management -->
-    <div id="sec-coupons" style="display: none;">
-      <div class="admin-section-card">
-        <div class="admin-section-header">
-          <h3 class="admin-section-title"><i class="fas fa-ticket-alt"></i> Create Coupon</h3>
-        </div>
+      <div class="admin-modal-body">
         <form id="adm-coupon-form">
+          <input type="hidden" id="cpn-id">
           <div class="form-group">
             <label class="form-label">Coupon Code *</label>
             <input type="text" id="cpn-code" class="form-control" required placeholder="e.g. KUSHTIA50" style="text-transform: uppercase;">
           </div>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
             <div class="form-group">
               <label class="form-label">Discount %</label>
               <input type="number" id="cpn-percent" class="form-control" placeholder="10">
@@ -301,96 +543,107 @@
             <label class="form-label">Minimum Spend (৳)</label>
             <input type="number" id="cpn-min" class="form-control" placeholder="500">
           </div>
-          <button type="submit" class="btn-accent" style="border-radius: 10px; padding: 10px 20px;">Create Coupon</button>
-        </form>
-      </div>
-
-      <div class="admin-section-card">
-        <div class="admin-section-header">
-          <h3 class="admin-section-title"><i class="fas fa-tags"></i> Active Coupons</h3>
-        </div>
-        <div id="admin-coupons-list"></div>
-      </div>
-    </div>
-
-    <!-- Section 5: Delivery & Payment Settings -->
-    <div id="sec-settings" style="display: none;">
-      <div class="admin-section-card">
-        <div class="admin-section-header">
-          <h3 class="admin-section-title"><i class="fas fa-truck-loading"></i> Delivery Charge Settings</h3>
-        </div>
-        <form id="adm-delivery-form">
           <div class="form-group">
-            <label class="form-label">Inside Kushtia Delivery Charge (৳) *</label>
-            <input type="number" id="charge-inside" class="form-control" value="100" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Outside Kushtia Delivery Charge (৳) *</label>
-            <input type="number" id="charge-outside" class="form-control" value="160" required>
-          </div>
-          <button type="submit" class="btn-primary" style="border-radius: 10px; padding: 10px 20px;">Save Delivery Settings</button>
-        </form>
-      </div>
-
-      <div class="admin-section-card">
-        <div class="admin-section-header">
-          <h3 class="admin-section-title"><i class="fas fa-money-bill-wave"></i> Payment Settings</h3>
-        </div>
-        <form id="adm-payment-form">
-          <div class="form-group">
-            <label class="form-label">bKash Merchant / Personal Mobile Number</label>
-            <input type="text" id="bkash-num-setting" class="form-control" value="01342697743" required>
-          </div>
-          <div class="form-group">
-            <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer;">
-              <input type="checkbox" id="cod-toggle-setting" checked> Enable Cash on Delivery (COD)
+            <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer;">
+              <input type="checkbox" id="cpn-active" checked> Active Coupon
             </label>
           </div>
-          <button type="submit" class="btn-primary" style="border-radius: 10px; padding: 10px 20px;">Save Payment Settings</button>
+          <div class="admin-modal-footer">
+            <button type="button" class="btn-outline" onclick="window.closeModal('modal-coupon')">Cancel</button>
+            <button type="submit" class="btn-accent">Save Coupon</button>
+          </div>
         </form>
       </div>
     </div>
+  </div>
 
-    <!-- Section 6: Banners Management -->
-    <div id="sec-banners" style="display: none;">
-      <div class="admin-section-card">
-        <div class="admin-section-header">
-          <h3 class="admin-section-title"><i class="fas fa-image"></i> Homepage Banners</h3>
-        </div>
+  <!-- Modal 6: Banner Add/Edit -->
+  <div id="modal-banner" class="admin-modal-overlay">
+    <div class="admin-modal" style="max-width: 500px;">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title" id="modal-banner-title"><i class="fas fa-image"></i> Add Banner</h3>
+        <button class="admin-modal-close" onclick="window.closeModal('modal-banner')">&times;</button>
+      </div>
+      <div class="admin-modal-body">
         <form id="adm-banner-form">
+          <input type="hidden" id="banner-id">
           <div class="form-group">
-            <label class="form-label">Banner Title</label>
-            <input type="text" id="banner-title" class="form-control" placeholder="e.g. Grand Wholesale Offer">
+            <label class="form-label">Banner Title *</label>
+            <input type="text" id="banner-title" class="form-control" required placeholder="e.g. Grand Wholesale Offer">
           </div>
           <div class="form-group">
             <label class="form-label">Banner Subtitle</label>
             <input type="text" id="banner-sub" class="form-control" placeholder="e.g. Up to 50% discount">
           </div>
           <div class="form-group">
+            <label class="form-label">Link Target URL</label>
+            <input type="text" id="banner-link" class="form-control" placeholder="shop.html">
+          </div>
+          <div class="form-group">
             <label class="form-label">Banner Image File</label>
             <input type="file" id="banner-file" class="form-control" accept="image/*">
           </div>
-          <button type="submit" class="btn-accent" style="border-radius: 10px; padding: 10px 20px;">Upload Banner</button>
+          <div class="admin-modal-footer">
+            <button type="button" class="btn-outline" onclick="window.closeModal('modal-banner')">Cancel</button>
+            <button type="submit" class="btn-accent">Save Banner</button>
+          </div>
         </form>
       </div>
     </div>
-
   </div>
 
   <script type="module" src="assets/js/firebase-config.js"></script>
   <script type="module" src="assets/js/auth.js"></script>
   <script type="module" src="assets/js/app.js"></script>
   <script type="module">
-    import { isSuperAdminUser, saveAdminDeliverySettings, saveAdminPaymentSettings, updateSellerStatus, updateOrderStatus, addBanner, createCoupon, fetchCoupons, deleteCoupon, createCategory, fetchCategoriesFromDB, deleteCategoryFromDB } from './assets/js/admin.js';
+    import {
+      isSuperAdminUser,
+      fetchAdminSettings,
+      saveAdminDeliverySettings,
+      saveAdminPaymentSettings,
+      saveAdminGeneralSettings,
+      createCategory,
+      updateCategory,
+      fetchCategoriesFromDB,
+      deleteCategoryFromDB,
+      fetchUsersFromDB,
+      updateSellerStatus,
+      updateUserProfile,
+      deleteUserDoc,
+      fetchOrdersFromDB,
+      updateOrderStatus,
+      updatePaymentStatus,
+      deleteOrderDoc,
+      createCoupon,
+      updateCoupon,
+      fetchCoupons,
+      deleteCoupon,
+      toggleCouponStatus,
+      addBanner,
+      updateBanner,
+      fetchBannersFromDB,
+      deleteBannerFromDB,
+      toggleBannerVisibility
+    } from './assets/js/admin.js';
     import { onAuthStateUpdate, SUPER_ADMIN_EMAIL } from './assets/js/auth.js';
     import { showToast } from './assets/js/app.js';
     import { db, collection, getDocs, doc, deleteDoc } from './assets/js/firebase-config.js';
     import { saveSellerProduct, deleteSellerProduct, uploadMediaFile } from './assets/js/seller.js';
     import { generatePDFInvoice } from './assets/js/invoice.js';
 
-    let allAdminProducts = [];
-    let loadedOrdersMap = {};
+    // Global Admin State Store
+    const adminState = {
+      products: [],
+      categories: [],
+      sellers: [],
+      customers: [],
+      orders: [],
+      coupons: [],
+      banners: [],
+      settings: {}
+    };
 
+    // Tab Switching Logic
     window.switchAdminTab = (tab) => {
       ['dash', 'products', 'categories', 'sellers', 'customers', 'orders', 'coupons', 'settings', 'banners'].forEach(t => {
         const sec = document.getElementById(`sec-${t}`);
@@ -400,262 +653,161 @@
       });
     };
 
+    // Modal Handlers
+    window.openModal = (modalId) => {
+      const el = document.getElementById(modalId);
+      if (el) el.classList.add('active');
+    };
+
+    window.closeModal = (modalId) => {
+      const el = document.getElementById(modalId);
+      if (el) el.classList.remove('active');
+    };
+
+    // Auth State Listener
     onAuthStateUpdate((user, profile) => {
       if (!isSuperAdminUser(user, profile)) {
         alert('Access Denied: Super Admin account (banglabazaroffical@gmail.com) required.');
         window.location.href = 'index.html';
         return;
       }
-      loadAdminData();
+      loadAllAdminData();
     });
 
-    async function loadAdminData() {
-      // Load All Products
-      const productsSnap = await getDocs(collection(db, 'products'));
-      allAdminProducts = [];
-      productsSnap.forEach(d => allAdminProducts.push({ id: d.id, ...d.data() }));
-
-      const prodListContainer = document.getElementById('admin-products-list');
-      if (allAdminProducts.length === 0) {
-        prodListContainer.innerHTML = '<p style="color:#777;">No products uploaded yet.</p>';
-      } else {
-        prodListContainer.innerHTML = allAdminProducts.map(p => `
-          <div style="display: flex; gap: 12px; background: #FFF; border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; margin-bottom: 8px; align-items: center;">
-            <img src="${p.images?.[0] || 'https://via.placeholder.com/50'}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
-            <div style="flex: 1;">
-              <h4 style="font-size: 0.85rem; font-weight: 600;">${p.name}</h4>
-              <div style="font-size: 0.75rem; color: var(--accent-color); font-weight: bold;">৳${p.discountPrice || p.regularPrice} | Stock: ${p.stock} | Vendor: ${p.sellerName || 'Admin'}</div>
-            </div>
-            <div style="display: flex; gap: 4px;">
-              <button onclick="window.editAdminProduct('${p.id}')" class="btn-outline" style="padding: 2px 6px; font-size: 0.75rem;"><i class="fas fa-edit"></i></button>
-              <button onclick="window.deleteAdminProduct('${p.id}')" style="background: var(--danger-color); color: #FFF; padding: 2px 6px; border: none; border-radius: 4px; font-size: 0.75rem;"><i class="fas fa-trash"></i></button>
-            </div>
-          </div>
-        `).join('');
-      }
-
-      // Load Orders & Stats
-      const ordersSnap = await getDocs(collection(db, 'orders'));
-      let totalSales = 0;
-      let orderCount = 0;
-      loadedOrdersMap = {};
-      const ordersListContainer = document.getElementById('admin-orders-list');
-      let ordersHTML = '';
-
-      const ordersList = [];
-      ordersSnap.forEach(d => ordersList.push({ id: d.id, ...d.data() }));
-
-      // Sort newest first
-      ordersList.sort((a, b) => {
-        const timeA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0;
-        const timeB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : 0;
-        return timeB - timeA;
-      });
-
-      ordersList.forEach(o => {
-        orderCount++;
-        totalSales += Number(o.totalAmount || 0);
-        loadedOrdersMap[o.id] = o;
-
-        let orderDateStr = 'Not provided';
-        if (o.createdAt) {
-          if (o.createdAt.seconds) {
-            orderDateStr = new Date(o.createdAt.seconds * 1000).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
-          } else {
-            orderDateStr = new Date(o.createdAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
-          }
-        }
-
-        const items = Array.isArray(o.items) ? o.items : [];
-        const itemsListHTML = items.map(item => `
-          <div style="display: flex; gap: 10px; align-items: center; background: #F8F9FA; padding: 8px; border-radius: 6px; margin-bottom: 6px; border: 1px solid #E5E7EB;">
-            <img src="${item.image || (item.images && item.images[0]) || 'https://via.placeholder.com/50'}" style="width: 48px; height: 48px; object-fit: cover; border-radius: 4px; border: 1px solid #DDD;">
-            <div style="flex: 1;">
-              <div style="font-weight: 600; font-size: 0.85rem; color: #111;">${item.name || 'Unnamed Product'}</div>
-              <div style="font-size: 0.75rem; color: #666;">
-                Price: ৳${item.price || 0} | Qty: ${item.quantity || 1}
-                ${item.variant ? ` | <span style="color: var(--accent-color); font-weight: 600;">Variant: ${item.variant}</span>` : ''}
-                ${item.id ? ` | <span style="color: #777;">ID: ${item.id}</span>` : ''}
-              </div>
-            </div>
-            <div style="font-weight: bold; color: var(--primary-color); font-size: 0.9rem;">৳${(Number(item.price || 0) * Number(item.quantity || 1)).toLocaleString('bn-BD')}</div>
-          </div>
-        `).join('');
-
-        const custName = o.customerInfo?.name || 'Not provided';
-        const custPhone = o.customerInfo?.phone || 'Not provided';
-        const custEmail = o.customerInfo?.email || 'Not provided';
-
-        const division = o.shippingAddress?.division || 'Not provided';
-        const district = o.shippingAddress?.district || 'Not provided';
-        const thana = o.shippingAddress?.thana || o.shippingAddress?.upazila || 'Not provided';
-        const union = o.shippingAddress?.union || 'Not provided';
-        const village = o.shippingAddress?.village || 'Not provided';
-        const notes = o.shippingAddress?.notes || null;
-
-        const subtotal = Number(o.subtotal || items.reduce((s, i) => s + (Number(i.price || 0) * Number(i.quantity || 1)), 0));
-        const deliveryCharge = Number(o.deliveryCharge || 0);
-        const discountAmount = Number(o.discountAmount || 0);
-        const couponCode = o.couponCode || null;
-        const totalAmount = Number(o.totalAmount || Math.max(0, subtotal + deliveryCharge - discountAmount));
-
-        const paymentMethod = (o.paymentMethod || 'cod').toUpperCase();
-        const bKashTxnId = o.bKashTxnId || null;
-
-        ordersHTML += `
-          <div class="glass-card" style="margin-bottom: 16px; border: 1px solid #E0E0E0; padding: 16px;">
-            <!-- Order Header -->
-            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; margin-bottom: 12px; gap: 8px;">
-              <div>
-                <span style="font-weight: 800; font-size: 1rem; color: var(--primary-color);">Order ID: #${o.id}</span>
-                <div style="font-size: 0.75rem; color: #666; margin-top: 2px;"><i class="far fa-clock"></i> Date: ${orderDateStr}</div>
-              </div>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <label style="font-size: 0.8rem; font-weight: bold; color: #333;">Status:</label>
-                <select onchange="window.handleStatusChange('${o.id}', this.value)" style="padding: 4px 8px; font-size: 0.8rem; font-weight: bold; border-radius: 4px; border: 1px solid #CCC; background: #FFF;">
-                  <option value="Pending" ${o.orderStatus==='Pending'?'selected':''}>Pending</option>
-                  <option value="Confirmed" ${o.orderStatus==='Confirmed'?'selected':''}>Confirmed</option>
-                  <option value="Packed" ${o.orderStatus==='Packed'?'selected':''}>Packed</option>
-                  <option value="Shipped" ${o.orderStatus==='Shipped'?'selected':''}>Shipped</option>
-                  <option value="Out for Delivery" ${o.orderStatus==='Out for Delivery'?'selected':''}>Out for Delivery</option>
-                  <option value="Delivered" ${o.orderStatus==='Delivered'?'selected':''}>Delivered</option>
-                  <option value="Cancelled" ${o.orderStatus==='Cancelled'?'selected':''}>Cancelled</option>
-                </select>
-                <button onclick="window.downloadOrderInvoice('${o.id}')" class="btn-accent" style="padding: 6px 12px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 4px;">
-                  <i class="fas fa-file-pdf"></i> Download PDF
-                </button>
-              </div>
-            </div>
-
-            <!-- 2-Column Info Grid -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 14px;">
-              <!-- Customer Info Card -->
-              <div style="background: #F9FAFB; padding: 10px 12px; border-radius: 6px; border: 1px solid #E5E7EB; font-size: 0.82rem;">
-                <h4 style="color: var(--primary-color); font-size: 0.85rem; border-bottom: 1px solid #DDD; padding-bottom: 4px; margin-bottom: 6px;"><i class="fas fa-user"></i> Customer Information</h4>
-                <div><strong>Name:</strong> ${custName}</div>
-                <div><strong>Mobile:</strong> <a href="tel:${custPhone}" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">${custPhone}</a></div>
-                <div><strong>Email:</strong> ${custEmail}</div>
-              </div>
-
-              <!-- Delivery Address Card -->
-              <div style="background: #F9FAFB; padding: 10px 12px; border-radius: 6px; border: 1px solid #E5E7EB; font-size: 0.82rem;">
-                <h4 style="color: var(--primary-color); font-size: 0.85rem; border-bottom: 1px solid #DDD; padding-bottom: 4px; margin-bottom: 6px;"><i class="fas fa-map-marker-alt"></i> Delivery Address</h4>
-                <div><strong>Division:</strong> ${division}</div>
-                <div><strong>District:</strong> ${district}</div>
-                <div><strong>Upazila / Thana:</strong> ${thana}</div>
-                <div><strong>Union / Ward:</strong> ${union}</div>
-                <div><strong>Village / Area / Street:</strong> ${village}</div>
-                ${notes ? `<div style="font-style: italic; color: #666; margin-top: 2px;"><strong>Notes:</strong> ${notes}</div>` : ''}
-              </div>
-            </div>
-
-            <!-- Ordered Products Section -->
-            <div style="margin-bottom: 12px;">
-              <h4 style="color: var(--primary-color); font-size: 0.85rem; margin-bottom: 8px;"><i class="fas fa-shopping-bag"></i> Ordered Products (${items.length})</h4>
-              ${itemsListHTML.length > 0 ? itemsListHTML : '<p style="color:#777; font-size:0.8rem;">No products found in order.</p>'}
-            </div>
-
-            <!-- Payment & Summary Bar -->
-            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; background: #FFF3E0; padding: 12px; border-radius: 6px; border: 1px solid #FFE0B2; font-size: 0.82rem; gap: 10px;">
-              <div>
-                <h4 style="color: #E65100; font-size: 0.85rem; margin-bottom: 4px;"><i class="fas fa-credit-card"></i> Payment Details</h4>
-                <div><strong>Method:</strong> ${paymentMethod === 'COD' ? 'Cash on Delivery (COD)' : paymentMethod}</div>
-                <div><strong>Status:</strong> ${o.paymentStatus || (paymentMethod === 'COD' ? 'Pending' : 'Submitted')}</div>
-                ${bKashTxnId ? `<div style="color: #D84315; font-weight: bold; margin-top: 2px;">bKash TrxID: ${bKashTxnId}</div>` : ''}
-              </div>
-
-              <div style="text-align: right; min-width: 180px;">
-                <div>Subtotal: ৳${subtotal.toLocaleString('bn-BD')}</div>
-                ${discountAmount > 0 ? `<div style="color: var(--success-color);">Discount ${couponCode ? `(${couponCode})` : ''}: -৳${discountAmount.toLocaleString('bn-BD')}</div>` : ''}
-                <div>Delivery Charge: ৳${deliveryCharge.toLocaleString('bn-BD')}</div>
-                <div style="font-size: 1.05rem; font-weight: 800; color: var(--primary-color); margin-top: 4px; border-top: 1px solid #CCC; padding-top: 2px;">
-                  Total Amount: ৳${totalAmount.toLocaleString('bn-BD')}
-                </div>
-              </div>
-            </div>
-
-          </div>
-        `;
-      });
-
-      document.getElementById('stat-total-sales').textContent = `৳${totalSales}`;
-      document.getElementById('stat-total-orders').textContent = orderCount;
-      ordersListContainer.innerHTML = ordersHTML || '<p style="color:#777;">No orders yet.</p>';
-
-      // Load Users & Sellers
-      const usersSnap = await getDocs(collection(db, 'users'));
-      let userCount = 0;
-      let pendingSellers = 0;
-      const sellersContainer = document.getElementById('admin-sellers-list');
-      const customersContainer = document.getElementById('admin-customers-list');
-      let sellersHTML = '';
-      let customersHTML = '';
-
-      usersSnap.forEach(d => {
-        const u = { id: d.id, ...d.data() };
-        userCount++;
-        if (u.sellerStatus === 'pending') pendingSellers++;
-        if (u.sellerStatus && u.sellerStatus !== 'none') {
-          sellersHTML += `
-            <div style="background: #FFF; border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
-              <div>
-                <strong>${u.storeName || u.displayName}</strong> (${u.email})
-                <div style="font-size: 0.75rem; color: #777;">Status: ${u.sellerStatus} | NID: ${u.sellerNID || 'N/A'}</div>
-              </div>
-              <div style="display: flex; gap: 4px;">
-                <button onclick="window.handleSellerApprove('${u.id}', 'approved')" style="background: var(--success-color); color: #FFF; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">Approve</button>
-                <button onclick="window.handleSellerApprove('${u.id}', 'rejected')" style="background: var(--danger-color); color: #FFF; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">Reject</button>
-              </div>
-            </div>
-          `;
-        }
-        customersHTML += `
-          <div style="background: #FFF; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px; margin-bottom: 6px; font-size: 0.85rem;">
-            <strong>${u.displayName || 'Customer'}</strong> (${u.email || 'No email'}) - Role: ${u.role || 'customer'}
-          </div>
-        `;
-      });
-
-      document.getElementById('stat-total-users').textContent = userCount;
-      document.getElementById('stat-pending-sellers').textContent = pendingSellers;
-      sellersContainer.innerHTML = sellersHTML || '<p style="color:#777;">No seller applications.</p>';
-      customersContainer.innerHTML = customersHTML || '<p style="color:#777;">No customers found.</p>';
-
-      // Load Coupons
-      const coupons = await fetchCoupons();
-      const couponsContainer = document.getElementById('admin-coupons-list');
-      if (coupons.length === 0) {
-        couponsContainer.innerHTML = '<p style="color:#777;">No active coupons.</p>';
-      } else {
-        couponsContainer.innerHTML = coupons.map(c => `
-          <div style="display: flex; justify-content: space-between; align-items: center; background: #FFF; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px; margin-bottom: 6px; font-size: 0.85rem;">
-            <div>
-              <strong>${c.code}</strong> (${c.discountPercent ? `${c.discountPercent}% Off` : `৳${c.flatDiscount} Off`})
-              <div style="font-size: 0.75rem; color: #777;">Min Spend: ৳${c.minSpend || 0}</div>
-            </div>
-            <button onclick="window.handleDeleteCoupon('${c.id}')" style="background: var(--danger-color); color: #FFF; border: none; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem;"><i class="fas fa-trash"></i></button>
-          </div>
-        `).join('');
-      }
-
-      // Load Categories
-      const categories = await fetchCategoriesFromDB();
-      const catContainer = document.getElementById('admin-categories-list');
-      if (categories.length === 0) {
-        catContainer.innerHTML = '<p style="color:#777;">No custom categories created yet.</p>';
-      } else {
-        catContainer.innerHTML = categories.map(c => `
-          <div style="display: flex; justify-content: space-between; align-items: center; background: #FFF; border: 1px solid var(--border-color); padding: 8px; border-radius: 4px; margin-bottom: 6px; font-size: 0.85rem;">
-            <div><i class="fas ${c.icon || 'fa-folder'}"></i> <strong>${c.name}</strong></div>
-            <button onclick="window.handleDeleteCategory('${c.id}')" style="background: var(--danger-color); color: #FFF; border: none; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem;"><i class="fas fa-trash"></i></button>
-          </div>
-        `).join('');
+    async function loadAllAdminData() {
+      try {
+        await Promise.all([
+          loadProductsData(),
+          loadCategoriesData(),
+          loadUsersData(),
+          loadOrdersData(),
+          loadCouponsData(),
+          loadBannersData(),
+          loadSettingsData()
+        ]);
+        updateDashboardMetrics();
+      } catch (err) {
+        console.error('Error loading admin data:', err);
+        showToast('Error loading admin panel data.');
       }
     }
 
+    // -------------------------------------------------------------
+    // Dashboard Overview
+    // -------------------------------------------------------------
+    function updateDashboardMetrics() {
+      let totalSales = 0;
+      let orderCount = adminState.orders.length;
+      adminState.orders.forEach(o => {
+        if (o.orderStatus !== 'Cancelled') {
+          totalSales += Number(o.totalAmount || 0);
+        }
+      });
+
+      let pendingSellers = adminState.sellers.filter(s => s.sellerStatus === 'pending').length;
+      let customerCount = adminState.customers.length;
+
+      document.getElementById('stat-total-sales').textContent = `৳${totalSales.toLocaleString('bn-BD')}`;
+      document.getElementById('stat-total-orders').textContent = orderCount;
+      document.getElementById('stat-pending-sellers').textContent = pendingSellers;
+      document.getElementById('stat-total-users').textContent = customerCount;
+    }
+
+    // -------------------------------------------------------------
+    // Products CRUD & Table
+    // -------------------------------------------------------------
+    async function loadProductsData() {
+      const snap = await getDocs(collection(db, 'products'));
+      adminState.products = [];
+      snap.forEach(d => adminState.products.push({ id: d.id, ...d.data() }));
+      renderProductsTable();
+    }
+
+    window.renderProductsTable = () => {
+      const container = document.getElementById('admin-products-list');
+      const search = (document.getElementById('prod-search')?.value || '').toLowerCase();
+      const catFilter = document.getElementById('prod-category-filter')?.value || 'all';
+
+      let filtered = adminState.products.filter(p => {
+        const matchesSearch = (p.name || '').toLowerCase().includes(search) || (p.sku || '').toLowerCase().includes(search) || (p.sellerName || '').toLowerCase().includes(search);
+        const matchesCat = catFilter === 'all' || p.category === catFilter;
+        return matchesSearch && matchesCat;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="admin-loading-container"><i class="fas fa-box-open" style="font-size:2rem;"></i><p>No products found.</p></div>';
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Vendor</th>
+                <th>Flags</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered.map(p => `
+                <tr>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                      <img src="${p.images?.[0] || 'https://via.placeholder.com/40'}" style="width:40px; height:40px; object-fit:cover; border-radius:6px; border:1px solid #E5E7EB;">
+                      <div>
+                        <div style="font-weight:700;">${p.name}</div>
+                        <div style="font-size:0.75rem; color:#6B7280;">SKU: ${p.sku || 'N/A'}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="admin-badge admin-badge-active">${p.category || 'General'}</span></td>
+                  <td>
+                    <div style="font-weight:700; color:var(--accent-color);">৳${p.discountPrice || p.regularPrice}</div>
+                    ${p.discountPrice ? `<div style="font-size:0.72rem; text-decoration:line-through; color:#9CA3AF;">৳${p.regularPrice}</div>` : ''}
+                  </td>
+                  <td>
+                    <span class="admin-badge ${p.stock > 0 ? 'admin-badge-approved' : 'admin-badge-rejected'}">
+                      ${p.stock > 0 ? `${p.stock} in stock` : 'Out of Stock'}
+                    </span>
+                  </td>
+                  <td>${p.sellerName || 'Admin'}</td>
+                  <td>
+                    <div style="display:flex; gap:4px; font-size:0.8rem;">
+                      ${p.isFeatured ? '<i class="fas fa-star" title="Featured" style="color:#F59E0B;"></i>' : ''}
+                      ${p.isFlashSale ? '<i class="fas fa-bolt" title="Flash Sale" style="color:#EF4444;"></i>' : ''}
+                      ${p.isTrending ? '<i class="fas fa-fire" title="Trending" style="color:#F97316;"></i>' : ''}
+                    </div>
+                  </td>
+                  <td>
+                    <div class="admin-action-btn-group">
+                      <button onclick="window.editAdminProduct('${p.id}')" class="btn-outline admin-btn-sm"><i class="fas fa-edit"></i> Edit</button>
+                      <button onclick="window.deleteAdminProduct('${p.id}')" class="admin-btn-sm" style="background:var(--danger-color); color:#FFF;"><i class="fas fa-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    };
+
+    window.openProductModal = () => {
+      document.getElementById('modal-product-title').innerHTML = '<i class="fas fa-box-open"></i> Add New Product';
+      document.getElementById('admin-product-form').reset();
+      document.getElementById('adm-p-id').value = '';
+      window.openModal('modal-product');
+    };
+
     window.editAdminProduct = (id) => {
-      const p = allAdminProducts.find(i => i.id === id);
+      const p = adminState.products.find(i => i.id === id);
       if (!p) return;
+      document.getElementById('modal-product-title').innerHTML = '<i class="fas fa-edit"></i> Edit Product';
       document.getElementById('adm-p-id').value = p.id;
       document.getElementById('adm-p-name').value = p.name || '';
       document.getElementById('adm-p-category').value = p.category || 'electronics';
@@ -673,112 +825,21 @@
       document.getElementById('adm-flag-flash').checked = !!p.isFlashSale;
       document.getElementById('adm-flag-trending').checked = !!p.isTrending;
       document.getElementById('adm-flag-bestseller').checked = !!p.isBestSeller;
-      switchAdminTab('products');
+      window.openModal('modal-product');
     };
 
     window.deleteAdminProduct = async (id) => {
-      if (confirm('Delete product?')) {
+      if (confirm('Are you sure you want to delete this product?')) {
         await deleteDoc(doc(db, 'products', id));
-        showToast('Product Deleted');
-        loadAdminData();
+        showToast('Product Deleted Successfully');
+        await loadProductsData();
       }
     };
 
-    window.handleStatusChange = async (orderId, newStatus) => {
-      await updateOrderStatus(orderId, newStatus);
-      showToast('Order Status Updated');
-    };
-
-    window.downloadOrderInvoice = (orderId) => {
-      const order = loadedOrdersMap[orderId];
-      if (order) {
-        generatePDFInvoice(order);
-      } else {
-        showToast('Order details not loaded');
-      }
-    };
-
-    window.handleSellerApprove = async (userId, newStatus) => {
-      await updateSellerStatus(userId, newStatus);
-      showToast(`Seller status updated to ${newStatus}`);
-      loadAdminData();
-    };
-
-    window.handleDeleteCoupon = async (id) => {
-      await deleteCoupon(id);
-      showToast('Coupon deleted');
-      loadAdminData();
-    };
-
-    window.handleDeleteCategory = async (id) => {
-      await deleteCategoryFromDB(id);
-      showToast('Category deleted');
-      loadAdminData();
-    };
-
-    // Category Form Submit
-    document.getElementById('adm-category-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      await createCategory(
-        document.getElementById('cat-name').value.trim(),
-        document.getElementById('cat-icon').value.trim()
-      );
-      showToast('Category Added');
-      document.getElementById('adm-category-form').reset();
-      loadAdminData();
-    });
-
-    // Coupon Form Submit
-    document.getElementById('adm-coupon-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      await createCoupon(
-        document.getElementById('cpn-code').value.trim(),
-        document.getElementById('cpn-percent').value,
-        document.getElementById('cpn-flat').value,
-        document.getElementById('cpn-min').value
-      );
-      showToast('Coupon Created');
-      document.getElementById('adm-coupon-form').reset();
-      loadAdminData();
-    });
-
-    // Admin Delivery Form Submit
-    document.getElementById('adm-delivery-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      await saveAdminDeliverySettings(
-        document.getElementById('charge-inside').value,
-        document.getElementById('charge-outside').value
-      );
-      showToast('Delivery Settings Updated');
-    });
-
-    // Admin Payment Form Submit
-    document.getElementById('adm-payment-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      await saveAdminPaymentSettings(
-        document.getElementById('bkash-num-setting').value,
-        document.getElementById('cod-toggle-setting').checked
-      );
-      showToast('Payment Settings Updated');
-    });
-
-    // Admin Banner Upload Submit
-    document.getElementById('adm-banner-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const title = document.getElementById('banner-title').value;
-      const sub = document.getElementById('banner-sub').value;
-      const file = document.getElementById('banner-file').files[0];
-      await addBanner(title, sub, file);
-      showToast('Banner Added Successfully');
-      document.getElementById('adm-banner-form').reset();
-    });
-
-    // Admin Product Add/Edit Form
     document.getElementById('admin-product-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('adm-p-submit-btn');
 
-      // Validation check
       const name = document.getElementById('adm-p-name').value.trim();
       const category = document.getElementById('adm-p-category').value;
       const regPrice = document.getElementById('adm-p-reg-price').value;
@@ -791,23 +852,14 @@
       }
 
       btn.disabled = true;
-      btn.textContent = 'Publishing Product...';
+      btn.innerHTML = '<span class="admin-spinner"></span> Publishing...';
 
-      const publishPromise = (async () => {
+      try {
         const imageFiles = document.getElementById('adm-p-images').files;
         let imageUrls = [];
 
         if (imageFiles.length > 0) {
-          btn.textContent = `Uploading ${imageFiles.length} images...`;
-          const uploadPromises = Array.from(imageFiles).map((file, idx) => {
-            return uploadMediaFile(file, 'products/images').then(url => {
-              btn.textContent = `Uploaded image ${idx + 1} of ${imageFiles.length}...`;
-              return url;
-            }).catch(err => {
-              console.warn(`Image ${idx + 1} upload failed:`, err);
-              return null;
-            });
-          });
+          const uploadPromises = Array.from(imageFiles).map(file => uploadMediaFile(file, 'products/images').catch(() => null));
           const results = await Promise.all(uploadPromises);
           imageUrls = results.filter(Boolean);
         }
@@ -815,12 +867,11 @@
         const videoFile = document.getElementById('adm-p-video').files[0];
         let videoUrl = null;
         if (videoFile) {
-          btn.textContent = 'Uploading video...';
           videoUrl = await uploadMediaFile(videoFile, 'products/videos').catch(() => null);
         }
 
-        btn.textContent = 'Saving Product Data...';
         const productId = document.getElementById('adm-p-id').value || null;
+        const existingProduct = productId ? adminState.products.find(p => p.id === productId) : null;
 
         const productPayload = {
           name,
@@ -841,32 +892,760 @@
           isFlashSale: document.getElementById('adm-flag-flash').checked,
           isTrending: document.getElementById('adm-flag-trending').checked,
           isBestSeller: document.getElementById('adm-flag-bestseller').checked,
-          sellerId: 'admin',
-          images: imageUrls.length > 0 ? imageUrls : ['https://via.placeholder.com/400?text=Bangla+Bazar']
+          sellerId: existingProduct ? existingProduct.sellerId || 'admin' : 'admin',
+          images: imageUrls.length > 0 ? imageUrls : (existingProduct?.images || ['https://via.placeholder.com/400?text=Bangla+Bazar'])
         };
 
         if (videoUrl) productPayload.video = videoUrl;
 
         await saveSellerProduct(productPayload, productId);
-        showToast('Product Published Successfully!');
-        document.getElementById('admin-product-form').reset();
-        document.getElementById('adm-p-id').value = '';
-        loadAdminData();
-      })();
-
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Product publishing timed out. Please check network connection.')), 45000);
-      });
-
-      try {
-        await Promise.race([publishPromise, timeoutPromise]);
+        showToast('Product Saved Successfully!');
+        window.closeModal('modal-product');
+        await loadProductsData();
       } catch (err) {
-        console.error('Publishing error:', err);
-        showToast(err.message || 'Error publishing product. Please try again.');
+        console.error('Save product error:', err);
+        showToast('Failed to save product');
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Publish Product';
+        btn.textContent = 'Save Product';
       }
+    });
+
+    // -------------------------------------------------------------
+    // Categories CRUD & Table
+    // -------------------------------------------------------------
+    async function loadCategoriesData() {
+      adminState.categories = await fetchCategoriesFromDB();
+      populateCategoryDropdowns();
+      renderCategoriesTable();
+    }
+
+    function populateCategoryDropdowns() {
+      const select = document.getElementById('adm-p-category');
+      const filterSelect = document.getElementById('prod-category-filter');
+      if (!select) return;
+
+      const defaultCats = [
+        { id: 'electronics', name: 'Electronics' },
+        { id: 'fashion', name: 'Fashion' },
+        { id: 'home-living', name: 'Home & Living' },
+        { id: 'kitchen', name: 'Kitchen' },
+        { id: 'beauty', name: 'Beauty' },
+        { id: 'health', name: 'Health' },
+        { id: 'baby-care', name: 'Baby Care' },
+        { id: 'sports', name: 'Sports' },
+        { id: 'lighting', name: 'Lighting' },
+        { id: 'gadgets', name: 'Gadgets' }
+      ];
+
+      const combined = [...defaultCats];
+      adminState.categories.forEach(c => {
+        if (!combined.some(x => x.id === c.id)) {
+          combined.push({ id: c.id, name: c.name });
+        }
+      });
+
+      select.innerHTML = combined.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      if (filterSelect) {
+        filterSelect.innerHTML = '<option value="all">All Categories</option>' + combined.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      }
+    }
+
+    window.renderCategoriesTable = () => {
+      const container = document.getElementById('admin-categories-list');
+      const search = (document.getElementById('cat-search')?.value || '').toLowerCase();
+
+      let filtered = adminState.categories.filter(c => (c.name || '').toLowerCase().includes(search));
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="admin-loading-container"><i class="fas fa-tags" style="font-size:2rem;"></i><p>No categories found.</p></div>';
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Icon</th>
+                <th>Category Name</th>
+                <th>ID</th>
+                <th>Description</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered.map(c => `
+                <tr>
+                  <td><i class="fas ${c.icon || 'fa-folder'}" style="font-size:1.2rem; color:var(--primary-color);"></i></td>
+                  <td><strong>${c.name}</strong></td>
+                  <td><code>${c.id}</code></td>
+                  <td>${c.description || 'N/A'}</td>
+                  <td>
+                    <div class="admin-action-btn-group">
+                      <button onclick="window.editCategory('${c.id}')" class="btn-outline admin-btn-sm"><i class="fas fa-edit"></i> Edit</button>
+                      <button onclick="window.deleteCategory('${c.id}')" class="admin-btn-sm" style="background:var(--danger-color); color:#FFF;"><i class="fas fa-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    };
+
+    window.openCategoryModal = () => {
+      document.getElementById('modal-category-title').innerHTML = '<i class="fas fa-tags"></i> Add Category';
+      document.getElementById('adm-category-form').reset();
+      document.getElementById('cat-id').value = '';
+      window.openModal('modal-category');
+    };
+
+    window.editCategory = (id) => {
+      const c = adminState.categories.find(x => x.id === id);
+      if (!c) return;
+      document.getElementById('modal-category-title').innerHTML = '<i class="fas fa-edit"></i> Edit Category';
+      document.getElementById('cat-id').value = c.id;
+      document.getElementById('cat-name').value = c.name || '';
+      document.getElementById('cat-icon').value = c.icon || '';
+      document.getElementById('cat-desc').value = c.description || '';
+      window.openModal('modal-category');
+    };
+
+    window.deleteCategory = async (id) => {
+      if (confirm('Delete category?')) {
+        await deleteCategoryFromDB(id);
+        showToast('Category deleted');
+        await loadCategoriesData();
+      }
+    };
+
+    document.getElementById('adm-category-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('cat-id').value;
+      const name = document.getElementById('cat-name').value.trim();
+      const icon = document.getElementById('cat-icon').value.trim();
+      const desc = document.getElementById('cat-desc').value.trim();
+
+      if (id) {
+        await updateCategory(id, { name, icon: icon || 'fa-folder', description: desc });
+        showToast('Category updated');
+      } else {
+        await createCategory(name, icon, desc);
+        showToast('Category created');
+      }
+
+      window.closeModal('modal-category');
+      await loadCategoriesData();
+    });
+
+    // -------------------------------------------------------------
+    // Sellers & Customers Management
+    // -------------------------------------------------------------
+    async function loadUsersData() {
+      const allUsers = await fetchUsersFromDB();
+      adminState.sellers = allUsers.filter(u => u.sellerStatus && u.sellerStatus !== 'none');
+      adminState.customers = allUsers;
+      renderSellersTable();
+      renderCustomersTable();
+    }
+
+    window.renderSellersTable = () => {
+      const container = document.getElementById('admin-sellers-list');
+      const search = (document.getElementById('seller-search')?.value || '').toLowerCase();
+      const statusFilter = document.getElementById('seller-status-filter')?.value || 'all';
+
+      let filtered = adminState.sellers.filter(s => {
+        const matchesSearch = (s.storeName || s.displayName || '').toLowerCase().includes(search) || (s.email || '').toLowerCase().includes(search);
+        const matchesStatus = statusFilter === 'all' || s.sellerStatus === statusFilter;
+        return matchesSearch && matchesStatus;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="admin-loading-container"><i class="fas fa-store" style="font-size:2rem;"></i><p>No sellers found.</p></div>';
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Store / Seller Name</th>
+                <th>Contact Email</th>
+                <th>NID Number</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered.map(s => `
+                <tr>
+                  <td>
+                    <strong>${s.storeName || s.displayName || 'Seller Store'}</strong>
+                    <div style="font-size:0.75rem; color:#6B7280;">Owner: ${s.displayName || 'N/A'}</div>
+                  </td>
+                  <td>${s.email || 'N/A'}</td>
+                  <td>${s.sellerNID || 'N/A'}</td>
+                  <td>
+                    <span class="admin-badge admin-badge-${s.sellerStatus}">
+                      ${s.sellerStatus}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="admin-action-btn-group">
+                      <button onclick="window.handleSellerApprove('${s.id}', 'approved')" class="btn-primary admin-btn-sm" style="background:var(--success-color);"><i class="fas fa-check"></i> Approve</button>
+                      <button onclick="window.handleSellerApprove('${s.id}', 'rejected')" class="admin-btn-sm" style="background:var(--danger-color); color:#FFF;"><i class="fas fa-times"></i> Reject</button>
+                      <button onclick="window.editSellerModal('${s.id}')" class="btn-outline admin-btn-sm"><i class="fas fa-edit"></i> Edit</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    };
+
+    window.handleSellerApprove = async (userId, status) => {
+      await updateSellerStatus(userId, status);
+      showToast(`Seller status updated to ${status}`);
+      await loadUsersData();
+      updateDashboardMetrics();
+    };
+
+    window.editSellerModal = (id) => {
+      const s = adminState.sellers.find(x => x.id === id);
+      if (!s) return;
+      document.getElementById('seller-id').value = s.id;
+      document.getElementById('seller-store-name').value = s.storeName || '';
+      document.getElementById('seller-owner-name').value = s.displayName || '';
+      document.getElementById('seller-phone').value = s.phone || '';
+      document.getElementById('seller-nid').value = s.sellerNID || '';
+      document.getElementById('seller-status-select').value = s.sellerStatus || 'pending';
+      window.openModal('modal-seller');
+    };
+
+    document.getElementById('adm-seller-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('seller-id').value;
+      const storeName = document.getElementById('seller-store-name').value.trim();
+      const displayName = document.getElementById('seller-owner-name').value.trim();
+      const phone = document.getElementById('seller-phone').value.trim();
+      const sellerNID = document.getElementById('seller-nid').value.trim();
+      const sellerStatus = document.getElementById('seller-status-select').value;
+
+      await updateUserProfile(id, { storeName, displayName, phone, sellerNID, sellerStatus, role: sellerStatus === 'approved' ? 'seller' : 'customer' });
+      showToast('Seller details updated');
+      window.closeModal('modal-seller');
+      await loadUsersData();
+    });
+
+    window.renderCustomersTable = () => {
+      const container = document.getElementById('admin-customers-list');
+      const search = (document.getElementById('cust-search')?.value || '').toLowerCase();
+      const roleFilter = document.getElementById('cust-role-filter')?.value || 'all';
+
+      let filtered = adminState.customers.filter(c => {
+        const matchesSearch = (c.displayName || '').toLowerCase().includes(search) || (c.email || '').toLowerCase().includes(search);
+        const matchesRole = roleFilter === 'all' || (c.role || 'customer') === roleFilter;
+        return matchesSearch && matchesRole;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="admin-loading-container"><i class="fas fa-users" style="font-size:2rem;"></i><p>No customers found.</p></div>';
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Customer Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Role</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered.map(c => `
+                <tr>
+                  <td><strong>${c.displayName || 'Customer'}</strong></td>
+                  <td>${c.email || 'No email'}</td>
+                  <td>${c.phone || 'N/A'}</td>
+                  <td><span class="admin-badge admin-badge-active">${c.role || 'customer'}</span></td>
+                  <td>
+                    <div class="admin-action-btn-group">
+                      <button onclick="window.editCustomerModal('${c.id}')" class="btn-outline admin-btn-sm"><i class="fas fa-user-edit"></i> Edit</button>
+                      <button onclick="window.deleteCustomer('${c.id}')" class="admin-btn-sm" style="background:var(--danger-color); color:#FFF;"><i class="fas fa-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    };
+
+    window.editCustomerModal = (id) => {
+      const c = adminState.customers.find(x => x.id === id);
+      if (!c) return;
+      document.getElementById('cust-id').value = c.id;
+      document.getElementById('cust-name-input').value = c.displayName || '';
+      document.getElementById('cust-phone-input').value = c.phone || '';
+      document.getElementById('cust-role-select').value = c.role || 'customer';
+      window.openModal('modal-customer');
+    };
+
+    window.deleteCustomer = async (id) => {
+      if (confirm('Delete customer account?')) {
+        await deleteUserDoc(id);
+        showToast('Customer account deleted');
+        await loadUsersData();
+      }
+    };
+
+    document.getElementById('adm-customer-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('cust-id').value;
+      const displayName = document.getElementById('cust-name-input').value.trim();
+      const phone = document.getElementById('cust-phone-input').value.trim();
+      const role = document.getElementById('cust-role-select').value;
+
+      await updateUserProfile(id, { displayName, phone, role });
+      showToast('Customer account updated');
+      window.closeModal('modal-customer');
+      await loadUsersData();
+    });
+
+    // -------------------------------------------------------------
+    // Orders Management
+    // -------------------------------------------------------------
+    async function loadOrdersData() {
+      adminState.orders = await fetchOrdersFromDB();
+      // Sort newest first
+      adminState.orders.sort((a, b) => {
+        const timeA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : (a.createdAt || 0);
+        const timeB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : (b.createdAt || 0);
+        return timeB - timeA;
+      });
+      renderOrdersList();
+    }
+
+    window.renderOrdersList = () => {
+      const container = document.getElementById('admin-orders-list');
+      const search = (document.getElementById('order-search')?.value || '').toLowerCase();
+      const statusFilter = document.getElementById('order-status-filter')?.value || 'all';
+
+      let filtered = adminState.orders.filter(o => {
+        const matchesSearch = (o.id || '').toLowerCase().includes(search) || (o.customerInfo?.name || '').toLowerCase().includes(search) || (o.customerInfo?.phone || '').toLowerCase().includes(search);
+        const matchesStatus = statusFilter === 'all' || o.orderStatus === statusFilter;
+        return matchesSearch && matchesStatus;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="admin-loading-container"><i class="fas fa-shopping-bag" style="font-size:2rem;"></i><p>No orders found.</p></div>';
+        return;
+      }
+
+      container.innerHTML = filtered.map(o => {
+        let orderDateStr = 'Not provided';
+        if (o.createdAt) {
+          if (o.createdAt.seconds) {
+            orderDateStr = new Date(o.createdAt.seconds * 1000).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+          } else {
+            orderDateStr = new Date(o.createdAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+          }
+        }
+
+        const items = Array.isArray(o.items) ? o.items : [];
+        const itemsListHTML = items.map(item => `
+          <div style="display: flex; gap: 10px; align-items: center; background: #F8F9FA; padding: 8px; border-radius: 6px; margin-bottom: 6px; border: 1px solid #E5E7EB;">
+            <img src="${item.image || (item.images && item.images[0]) || 'https://via.placeholder.com/50'}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 4px; border: 1px solid #DDD;">
+            <div style="flex: 1;">
+              <div style="font-weight: 600; font-size: 0.85rem; color: #111;">${item.name || 'Unnamed Product'}</div>
+              <div style="font-size: 0.75rem; color: #666;">
+                Price: ৳${item.price || 0} | Qty: ${item.quantity || 1}
+                ${item.variant ? ` | <span style="color: var(--accent-color); font-weight: 600;">Variant: ${item.variant}</span>` : ''}
+              </div>
+            </div>
+            <div style="font-weight: bold; color: var(--primary-color); font-size: 0.9rem;">৳${(Number(item.price || 0) * Number(item.quantity || 1)).toLocaleString('bn-BD')}</div>
+          </div>
+        `).join('');
+
+        const statusClass = (o.orderStatus || 'pending').toLowerCase().replace(/\s+/g, '-');
+
+        return `
+          <div class="glass-card" style="margin-bottom: 16px; border: 1px solid #E0E0E0; padding: 16px;">
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; margin-bottom: 12px; gap: 8px;">
+              <div>
+                <span style="font-weight: 800; font-size: 1rem; color: var(--primary-color);">Order ID: #${o.id}</span>
+                <div style="font-size: 0.75rem; color: #666; margin-top: 2px;"><i class="far fa-clock"></i> ${orderDateStr}</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="admin-badge admin-badge-${statusClass}">${o.orderStatus || 'Pending'}</span>
+                <select onchange="window.handleStatusChange('${o.id}', this.value)" style="padding: 4px 8px; font-size: 0.8rem; font-weight: bold; border-radius: 6px; border: 1px solid #CCC; background: #FFF;">
+                  <option value="Pending" ${o.orderStatus==='Pending'?'selected':''}>Pending</option>
+                  <option value="Confirmed" ${o.orderStatus==='Confirmed'?'selected':''}>Confirmed</option>
+                  <option value="Packed" ${o.orderStatus==='Packed'?'selected':''}>Packed</option>
+                  <option value="Shipped" ${o.orderStatus==='Shipped'?'selected':''}>Shipped</option>
+                  <option value="Out for Delivery" ${o.orderStatus==='Out for Delivery'?'selected':''}>Out for Delivery</option>
+                  <option value="Delivered" ${o.orderStatus==='Delivered'?'selected':''}>Delivered</option>
+                  <option value="Cancelled" ${o.orderStatus==='Cancelled'?'selected':''}>Cancelled</option>
+                </select>
+                <button onclick="window.downloadOrderInvoice('${o.id}')" class="btn-accent admin-btn-sm">
+                  <i class="fas fa-file-pdf"></i> PDF
+                </button>
+                <button onclick="window.deleteOrder('${o.id}')" class="admin-btn-sm" style="background:var(--danger-color); color:#FFF;">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 14px;">
+              <div style="background: #F9FAFB; padding: 10px 12px; border-radius: 6px; border: 1px solid #E5E7EB; font-size: 0.82rem;">
+                <h4 style="color: var(--primary-color); font-size: 0.85rem; border-bottom: 1px solid #DDD; padding-bottom: 4px; margin-bottom: 6px;"><i class="fas fa-user"></i> Customer Information</h4>
+                <div><strong>Name:</strong> ${o.customerInfo?.name || 'N/A'}</div>
+                <div><strong>Mobile:</strong> <a href="tel:${o.customerInfo?.phone || ''}" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">${o.customerInfo?.phone || 'N/A'}</a></div>
+                <div><strong>Email:</strong> ${o.customerInfo?.email || 'N/A'}</div>
+              </div>
+
+              <div style="background: #F9FAFB; padding: 10px 12px; border-radius: 6px; border: 1px solid #E5E7EB; font-size: 0.82rem;">
+                <h4 style="color: var(--primary-color); font-size: 0.85rem; border-bottom: 1px solid #DDD; padding-bottom: 4px; margin-bottom: 6px;"><i class="fas fa-map-marker-alt"></i> Delivery Address</h4>
+                <div><strong>Division:</strong> ${o.shippingAddress?.division || 'N/A'}</div>
+                <div><strong>District:</strong> ${o.shippingAddress?.district || 'N/A'}</div>
+                <div><strong>Upazila:</strong> ${o.shippingAddress?.thana || o.shippingAddress?.upazila || 'N/A'}</div>
+                <div><strong>Union:</strong> ${o.shippingAddress?.union || 'N/A'}</div>
+                <div><strong>Address:</strong> ${o.shippingAddress?.village || 'N/A'}</div>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+              <h4 style="color: var(--primary-color); font-size: 0.85rem; margin-bottom: 8px;"><i class="fas fa-shopping-bag"></i> Products (${items.length})</h4>
+              ${itemsListHTML}
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; background: #FFF3E0; padding: 12px; border-radius: 6px; border: 1px solid #FFE0B2; font-size: 0.82rem; gap: 10px;">
+              <div>
+                <h4 style="color: #E65100; font-size: 0.85rem; margin-bottom: 4px;"><i class="fas fa-credit-card"></i> Payment</h4>
+                <div><strong>Method:</strong> ${(o.paymentMethod || 'COD').toUpperCase()}</div>
+                ${o.bKashTxnId ? `<div style="color: #D84315; font-weight: bold;">bKash TrxID: ${o.bKashTxnId}</div>` : ''}
+              </div>
+
+              <div style="text-align: right; min-width: 180px;">
+                <div style="font-size: 1.05rem; font-weight: 800; color: var(--primary-color);">
+                  Total: ৳${Number(o.totalAmount || 0).toLocaleString('bn-BD')}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    };
+
+    window.handleStatusChange = async (orderId, newStatus) => {
+      await updateOrderStatus(orderId, newStatus);
+      showToast('Order Status Updated');
+      await loadOrdersData();
+      updateDashboardMetrics();
+    };
+
+    window.downloadOrderInvoice = (orderId) => {
+      const order = adminState.orders.find(o => o.id === orderId);
+      if (order) {
+        generatePDFInvoice(order);
+      } else {
+        showToast('Order details not found');
+      }
+    };
+
+    window.deleteOrder = async (orderId) => {
+      if (confirm('Delete order record permanently?')) {
+        await deleteOrderDoc(orderId);
+        showToast('Order Deleted');
+        await loadOrdersData();
+        updateDashboardMetrics();
+      }
+    };
+
+    // -------------------------------------------------------------
+    // Coupon Management
+    // -------------------------------------------------------------
+    async function loadCouponsData() {
+      adminState.coupons = await fetchCoupons();
+      renderCouponsTable();
+    }
+
+    window.renderCouponsTable = () => {
+      const container = document.getElementById('admin-coupons-list');
+      const search = (document.getElementById('coupon-search')?.value || '').toLowerCase();
+
+      let filtered = adminState.coupons.filter(c => (c.code || '').toLowerCase().includes(search));
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="admin-loading-container"><i class="fas fa-ticket-alt" style="font-size:2rem;"></i><p>No coupons found.</p></div>';
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Coupon Code</th>
+                <th>Discount</th>
+                <th>Min Spend</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered.map(c => `
+                <tr>
+                  <td><strong style="color:var(--primary-color);">${c.code}</strong></td>
+                  <td>${c.discountPercent ? `${c.discountPercent}% OFF` : `৳${c.flatDiscount} OFF`}</td>
+                  <td>৳${c.minSpend || 0}</td>
+                  <td>
+                    <span class="admin-badge ${c.isActive !== false ? 'admin-badge-active' : 'admin-badge-inactive'}">
+                      ${c.isActive !== false ? 'Active' : 'Disabled'}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="admin-action-btn-group">
+                      <button onclick="window.toggleCoupon('${c.id}', ${c.isActive !== false})" class="btn-outline admin-btn-sm">
+                        ${c.isActive !== false ? '<i class="fas fa-pause"></i> Disable' : '<i class="fas fa-play"></i> Enable'}
+                      </button>
+                      <button onclick="window.editCouponModal('${c.id}')" class="btn-outline admin-btn-sm"><i class="fas fa-edit"></i> Edit</button>
+                      <button onclick="window.handleDeleteCoupon('${c.id}')" class="admin-btn-sm" style="background:var(--danger-color); color:#FFF;"><i class="fas fa-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    };
+
+    window.openCouponModal = () => {
+      document.getElementById('modal-coupon-title').innerHTML = '<i class="fas fa-ticket-alt"></i> Create Coupon';
+      document.getElementById('adm-coupon-form').reset();
+      document.getElementById('cpn-id').value = '';
+      window.openModal('modal-coupon');
+    };
+
+    window.editCouponModal = (id) => {
+      const c = adminState.coupons.find(x => x.id === id);
+      if (!c) return;
+      document.getElementById('modal-coupon-title').innerHTML = '<i class="fas fa-edit"></i> Edit Coupon';
+      document.getElementById('cpn-id').value = c.id;
+      document.getElementById('cpn-code').value = c.code || '';
+      document.getElementById('cpn-percent').value = c.discountPercent || '';
+      document.getElementById('cpn-flat').value = c.flatDiscount || '';
+      document.getElementById('cpn-min').value = c.minSpend || '';
+      document.getElementById('cpn-active').checked = c.isActive !== false;
+      window.openModal('modal-coupon');
+    };
+
+    window.toggleCoupon = async (id, currentStatus) => {
+      await toggleCouponStatus(id, currentStatus);
+      showToast('Coupon status updated');
+      await loadCouponsData();
+    };
+
+    window.handleDeleteCoupon = async (id) => {
+      if (confirm('Delete coupon?')) {
+        await deleteCoupon(id);
+        showToast('Coupon deleted');
+        await loadCouponsData();
+      }
+    };
+
+    document.getElementById('adm-coupon-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('cpn-id').value;
+      const code = document.getElementById('cpn-code').value;
+      const percent = document.getElementById('cpn-percent').value;
+      const flat = document.getElementById('cpn-flat').value;
+      const min = document.getElementById('cpn-min').value;
+      const isActive = document.getElementById('cpn-active').checked;
+
+      if (id) {
+        await updateCoupon(id, { code: code.toUpperCase().trim(), discountPercent: Number(percent || 0), flatDiscount: Number(flat || 0), minSpend: Number(min || 0), isActive });
+        showToast('Coupon updated');
+      } else {
+        await createCoupon(code, percent, flat, min, isActive);
+        showToast('Coupon created');
+      }
+
+      window.closeModal('modal-coupon');
+      await loadCouponsData();
+    });
+
+    // -------------------------------------------------------------
+    // Settings Management
+    // -------------------------------------------------------------
+    async function loadSettingsData() {
+      adminState.settings = await fetchAdminSettings();
+      if (adminState.settings.delivery) {
+        document.getElementById('charge-inside').value = adminState.settings.delivery.insideKushtia || 100;
+        document.getElementById('charge-outside').value = adminState.settings.delivery.outsideKushtia || 160;
+      }
+      if (adminState.settings.payment) {
+        document.getElementById('bkash-num-setting').value = adminState.settings.payment.bKashNumber || '01342697743';
+        document.getElementById('cod-toggle-setting').checked = adminState.settings.payment.codEnabled !== false;
+      }
+      if (adminState.settings.general) {
+        document.getElementById('gen-site-name').value = adminState.settings.general.siteName || 'Bangla Bazar';
+        document.getElementById('gen-hotline').value = adminState.settings.general.hotline || '+8809658183506';
+        document.getElementById('gen-support-email').value = adminState.settings.general.supportEmail || 'saripofficialsupport@gmail.com';
+      }
+    }
+
+    document.getElementById('adm-delivery-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await saveAdminDeliverySettings(
+        document.getElementById('charge-inside').value,
+        document.getElementById('charge-outside').value
+      );
+      showToast('Delivery Settings Saved');
+    });
+
+    document.getElementById('adm-payment-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await saveAdminPaymentSettings(
+        document.getElementById('bkash-num-setting').value,
+        document.getElementById('cod-toggle-setting').checked
+      );
+      showToast('Payment Settings Saved');
+    });
+
+    document.getElementById('adm-general-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await saveAdminGeneralSettings({
+        siteName: document.getElementById('gen-site-name').value.trim(),
+        hotline: document.getElementById('gen-hotline').value.trim(),
+        supportEmail: document.getElementById('gen-support-email').value.trim()
+      });
+      showToast('General Settings Saved');
+    });
+
+    // -------------------------------------------------------------
+    // Banner Management
+    // -------------------------------------------------------------
+    async function loadBannersData() {
+      adminState.banners = await fetchBannersFromDB();
+      renderBannersTable();
+    }
+
+    window.renderBannersTable = () => {
+      const container = document.getElementById('admin-banners-list');
+      const search = (document.getElementById('banner-search')?.value || '').toLowerCase();
+
+      let filtered = adminState.banners.filter(b => (b.title || '').toLowerCase().includes(search));
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="admin-loading-container"><i class="fas fa-images" style="font-size:2rem;"></i><p>No banners found.</p></div>';
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Banner Preview</th>
+                <th>Title & Subtitle</th>
+                <th>Target Link</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered.map(b => `
+                <tr>
+                  <td><img src="${b.image}" style="width:100px; height:45px; object-fit:cover; border-radius:6px; border:1px solid #E5E7EB;"></td>
+                  <td>
+                    <strong>${b.title}</strong>
+                    <div style="font-size:0.75rem; color:#6B7280;">${b.subtitle || 'No subtitle'}</div>
+                  </td>
+                  <td><code>${b.linkTo || 'shop.html'}</code></td>
+                  <td>
+                    <span class="admin-badge ${b.isActive !== false ? 'admin-badge-active' : 'admin-badge-inactive'}">
+                      ${b.isActive !== false ? 'Active' : 'Hidden'}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="admin-action-btn-group">
+                      <button onclick="window.toggleBanner('${b.id}', ${b.isActive !== false})" class="btn-outline admin-btn-sm">
+                        ${b.isActive !== false ? '<i class="fas fa-eye-slash"></i> Hide' : '<i class="fas fa-eye"></i> Show'}
+                      </button>
+                      <button onclick="window.editBannerModal('${b.id}')" class="btn-outline admin-btn-sm"><i class="fas fa-edit"></i> Edit</button>
+                      <button onclick="window.deleteBanner('${b.id}')" class="admin-btn-sm" style="background:var(--danger-color); color:#FFF;"><i class="fas fa-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    };
+
+    window.openBannerModal = () => {
+      document.getElementById('modal-banner-title').innerHTML = '<i class="fas fa-image"></i> Add Banner';
+      document.getElementById('adm-banner-form').reset();
+      document.getElementById('banner-id').value = '';
+      window.openModal('modal-banner');
+    };
+
+    window.editBannerModal = (id) => {
+      const b = adminState.banners.find(x => x.id === id);
+      if (!b) return;
+      document.getElementById('modal-banner-title').innerHTML = '<i class="fas fa-edit"></i> Edit Banner';
+      document.getElementById('banner-id').value = b.id;
+      document.getElementById('banner-title').value = b.title || '';
+      document.getElementById('banner-sub').value = b.subtitle || '';
+      document.getElementById('banner-link').value = b.linkTo || 'shop.html';
+      window.openModal('modal-banner');
+    };
+
+    window.toggleBanner = async (id, currentStatus) => {
+      await toggleBannerVisibility(id, currentStatus);
+      showToast('Banner visibility updated');
+      await loadBannersData();
+    };
+
+    window.deleteBanner = async (id) => {
+      if (confirm('Delete banner?')) {
+        await deleteBannerFromDB(id);
+        showToast('Banner deleted');
+        await loadBannersData();
+      }
+    };
+
+    document.getElementById('adm-banner-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('banner-id').value;
+      const title = document.getElementById('banner-title').value;
+      const subtitle = document.getElementById('banner-sub').value;
+      const linkTo = document.getElementById('banner-link').value;
+      const file = document.getElementById('banner-file').files[0];
+
+      if (id) {
+        await updateBanner(id, { title, subtitle, linkTo }, file);
+        showToast('Banner updated');
+      } else {
+        await addBanner(title, subtitle, file, linkTo);
+        showToast('Banner added');
+      }
+
+      window.closeModal('modal-banner');
+      await loadBannersData();
     });
   </script>
 </body>
