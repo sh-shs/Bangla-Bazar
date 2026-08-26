@@ -417,19 +417,33 @@
           <input type="hidden" id="cat-id">
           <div class="form-group">
             <label class="form-label">Category Name *</label>
-            <input type="text" id="cat-name" class="form-control" required placeholder="e.g. Organic Food">
+            <input type="text" id="cat-name" class="form-control" required placeholder="e.g. Electronics">
           </div>
           <div class="form-group">
-            <label class="form-label">FontAwesome Icon Class</label>
-            <input type="text" id="cat-icon" class="form-control" placeholder="e.g. fa-leaf">
+            <label class="form-label">Category Slug (Auto-generated)</label>
+            <input type="text" id="cat-slug" class="form-control" placeholder="e.g. electronics">
           </div>
           <div class="form-group">
-            <label class="form-label">Description (Optional)</label>
+            <label class="form-label">Description</label>
             <textarea id="cat-desc" class="form-control" rows="2" placeholder="Brief category description"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category Image URL or Upload</label>
+            <input type="text" id="cat-image" class="form-control" placeholder="https://example.com/image.jpg" style="margin-bottom: 6px;">
+            <input type="file" id="cat-image-file" class="form-control" accept="image/*">
+          </div>
+          <div class="form-group">
+            <label class="form-label">FontAwesome Icon Class (Optional)</label>
+            <input type="text" id="cat-icon" class="form-control" placeholder="e.g. fa-laptop">
+          </div>
+          <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer;">
+              <input type="checkbox" id="cat-active" checked> Active Category
+            </label>
           </div>
           <div class="admin-modal-footer">
             <button type="button" class="btn-outline" onclick="window.closeModal('modal-category')">Cancel</button>
-            <button type="submit" class="btn-primary">Save Category</button>
+            <button type="submit" id="cat-submit-btn" class="btn-primary">Save Category</button>
           </div>
         </form>
       </div>
@@ -529,28 +543,43 @@
             <label class="form-label">Coupon Code *</label>
             <input type="text" id="cpn-code" class="form-control" required placeholder="e.g. KUSHTIA50" style="text-transform: uppercase;">
           </div>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
-            <div class="form-group">
-              <label class="form-label">Discount %</label>
-              <input type="number" id="cpn-percent" class="form-control" placeholder="10">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Flat Discount (৳)</label>
-              <input type="number" id="cpn-flat" class="form-control" placeholder="50">
+
+          <div class="form-group">
+            <label class="form-label">Discount Type *</label>
+            <div style="display: flex; gap: 16px; margin-top: 4px;">
+              <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 600;">
+                <input type="radio" name="cpn_discount_type" value="percentage" checked> Percentage (%)
+              </label>
+              <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 600;">
+                <input type="radio" name="cpn_discount_type" value="flat"> Fixed Amount (৳)
+              </label>
             </div>
           </div>
+
+          <div class="form-group" id="cpn-percent-wrapper">
+            <label class="form-label">Discount % *</label>
+            <input type="number" id="cpn-percent" class="form-control" min="1" max="100" placeholder="e.g. 10">
+          </div>
+
+          <div class="form-group" id="cpn-flat-wrapper" style="display: none;">
+            <label class="form-label">Flat Discount (৳) *</label>
+            <input type="number" id="cpn-flat" class="form-control" min="1" placeholder="e.g. 50">
+          </div>
+
           <div class="form-group">
             <label class="form-label">Minimum Spend (৳)</label>
-            <input type="number" id="cpn-min" class="form-control" placeholder="500">
+            <input type="number" id="cpn-min" class="form-control" min="0" placeholder="e.g. 500">
           </div>
+
           <div class="form-group">
             <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer;">
               <input type="checkbox" id="cpn-active" checked> Active Coupon
             </label>
           </div>
+
           <div class="admin-modal-footer">
             <button type="button" class="btn-outline" onclick="window.closeModal('modal-coupon')">Cancel</button>
-            <button type="submit" class="btn-accent">Save Coupon</button>
+            <button type="submit" id="cpn-submit-btn" class="btn-accent">Save Coupon</button>
           </div>
         </form>
       </div>
@@ -602,8 +631,10 @@
       saveAdminDeliverySettings,
       saveAdminPaymentSettings,
       saveAdminGeneralSettings,
+      generateCategorySlug,
       createCategory,
       updateCategory,
+      toggleCategoryStatus,
       fetchCategoriesFromDB,
       deleteCategoryFromDB,
       fetchUsersFromDB,
@@ -959,10 +990,16 @@
         { id: 'gadgets', name: 'Gadgets' }
       ];
 
-      const combined = [...defaultCats];
-      adminState.categories.forEach(c => {
-        if (!combined.some(x => x.id === c.id)) {
-          combined.push({ id: c.id, name: c.name });
+      // Active categories from DB take priority
+      const dbActiveCats = (adminState.categories || []).filter(c => c.isActive !== false).map(c => ({
+        id: c.slug || c.id,
+        name: c.name
+      }));
+
+      const combined = [...dbActiveCats];
+      defaultCats.forEach(c => {
+        if (!combined.some(x => x.id === c.id || x.name.toLowerCase() === c.name.toLowerCase())) {
+          combined.push(c);
         }
       });
 
@@ -974,12 +1011,22 @@
 
     window.renderCategoriesTable = () => {
       const container = document.getElementById('admin-categories-list');
-      const search = (document.getElementById('cat-search')?.value || '').toLowerCase();
+      const search = (document.getElementById('cat-search')?.value || '').toLowerCase().trim();
 
-      let filtered = adminState.categories.filter(c => (c.name || '').toLowerCase().includes(search));
+      let filtered = adminState.categories.filter(c => {
+        const catName = (c.name || '').toLowerCase();
+        const catSlug = (c.slug || c.id || '').toLowerCase();
+        return catName.includes(search) || catSlug.includes(search);
+      });
 
       if (filtered.length === 0) {
-        container.innerHTML = '<div class="admin-loading-container"><i class="fas fa-tags" style="font-size:2rem;"></i><p>No categories found.</p></div>';
+        container.innerHTML = `
+          <div class="admin-loading-container" style="text-align:center; padding: 30px;">
+            <i class="fas fa-tags" style="font-size:2rem; color:var(--text-muted); margin-bottom: 10px;"></i>
+            <p style="font-size: 1rem; color: var(--text-muted); margin-bottom: 14px;">No categories found.</p>
+            <button class="btn-primary" onclick="window.openCategoryModal()" style="display:inline-flex; align-items:center; gap:6px;"><i class="fas fa-plus"></i> Add Category</button>
+          </div>
+        `;
         return;
       }
 
@@ -988,38 +1035,71 @@
           <table class="admin-table">
             <thead>
               <tr>
-                <th>Icon</th>
+                <th>Image / Icon</th>
                 <th>Category Name</th>
-                <th>ID</th>
-                <th>Description</th>
+                <th>Slug</th>
+                <th>Products</th>
+                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              ${filtered.map(c => `
-                <tr>
-                  <td><i class="fas ${c.icon || 'fa-folder'}" style="font-size:1.2rem; color:var(--primary-color);"></i></td>
-                  <td><strong>${c.name}</strong></td>
-                  <td><code>${c.id}</code></td>
-                  <td>${c.description || 'N/A'}</td>
-                  <td>
-                    <div class="admin-action-btn-group">
-                      <button onclick="window.editCategory('${c.id}')" class="btn-outline admin-btn-sm"><i class="fas fa-edit"></i> Edit</button>
-                      <button onclick="window.deleteCategory('${c.id}')" class="admin-btn-sm" style="background:var(--danger-color); color:#FFF;"><i class="fas fa-trash"></i></button>
-                    </div>
-                  </td>
-                </tr>
-              `).join('')}
+              ${filtered.map(c => {
+                const prodCount = adminState.products.filter(p => p.category === c.id || p.category === c.slug || (p.category && p.category.toLowerCase() === (c.name || '').toLowerCase())).length;
+                const activeState = c.isActive !== false;
+                const imageContent = c.image ?
+                  `<img src="${c.image}" style="width:40px; height:40px; object-fit:cover; border-radius:6px; border:1px solid #E5E7EB;">` :
+                  `<i class="fas ${c.icon || 'fa-folder'}" style="font-size:1.3rem; color:var(--primary-color);"></i>`;
+
+                return `
+                  <tr>
+                    <td>${imageContent}</td>
+                    <td>
+                      <strong>${c.name}</strong>
+                      ${c.description ? `<div style="font-size:0.75rem; color:#6B7280;">${c.description}</div>` : ''}
+                    </td>
+                    <td><code>${c.slug || c.id}</code></td>
+                    <td><span class="admin-badge admin-badge-active">${prodCount} Products</span></td>
+                    <td>
+                      <span class="admin-badge ${activeState ? 'admin-badge-active' : 'admin-badge-inactive'}">
+                        ${activeState ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="admin-action-btn-group">
+                        <button onclick="window.toggleCategoryStatusHandler('${c.id}', ${activeState})" class="btn-outline admin-btn-sm">
+                          ${activeState ? '<i class="fas fa-pause"></i> Deactivate' : '<i class="fas fa-play"></i> Activate'}
+                        </button>
+                        <button onclick="window.editCategory('${c.id}')" class="btn-outline admin-btn-sm"><i class="fas fa-edit"></i> Edit</button>
+                        <button onclick="window.deleteCategory('${c.id}')" class="admin-btn-sm" style="background:var(--danger-color); color:#FFF;"><i class="fas fa-trash"></i> Delete</button>
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
             </tbody>
           </table>
         </div>
       `;
     };
 
+    // Auto-generate slug live from category name
+    const catNameInput = document.getElementById('cat-name');
+    const catSlugInput = document.getElementById('cat-slug');
+    if (catNameInput && catSlugInput) {
+      catNameInput.addEventListener('input', () => {
+        const catId = document.getElementById('cat-id')?.value;
+        if (!catId) {
+          catSlugInput.value = generateCategorySlug(catNameInput.value);
+        }
+      });
+    }
+
     window.openCategoryModal = () => {
       document.getElementById('modal-category-title').innerHTML = '<i class="fas fa-tags"></i> Add Category';
       document.getElementById('adm-category-form').reset();
       document.getElementById('cat-id').value = '';
+      document.getElementById('cat-active').checked = true;
       window.openModal('modal-category');
     };
 
@@ -1029,36 +1109,98 @@
       document.getElementById('modal-category-title').innerHTML = '<i class="fas fa-edit"></i> Edit Category';
       document.getElementById('cat-id').value = c.id;
       document.getElementById('cat-name').value = c.name || '';
-      document.getElementById('cat-icon').value = c.icon || '';
+      document.getElementById('cat-slug').value = c.slug || c.id || '';
       document.getElementById('cat-desc').value = c.description || '';
+      document.getElementById('cat-image').value = c.image || '';
+      document.getElementById('cat-icon').value = c.icon || '';
+      document.getElementById('cat-active').checked = c.isActive !== false;
       window.openModal('modal-category');
     };
 
-    window.deleteCategory = async (id) => {
-      if (confirm('Delete category?')) {
-        await deleteCategoryFromDB(id);
-        showToast('Category deleted');
+    window.toggleCategoryStatusHandler = async (id, currentStatus) => {
+      try {
+        await toggleCategoryStatus(id, currentStatus);
+        showToast('Category status updated');
         await loadCategoriesData();
+      } catch (err) {
+        showToast(err.message || 'Failed to update category status');
+      }
+    };
+
+    window.deleteCategory = async (id) => {
+      const c = adminState.categories.find(x => x.id === id);
+      const catName = c ? c.name : id;
+
+      // Safe deletion check: Check if products belong to this category
+      const assignedProducts = adminState.products.filter(p => p.category === id || p.category === c?.slug || (p.category && p.category.toLowerCase() === (catName || '').toLowerCase()));
+      if (assignedProducts.length > 0) {
+        alert(`This category contains ${assignedProducts.length} product(s). Please move or remove those products before deleting.`);
+        return;
+      }
+
+      if (confirm(`Are you sure you want to delete this category ("${catName}")?`)) {
+        try {
+          await deleteCategoryFromDB(id);
+          showToast('Category deleted successfully.');
+          await loadCategoriesData();
+        } catch (err) {
+          showToast(err.message || 'Failed to delete category');
+        }
       }
     };
 
     document.getElementById('adm-category-form').addEventListener('submit', async (e) => {
       e.preventDefault();
+      const submitBtn = document.getElementById('cat-submit-btn');
       const id = document.getElementById('cat-id').value;
       const name = document.getElementById('cat-name').value.trim();
-      const icon = document.getElementById('cat-icon').value.trim();
+      const slug = document.getElementById('cat-slug').value.trim();
       const desc = document.getElementById('cat-desc').value.trim();
+      let image = document.getElementById('cat-image').value.trim();
+      const icon = document.getElementById('cat-icon').value.trim();
+      const isActive = document.getElementById('cat-active').checked;
 
-      if (id) {
-        await updateCategory(id, { name, icon: icon || 'fa-folder', description: desc });
-        showToast('Category updated');
-      } else {
-        await createCategory(name, icon, desc);
-        showToast('Category created');
+      if (!name) {
+        showToast('Category Name is required.');
+        return;
       }
 
-      window.closeModal('modal-category');
-      await loadCategoriesData();
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Saving...';
+
+      try {
+        const imageFile = document.getElementById('cat-image-file')?.files[0];
+        if (imageFile) {
+          const uploadedUrl = await uploadMediaFile(imageFile, 'categories').catch(() => null);
+          if (uploadedUrl) image = uploadedUrl;
+        }
+
+        const categoryPayload = {
+          name,
+          slug,
+          description: desc,
+          image,
+          icon,
+          isActive
+        };
+
+        if (id) {
+          await updateCategory(id, categoryPayload);
+          showToast('Category updated successfully.');
+        } else {
+          await createCategory(categoryPayload);
+          showToast('Category created successfully.');
+        }
+
+        window.closeModal('modal-category');
+        await loadCategoriesData();
+      } catch (err) {
+        console.error('Save category error:', err);
+        showToast(err.message || 'Failed to save category');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Save Category';
+      }
     });
 
     // -------------------------------------------------------------
@@ -1423,12 +1565,18 @@
 
     window.renderCouponsTable = () => {
       const container = document.getElementById('admin-coupons-list');
-      const search = (document.getElementById('coupon-search')?.value || '').toLowerCase();
+      const search = (document.getElementById('coupon-search')?.value || '').toLowerCase().trim();
 
       let filtered = adminState.coupons.filter(c => (c.code || '').toLowerCase().includes(search));
 
       if (filtered.length === 0) {
-        container.innerHTML = '<div class="admin-loading-container"><i class="fas fa-ticket-alt" style="font-size:2rem;"></i><p>No coupons found.</p></div>';
+        container.innerHTML = `
+          <div class="admin-loading-container" style="text-align:center; padding: 30px;">
+            <i class="fas fa-ticket-alt" style="font-size:2rem; color:var(--text-muted); margin-bottom: 10px;"></i>
+            <p style="font-size: 1rem; color: var(--text-muted); margin-bottom: 14px;">No coupons found.</p>
+            <button class="btn-accent" onclick="window.openCouponModal()" style="display:inline-flex; align-items:center; gap:6px;"><i class="fas fa-plus"></i> Create Coupon</button>
+          </div>
+        `;
         return;
       }
 
@@ -1439,43 +1587,72 @@
               <tr>
                 <th>Coupon Code</th>
                 <th>Discount</th>
-                <th>Min Spend</th>
+                <th>Minimum Spend</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              ${filtered.map(c => `
-                <tr>
-                  <td><strong style="color:var(--primary-color);">${c.code}</strong></td>
-                  <td>${c.discountPercent ? `${c.discountPercent}% OFF` : `৳${c.flatDiscount} OFF`}</td>
-                  <td>৳${c.minSpend || 0}</td>
-                  <td>
-                    <span class="admin-badge ${c.isActive !== false ? 'admin-badge-active' : 'admin-badge-inactive'}">
-                      ${c.isActive !== false ? 'Active' : 'Disabled'}
-                    </span>
-                  </td>
-                  <td>
-                    <div class="admin-action-btn-group">
-                      <button onclick="window.toggleCoupon('${c.id}', ${c.isActive !== false})" class="btn-outline admin-btn-sm">
-                        ${c.isActive !== false ? '<i class="fas fa-pause"></i> Disable' : '<i class="fas fa-play"></i> Enable'}
-                      </button>
-                      <button onclick="window.editCouponModal('${c.id}')" class="btn-outline admin-btn-sm"><i class="fas fa-edit"></i> Edit</button>
-                      <button onclick="window.handleDeleteCoupon('${c.id}')" class="admin-btn-sm" style="background:var(--danger-color); color:#FFF;"><i class="fas fa-trash"></i></button>
-                    </div>
-                  </td>
-                </tr>
-              `).join('')}
+              ${filtered.map(c => {
+                const isPercent = c.discountType === 'percentage' || Boolean(c.discountPercent);
+                const discountDisplay = isPercent ? `${c.discountPercent}% OFF` : `৳${c.flatDiscount} OFF`;
+                const activeState = c.isActive !== false;
+
+                return `
+                  <tr>
+                    <td><strong style="color:var(--primary-color); font-family:monospace; font-size:1.05rem;">${c.code}</strong></td>
+                    <td><span class="admin-badge admin-badge-active" style="background:#E0F2FE; color:#0369A1; font-weight:700;">${discountDisplay}</span></td>
+                    <td>৳${c.minSpend || 0}</td>
+                    <td>
+                      <span class="admin-badge ${activeState ? 'admin-badge-active' : 'admin-badge-inactive'}">
+                        ${activeState ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="admin-action-btn-group">
+                        <button onclick="window.toggleCoupon('${c.id}', ${activeState})" class="btn-outline admin-btn-sm">
+                          ${activeState ? '<i class="fas fa-pause"></i> Disable' : '<i class="fas fa-play"></i> Enable'}
+                        </button>
+                        <button onclick="window.editCouponModal('${c.id}')" class="btn-outline admin-btn-sm"><i class="fas fa-edit"></i> Edit</button>
+                        <button onclick="window.handleDeleteCoupon('${c.id}')" class="admin-btn-sm" style="background:var(--danger-color); color:#FFF;"><i class="fas fa-trash"></i> Delete</button>
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
             </tbody>
           </table>
         </div>
       `;
     };
 
+    // Toggle conditional discount inputs based on discount type radio selection
+    function updateCouponTypeVisibility(type) {
+      const percentWrapper = document.getElementById('cpn-percent-wrapper');
+      const flatWrapper = document.getElementById('cpn-flat-wrapper');
+      if (type === 'flat') {
+        if (percentWrapper) percentWrapper.style.display = 'none';
+        if (flatWrapper) flatWrapper.style.display = 'block';
+      } else {
+        if (percentWrapper) percentWrapper.style.display = 'block';
+        if (flatWrapper) flatWrapper.style.display = 'none';
+      }
+    }
+
+    document.querySelectorAll('input[name="cpn_discount_type"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        updateCouponTypeVisibility(e.target.value);
+      });
+    });
+
     window.openCouponModal = () => {
       document.getElementById('modal-coupon-title').innerHTML = '<i class="fas fa-ticket-alt"></i> Create Coupon';
       document.getElementById('adm-coupon-form').reset();
       document.getElementById('cpn-id').value = '';
+      const defaultRadio = document.querySelector('input[name="cpn_discount_type"][value="percentage"]');
+      if (defaultRadio) defaultRadio.checked = true;
+      updateCouponTypeVisibility('percentage');
+      document.getElementById('cpn-active').checked = true;
       window.openModal('modal-coupon');
     };
 
@@ -1485,46 +1662,84 @@
       document.getElementById('modal-coupon-title').innerHTML = '<i class="fas fa-edit"></i> Edit Coupon';
       document.getElementById('cpn-id').value = c.id;
       document.getElementById('cpn-code').value = c.code || '';
+
+      const discountType = c.discountType || (c.discountPercent ? 'percentage' : 'flat');
+      const radio = document.querySelector(`input[name="cpn_discount_type"][value="${discountType}"]`);
+      if (radio) radio.checked = true;
+      updateCouponTypeVisibility(discountType);
+
       document.getElementById('cpn-percent').value = c.discountPercent || '';
       document.getElementById('cpn-flat').value = c.flatDiscount || '';
-      document.getElementById('cpn-min').value = c.minSpend || '';
+      document.getElementById('cpn-min').value = c.minSpend || 0;
       document.getElementById('cpn-active').checked = c.isActive !== false;
       window.openModal('modal-coupon');
     };
 
     window.toggleCoupon = async (id, currentStatus) => {
-      await toggleCouponStatus(id, currentStatus);
-      showToast('Coupon status updated');
-      await loadCouponsData();
+      try {
+        await toggleCouponStatus(id, currentStatus);
+        showToast('Coupon status updated');
+        await loadCouponsData();
+      } catch (err) {
+        showToast(err.message || 'Failed to update coupon status');
+      }
     };
 
     window.handleDeleteCoupon = async (id) => {
-      if (confirm('Delete coupon?')) {
-        await deleteCoupon(id);
-        showToast('Coupon deleted');
-        await loadCouponsData();
+      const c = adminState.coupons.find(x => x.id === id);
+      const code = c ? c.code : id;
+      if (confirm(`Are you sure you want to delete this coupon ("${code}")?`)) {
+        try {
+          await deleteCoupon(id);
+          showToast('Coupon deleted successfully.');
+          await loadCouponsData();
+        } catch (err) {
+          showToast(err.message || 'Failed to delete coupon');
+        }
       }
     };
 
     document.getElementById('adm-coupon-form').addEventListener('submit', async (e) => {
       e.preventDefault();
+      const submitBtn = document.getElementById('cpn-submit-btn');
       const id = document.getElementById('cpn-id').value;
       const code = document.getElementById('cpn-code').value;
+      const discountType = document.querySelector('input[name="cpn_discount_type"]:checked')?.value || 'percentage';
       const percent = document.getElementById('cpn-percent').value;
       const flat = document.getElementById('cpn-flat').value;
       const min = document.getElementById('cpn-min').value;
       const isActive = document.getElementById('cpn-active').checked;
 
-      if (id) {
-        await updateCoupon(id, { code: code.toUpperCase().trim(), discountPercent: Number(percent || 0), flatDiscount: Number(flat || 0), minSpend: Number(min || 0), isActive });
-        showToast('Coupon updated');
-      } else {
-        await createCoupon(code, percent, flat, min, isActive);
-        showToast('Coupon created');
-      }
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Saving...';
 
-      window.closeModal('modal-coupon');
-      await loadCouponsData();
+      try {
+        const payload = {
+          code,
+          discountType,
+          discountPercent: discountType === 'percentage' ? Number(percent) : 0,
+          flatDiscount: discountType === 'flat' ? Number(flat) : 0,
+          minSpend: Number(min || 0),
+          isActive
+        };
+
+        if (id) {
+          await updateCoupon(id, payload);
+          showToast('Coupon updated successfully.');
+        } else {
+          await createCoupon(payload);
+          showToast('Coupon created successfully.');
+        }
+
+        window.closeModal('modal-coupon');
+        await loadCouponsData();
+      } catch (err) {
+        console.error('Save coupon error:', err);
+        showToast(err.message || 'Failed to save coupon');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Save Coupon';
+      }
     });
 
     // -------------------------------------------------------------

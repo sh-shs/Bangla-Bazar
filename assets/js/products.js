@@ -15,6 +15,32 @@ export const DEFAULT_CATEGORIES = [
   { id: 'gadgets', name: 'Gadgets', icon: 'fa-mobile-alt' }
 ];
 
+export async function fetchActiveCategories() {
+  try {
+    const snap = await getDocs(collection(db, 'categories'));
+    const list = [];
+    snap.forEach(docSnap => {
+      const data = docSnap.data();
+      if (data.isActive !== false) {
+        list.push({
+          id: data.slug || docSnap.id,
+          name: data.name,
+          icon: data.icon || 'fa-folder',
+          image: data.image || '',
+          ...data
+        });
+      }
+    });
+
+    if (list.length > 0) {
+      return list;
+    }
+  } catch (err) {
+    console.warn('Error fetching categories from Firestore, using default categories:', err);
+  }
+  return DEFAULT_CATEGORIES;
+}
+
 export async function fetchPublishedProducts() {
   try {
     const q = query(collection(db, 'products'), where('status', '==', 'published'));

@@ -56,12 +56,14 @@
   <script type="module" src="assets/js/products.js"></script>
   <script type="module" src="assets/js/app.js"></script>
   <script type="module">
-    import { fetchPublishedProducts, renderProductCard, DEFAULT_CATEGORIES } from './assets/js/products.js';
+    import { fetchPublishedProducts, renderProductCard, fetchActiveCategories } from './assets/js/products.js';
     import { initSearch } from './assets/js/app.js';
 
     async function initShopPage() {
       const products = await fetchPublishedProducts();
       initSearch(products);
+
+      const activeCategories = await fetchActiveCategories();
 
       const urlParams = new URLSearchParams(window.location.search);
       const selectedCategory = urlParams.get('category');
@@ -71,7 +73,7 @@
       const filterBar = document.getElementById('category-filter-bar');
       if (filterBar) {
         filterBar.innerHTML = `<button class="btn-outline ${!selectedCategory ? 'btn-primary' : ''}" onclick="window.location.href='shop.html'" style="padding: 4px 12px; font-size: 0.8rem; white-space: nowrap;">All</button>` +
-          DEFAULT_CATEGORIES.map(c => `
+          activeCategories.map(c => `
             <button class="btn-outline ${selectedCategory === c.id ? 'btn-primary' : ''}"
               onclick="window.location.href='shop.html?category=${c.id}'"
               style="padding: 4px 12px; font-size: 0.8rem; white-space: nowrap;">
