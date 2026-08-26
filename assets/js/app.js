@@ -47,6 +47,15 @@ export function updateCartUI() {
     }
   });
 
+  // Toggle cart button glow pulse
+  document.querySelectorAll('.center-cart-shortcut').forEach(el => {
+    if (totalItems > 0) {
+      el.classList.add('has-items');
+    } else {
+      el.classList.remove('has-items');
+    }
+  });
+
   // Update floating cart summary bubble
   const cartBubble = document.getElementById('floating-cart-bubble');
   if (cartBubble) {
