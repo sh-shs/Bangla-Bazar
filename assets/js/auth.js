@@ -184,7 +184,7 @@ export async function registerWithEmail(email, password, displayName) {
     if (displayName) {
       await updateProfile(cred.user, { displayName });
     }
-    const isSuperAdmin = (email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase());
+    const isSuperAdmin = SUPER_ADMIN_EMAILS.some(e => e.toLowerCase() === email.toLowerCase());
     const initialData = {
       uid: cred.user.uid,
       email: email,
