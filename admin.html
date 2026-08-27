@@ -36,9 +36,6 @@
         <button class="admin-tab-btn" id="adm-tab-categories" onclick="switchAdminTab('categories')">
           <i class="fas fa-tags"></i> Categories
         </button>
-        <button class="admin-tab-btn" id="adm-tab-sellers" onclick="switchAdminTab('sellers')">
-          <i class="fas fa-store"></i> Sellers
-        </button>
         <button class="admin-tab-btn" id="adm-tab-customers" onclick="switchAdminTab('customers')">
           <i class="fas fa-users"></i> Customers
         </button>
@@ -76,15 +73,7 @@
             <div class="stat-label">Total Orders Placed</div>
           </div>
         </div>
-        <!-- Card 3: Pending Sellers -->
-        <div class="stat-card-premium stat-card-amber">
-          <div class="stat-icon-wrapper"><i class="fas fa-store"></i></div>
-          <div class="stat-info">
-            <div class="stat-value" id="stat-pending-sellers">0</div>
-            <div class="stat-label">Pending Sellers</div>
-          </div>
-        </div>
-        <!-- Card 4: Registered Customers -->
+        <!-- Card 3: Registered Customers -->
         <div class="stat-card-premium stat-card-purple">
           <div class="stat-icon-wrapper"><i class="fas fa-users"></i></div>
           <div class="stat-info">
@@ -136,31 +125,6 @@
       </div>
     </div>
 
-    <!-- Section 4: Seller Approval & Management -->
-    <div id="sec-sellers" style="display: none;">
-      <div class="admin-section-card">
-        <div class="admin-section-header">
-          <h3 class="admin-section-title"><i class="fas fa-store"></i> Seller Accounts & Applications</h3>
-        </div>
-
-        <div class="admin-toolbar">
-          <div class="admin-search-box">
-            <i class="fas fa-search"></i>
-            <input type="text" id="seller-search" class="admin-search-input" placeholder="Search store, owner name, email..." oninput="window.renderSellersTable()">
-          </div>
-          <select id="seller-status-filter" class="admin-filter-select" onchange="window.renderSellersTable()">
-            <option value="all">All Seller Statuses</option>
-            <option value="pending">Pending Approval</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-            <option value="suspended">Suspended</option>
-          </select>
-        </div>
-
-        <div id="admin-sellers-list"></div>
-      </div>
-    </div>
-
     <!-- Section 5: Customer Management -->
     <div id="sec-customers" style="display: none;">
       <div class="admin-section-card">
@@ -176,7 +140,6 @@
           <select id="cust-role-filter" class="admin-filter-select" onchange="window.renderCustomersTable()">
             <option value="all">All Roles</option>
             <option value="customer">Customer</option>
-            <option value="seller">Seller</option>
             <option value="admin">Admin</option>
           </select>
         </div>
@@ -474,50 +437,6 @@
     </div>
   </div>
 
-  <!-- Modal 3: Seller Edit -->
-  <div id="modal-seller" class="admin-modal-overlay">
-    <div class="admin-modal" style="max-width: 540px;">
-      <div class="admin-modal-header">
-        <h3 class="admin-modal-title"><i class="fas fa-user-edit"></i> Edit Seller Details</h3>
-        <button class="admin-modal-close" onclick="window.closeModal('modal-seller')">&times;</button>
-      </div>
-      <div class="admin-modal-body">
-        <form id="adm-seller-form">
-          <input type="hidden" id="seller-id">
-          <div class="form-group">
-            <label class="form-label">Store / Business Name *</label>
-            <input type="text" id="seller-store-name" class="form-control" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Owner Name</label>
-            <input type="text" id="seller-owner-name" class="form-control">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Phone / WhatsApp</label>
-            <input type="text" id="seller-phone" class="form-control">
-          </div>
-          <div class="form-group">
-            <label class="form-label">NID Number</label>
-            <input type="text" id="seller-nid" class="form-control">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Seller Approval Status</label>
-            <select id="seller-status-select" class="form-control">
-              <option value="pending">Pending Approval</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-              <option value="suspended">Suspended</option>
-            </select>
-          </div>
-          <div class="admin-modal-footer">
-            <button type="button" class="btn-outline" onclick="window.closeModal('modal-seller')">Cancel</button>
-            <button type="submit" class="btn-accent">Update Seller</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
   <!-- Modal 4: Customer Edit -->
   <div id="modal-customer" class="admin-modal-overlay">
     <div class="admin-modal" style="max-width: 480px;">
@@ -540,7 +459,6 @@
             <label class="form-label">Account Role</label>
             <select id="cust-role-select" class="form-control">
               <option value="customer">Customer</option>
-              <option value="seller">Seller</option>
               <option value="admin">Admin</option>
             </select>
           </div>
@@ -662,7 +580,6 @@
       fetchCategoriesFromDB,
       deleteCategoryFromDB,
       fetchUsersFromDB,
-      updateSellerStatus,
       updateUserProfile,
       deleteUserDoc,
       fetchOrdersFromDB,
@@ -678,19 +595,19 @@
       updateBanner,
       fetchBannersFromDB,
       deleteBannerFromDB,
-      toggleBannerVisibility
+      toggleBannerVisibility,
+      saveAdminProduct,
+      uploadMediaFile
     } from './assets/js/admin.js';
     import { onAuthStateUpdate, SUPER_ADMIN_EMAIL } from './assets/js/auth.js';
     import { showToast } from './assets/js/app.js';
     import { db, collection, getDocs, doc, deleteDoc } from './assets/js/firebase-config.js';
-    import { saveSellerProduct, deleteSellerProduct, uploadMediaFile } from './assets/js/seller.js';
     import { generatePDFInvoice } from './assets/js/invoice.js';
 
     // Global Admin State Store
     const adminState = {
       products: [],
       categories: [],
-      sellers: [],
       customers: [],
       orders: [],
       coupons: [],
@@ -700,7 +617,7 @@
 
     // Tab Switching Logic
     window.switchAdminTab = (tab) => {
-      ['dash', 'products', 'categories', 'sellers', 'customers', 'orders', 'coupons', 'settings', 'banners'].forEach(t => {
+      ['dash', 'products', 'categories', 'customers', 'orders', 'coupons', 'settings', 'banners'].forEach(t => {
         const sec = document.getElementById(`sec-${t}`);
         if (sec) sec.style.display = t === tab ? 'block' : 'none';
         const btn = document.getElementById(`adm-tab-${t}`);
@@ -760,9 +677,6 @@
         }
       });
 
-      const sellers = Array.isArray(adminState.sellers) ? adminState.sellers : [];
-      let pendingSellers = sellers.filter(s => s && s.sellerStatus === 'pending').length;
-
       const customers = Array.isArray(adminState.customers) ? adminState.customers : [];
       let customerCount = customers.length;
 
@@ -771,9 +685,6 @@
 
       const elTotalOrders = document.getElementById('stat-total-orders');
       if (elTotalOrders) elTotalOrders.textContent = orderCount;
-
-      const elPendingSellers = document.getElementById('stat-pending-sellers');
-      if (elPendingSellers) elPendingSellers.textContent = pendingSellers;
 
       const elTotalUsers = document.getElementById('stat-total-users');
       if (elTotalUsers) elTotalUsers.textContent = customerCount;
@@ -969,7 +880,7 @@
 
         if (videoUrl) productPayload.video = videoUrl;
 
-        await saveSellerProduct(productPayload, productId);
+        await saveAdminProduct(productPayload, productId);
         showToast('Product Saved Successfully!');
         window.closeModal('modal-product');
         await loadProductsData();
@@ -1230,112 +1141,18 @@
     });
 
     // -------------------------------------------------------------
-    // Sellers & Customers Management
+    // Customers Management
     // -------------------------------------------------------------
     async function loadUsersData() {
       try {
         const allUsers = (await fetchUsersFromDB()) || [];
-        adminState.sellers = allUsers.filter(u => u && u.sellerStatus && u.sellerStatus !== 'none');
         adminState.customers = allUsers;
       } catch (err) {
         console.error('Error loading users data:', err);
-        adminState.sellers = [];
         adminState.customers = [];
       }
-      renderSellersTable();
       renderCustomersTable();
     }
-
-    window.renderSellersTable = () => {
-      const container = document.getElementById('admin-sellers-list');
-      const search = (document.getElementById('seller-search')?.value || '').toLowerCase();
-      const statusFilter = document.getElementById('seller-status-filter')?.value || 'all';
-
-      let filtered = adminState.sellers.filter(s => {
-        const matchesSearch = (s.storeName || s.displayName || '').toLowerCase().includes(search) || (s.email || '').toLowerCase().includes(search);
-        const matchesStatus = statusFilter === 'all' || s.sellerStatus === statusFilter;
-        return matchesSearch && matchesStatus;
-      });
-
-      if (filtered.length === 0) {
-        container.innerHTML = '<div class="admin-loading-container"><i class="fas fa-store" style="font-size:2rem;"></i><p>No sellers found.</p></div>';
-        return;
-      }
-
-      container.innerHTML = `
-        <div class="admin-table-container">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>Store / Seller Name</th>
-                <th>Contact Email</th>
-                <th>NID Number</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${filtered.map(s => `
-                <tr>
-                  <td>
-                    <strong>${s.storeName || s.displayName || 'Seller Store'}</strong>
-                    <div style="font-size:0.75rem; color:#6B7280;">Owner: ${s.displayName || 'N/A'}</div>
-                  </td>
-                  <td>${s.email || 'N/A'}</td>
-                  <td>${s.sellerNID || 'N/A'}</td>
-                  <td>
-                    <span class="admin-badge admin-badge-${s.sellerStatus}">
-                      ${s.sellerStatus}
-                    </span>
-                  </td>
-                  <td>
-                    <div class="admin-action-btn-group">
-                      <button onclick="window.handleSellerApprove('${s.id}', 'approved')" class="btn-primary admin-btn-sm" style="background:var(--success-color);"><i class="fas fa-check"></i> Approve</button>
-                      <button onclick="window.handleSellerApprove('${s.id}', 'rejected')" class="admin-btn-sm" style="background:var(--danger-color); color:#FFF;"><i class="fas fa-times"></i> Reject</button>
-                      <button onclick="window.editSellerModal('${s.id}')" class="btn-outline admin-btn-sm"><i class="fas fa-edit"></i> Edit</button>
-                    </div>
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-      `;
-    };
-
-    window.handleSellerApprove = async (userId, status) => {
-      await updateSellerStatus(userId, status);
-      showToast(`Seller status updated to ${status}`);
-      await loadUsersData();
-      updateDashboardMetrics();
-    };
-
-    window.editSellerModal = (id) => {
-      const s = adminState.sellers.find(x => x.id === id);
-      if (!s) return;
-      document.getElementById('seller-id').value = s.id;
-      document.getElementById('seller-store-name').value = s.storeName || '';
-      document.getElementById('seller-owner-name').value = s.displayName || '';
-      document.getElementById('seller-phone').value = s.phone || '';
-      document.getElementById('seller-nid').value = s.sellerNID || '';
-      document.getElementById('seller-status-select').value = s.sellerStatus || 'pending';
-      window.openModal('modal-seller');
-    };
-
-    document.getElementById('adm-seller-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = document.getElementById('seller-id').value;
-      const storeName = document.getElementById('seller-store-name').value.trim();
-      const displayName = document.getElementById('seller-owner-name').value.trim();
-      const phone = document.getElementById('seller-phone').value.trim();
-      const sellerNID = document.getElementById('seller-nid').value.trim();
-      const sellerStatus = document.getElementById('seller-status-select').value;
-
-      await updateUserProfile(id, { storeName, displayName, phone, sellerNID, sellerStatus, role: sellerStatus === 'approved' ? 'seller' : 'customer' });
-      showToast('Seller details updated');
-      window.closeModal('modal-seller');
-      await loadUsersData();
-    });
 
     window.renderCustomersTable = () => {
       const container = document.getElementById('admin-customers-list');

@@ -1,6 +1,6 @@
-# SHS Bazar — Multi-Vendor E-commerce Website
+# SHS Bazar — E-commerce Website
 
-"SHS Bazar" is a mobile-responsive, multi-vendor e-commerce platform designed specifically for the Kushtia, Bangladesh market.
+"SHS Bazar" is a mobile-responsive e-commerce platform designed specifically for the Kushtia, Bangladesh market.
 
 ## Tech Stack & Architecture
 - **Frontend**: Plain HTML5, CSS3, JavaScript (Vanilla ESM Modules — No build step, framework, or Node.js runtime required).
@@ -31,7 +31,6 @@
 │       ├── app.js                # Core UI events, search, floating cart, drawer
 │       ├── locations.js          # Bangladesh division, district, thana data
 │       ├── cart-checkout.js      # Cart management & checkout order placement
-│       ├── seller.js             # Multi-vendor seller actions & file uploads
 │       ├── admin.js              # Super admin management actions
 │       └── invoice.js            # Printable PDF invoice generator
 ├── functions/
@@ -48,8 +47,6 @@
 ├── order-success.html            # Confirmation view
 ├── login.html                    # Email & Google OAuth login
 ├── profile.html                  # Profile & printable order invoice history
-├── seller-register.html          # Seller application form (Pending state)
-├── seller-dashboard.html         # Vendor dashboard (Upload products & track orders)
 ├── admin.html                    # Super Admin dashboard (banglabazaroffical@gmail.com)
 └── README.md
 ```

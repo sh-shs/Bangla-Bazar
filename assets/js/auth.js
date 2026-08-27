@@ -56,7 +56,6 @@ onAuthStateChanged(auth, async (user) => {
           displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
           photoURL: user.photoURL || '',
           role: isSuperAdmin ? 'admin' : 'customer',
-          sellerStatus: isSuperAdmin ? 'approved' : 'none', // none, pending, approved, suspended
           wishlist: [],
           createdAt: serverTimestamp()
         };
@@ -66,9 +65,8 @@ onAuthStateChanged(auth, async (user) => {
         userProfile = snap.data();
         // Ensure super admin role is enforced
         if (isSuperAdmin && userProfile.role !== 'admin') {
-          await updateDoc(userDocRef, { role: 'admin', sellerStatus: 'approved' });
+          await updateDoc(userDocRef, { role: 'admin' });
           userProfile.role = 'admin';
-          userProfile.sellerStatus = 'approved';
         }
       }
     } catch (err) {
@@ -79,7 +77,6 @@ onAuthStateChanged(auth, async (user) => {
         email: user.email || '',
         displayName: user.displayName || 'User',
         role: isSuperAdmin ? 'admin' : 'customer',
-        sellerStatus: isSuperAdmin ? 'approved' : 'none',
         wishlist: []
       };
     }
@@ -191,7 +188,6 @@ export async function registerWithEmail(email, password, displayName) {
       displayName: displayName || email.split('@')[0],
       photoURL: '',
       role: isSuperAdmin ? 'admin' : 'customer',
-      sellerStatus: isSuperAdmin ? 'approved' : 'none',
       wishlist: [],
       createdAt: serverTimestamp()
     };
