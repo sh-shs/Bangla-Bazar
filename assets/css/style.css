@@ -752,6 +752,7 @@ input, select, textarea {
 .logo-img {
   height: 38px;
   width: auto;
+  aspect-ratio: 1 / 1;
   object-fit: contain;
   border-radius: 4px;
   background: #FFF;
