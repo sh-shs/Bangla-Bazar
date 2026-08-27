@@ -144,7 +144,7 @@ export function initSearch(allProducts) {
     if (matches.length > 0) {
       resultsDropdown.innerHTML = matches.slice(0, 6).map(p => `
         <div class="search-result-item" onclick="window.location.href='product-detail.html?slug=${p.slug || p.id}'">
-          <img src="${p.images?.[0] || 'https://via.placeholder.com/40'}" alt="${p.name}">
+          <img src="${p.images?.[0] || p.image || 'https://via.placeholder.com/40'}" alt="${p.name}">
           <div>
             <div style="font-size: 0.85rem; font-weight: 600;">${p.name}</div>
             <div style="font-size: 0.75rem; color: var(--accent-color); font-weight: bold;">৳${p.discountPrice || p.regularPrice}</div>

@@ -272,48 +272,34 @@ export async function uploadMediaFile(file, folderPath = 'products/images', time
 
   const uploadFile = file.type && file.type.startsWith('image/') ? await compressImage(file) : file;
 
-  try {
-    const formData = new FormData();
-    formData.append('file', uploadFile);
-    formData.append('upload_preset', 'SHS Bazar');
-    const isVideo = uploadFile.type && uploadFile.type.startsWith('video');
-    const resourceType = isVideo ? 'video' : 'image';
+  const formData = new FormData();
+  formData.append('file', uploadFile);
+  formData.append('upload_preset', 'Bangla Bazar');
+  const isVideo = uploadFile.type && uploadFile.type.startsWith('video');
+  const resourceType = isVideo ? 'video' : 'image';
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-    const res = await fetch(`https://api.cloudinary.com/v1_1/vhc6a9gy/${resourceType}/upload`, {
-      method: 'POST',
-      body: formData,
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/vhc6a9gy/${resourceType}/upload`, {
+    method: 'POST',
+    body: formData,
+    signal: controller.signal
+  });
+  clearTimeout(timeoutId);
 
-    if (res.ok) {
-      const data = await res.json();
-      if (data.secure_url) return data.secure_url;
-    }
-  } catch (e) {
-    console.warn('Cloudinary upload fallback:', e);
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    const errorMsg = errorData.error?.message || `Cloudinary upload failed with status ${res.status}`;
+    throw new Error(errorMsg);
   }
 
-  try {
-    const uploadPromise = (async () => {
-      const fileName = `${Date.now()}_${uploadFile.name.replace(/\s+/g, '_')}`;
-      const storageRef = ref(storage, `${folderPath}/${fileName}`);
-      const uploadTask = await uploadBytesResumable(storageRef, uploadFile);
-      return await getDownloadURL(uploadTask.ref);
-    })();
-
-    const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 5000));
-    const url = await Promise.race([uploadPromise, timeoutPromise]);
-    if (url) return url;
-  } catch (e) {
-    console.warn('Firebase Storage upload fallback:', e);
+  const data = await res.json();
+  if (!data.secure_url) {
+    throw new Error('Cloudinary response missing secure_url');
   }
 
-  const cleanName = encodeURIComponent(uploadFile.name.substring(0, 20));
-  return `https://via.placeholder.com/600x400/0B4D3C/FFFFFF?text=${cleanName}`;
+  return data.secure_url;
 }
 
 export async function saveAdminProduct(productData, productId = null) {
