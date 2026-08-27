@@ -405,6 +405,28 @@
     </div>
   </div>
 
+  <!-- Modal 7: Confirm Order Deletion -->
+  <div id="modal-delete-order" class="admin-modal-overlay">
+    <div class="admin-modal" style="max-width: 480px;">
+      <div class="admin-modal-header" style="border-bottom: 1px solid #FEE2E2;">
+        <h3 class="admin-modal-title" style="color: var(--danger-color);"><i class="fas fa-exclamation-triangle"></i> Delete Order</h3>
+        <button class="admin-modal-close" onclick="window.closeModal('modal-delete-order')">&times;</button>
+      </div>
+      <div class="admin-modal-body" style="padding-top: 16px;">
+        <p style="font-size: 0.95rem; line-height: 1.5; color: #374151; margin-bottom: 12px;">
+          Delete this order permanently? This cannot be undone.
+        </p>
+        <div id="delete-order-details" style="background: #FEF2F2; border: 1px solid #FCA5A5; padding: 10px 14px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; color: #991B1B; margin-bottom: 16px;">
+          Order # — Customer Name
+        </div>
+        <div class="admin-modal-footer" style="padding-top: 0; border-top: none;">
+          <button type="button" class="btn-outline" onclick="window.closeModal('modal-delete-order')">Cancel</button>
+          <button type="button" id="confirm-delete-order-btn" onclick="window.confirmDeleteOrder()" class="admin-btn-sm" style="background: var(--danger-color); color: #FFF; padding: 10px 20px; font-weight: 700; border: none; border-radius: 8px; cursor: pointer;">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal 2: Category Add/Edit -->
   <div id="modal-category" class="admin-modal-overlay">
     <div class="admin-modal" style="max-width: 480px;">
@@ -1543,12 +1565,46 @@
       }
     };
 
-    window.deleteOrder = async (orderId) => {
-      if (confirm('Delete order record permanently?')) {
-        await deleteOrderDoc(orderId);
-        showToast('Order Deleted');
-        await loadOrdersData();
+    let pendingDeleteOrderId = null;
+
+    window.deleteOrder = (orderId) => {
+      const order = adminState.orders.find(o => o.id === orderId);
+      const customerName = order?.customerInfo?.name || 'Customer';
+      pendingDeleteOrderId = orderId;
+
+      const detailsEl = document.getElementById('delete-order-details');
+      if (detailsEl) {
+        detailsEl.textContent = `Order #${orderId} — ${customerName}`;
+      }
+
+      window.openModal('modal-delete-order');
+    };
+
+    window.confirmDeleteOrder = async () => {
+      if (!pendingDeleteOrderId) return;
+      const orderIdToDelete = pendingDeleteOrderId;
+      const confirmBtn = document.getElementById('confirm-delete-order-btn');
+      if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<span class="admin-spinner"></span> Deleting...';
+      }
+
+      try {
+        await deleteOrderDoc(orderIdToDelete);
+        window.closeModal('modal-delete-order');
+        adminState.orders = adminState.orders.filter(o => o.id !== orderIdToDelete);
+        renderOrdersList();
         updateDashboardMetrics();
+        showToast('Order deleted successfully');
+      } catch (err) {
+        console.error('Error deleting order:', err);
+        showToast(err.message || 'Failed to delete order. Please try again.');
+      } finally {
+        pendingDeleteOrderId = null;
+        if (confirmBtn) {
+          confirmBtn.disabled = false;
+          confirmBtn.textContent = 'Delete';
+        }
       }
     };
 
