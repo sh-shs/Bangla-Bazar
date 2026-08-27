@@ -85,20 +85,20 @@ export async function fetchProductBySlugOrId(identifier) {
 export const DEFAULT_BANNERS = [
   {
     id: 'banner_1',
-    image: 'assets/banners/banner-1.jpg',
-    fallbackImage: 'assets/banners/banner-1.jpg',
+    image: 'assets/banners/hero-banner-1.png',
+    fallbackImage: 'assets/banners/hero-banner-1.png',
     linkTo: 'offers.html'
   },
   {
     id: 'banner_2',
-    image: 'assets/banners/banner-2.jpg',
-    fallbackImage: 'assets/banners/banner-2.jpg',
+    image: 'assets/banners/hero-banner-2.png',
+    fallbackImage: 'assets/banners/hero-banner-2.png',
     linkTo: 'shop.html?category=electronics'
   },
   {
     id: 'banner_3',
-    image: 'assets/banners/banner-3.jpg',
-    fallbackImage: 'assets/banners/banner-3.jpg',
+    image: 'assets/banners/hero-banner-3.png',
+    fallbackImage: 'assets/banners/hero-banner-3.png',
     linkTo: 'shop.html'
   }
 ];
