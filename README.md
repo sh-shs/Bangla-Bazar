@@ -1,6 +1,6 @@
-# Bangla Bazar — Multi-Vendor E-commerce Website
+# SHS Bazar — Multi-Vendor E-commerce Website
 
-"Bangla Bazar" is a mobile-responsive, multi-vendor e-commerce platform designed specifically for the Kushtia, Bangladesh market.
+"SHS Bazar" is a mobile-responsive, multi-vendor e-commerce platform designed specifically for the Kushtia, Bangladesh market.
 
 ## Tech Stack & Architecture
 - **Frontend**: Plain HTML5, CSS3, JavaScript (Vanilla ESM Modules — No build step, framework, or Node.js runtime required).
@@ -23,7 +23,7 @@
 ├── .github/workflows/deploy.yml   # GitHub Actions automated Firebase deployment
 ├── assets/
 │   ├── css/style.css             # Main stylesheet & mobile-first UI components
-│   ├── images/logo.png           # Bangla Bazar Logo
+│   ├── images/logo.png           # SHS Bazar Logo
 │   └── js/
 │       ├── firebase-config.js    # Firebase initialization module
 │       ├── auth.js               # Firebase Auth & Super Admin role auto-detection

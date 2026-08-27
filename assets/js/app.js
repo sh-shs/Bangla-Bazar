@@ -180,7 +180,7 @@ export function initCarousel(banners) {
     const hasOverlay = (b.title && b.title.trim()) || (b.subtitle && b.subtitle.trim());
     return `
       <div class="carousel-slide" onclick="window.location.href='${linkUrl}'" style="cursor: pointer;">
-        <img src="${imgSrc}" alt="${b.title || 'Banner'}" onerror="this.src='${b.fallbackImage || 'https://via.placeholder.com/1200x400?text=Bangla+Bazar'}'">
+        <img src="${imgSrc}" alt="${b.title || 'Banner'}" onerror="this.src='${b.fallbackImage || 'https://via.placeholder.com/1200x400?text=SHS+Bazar'}'">
         ${hasOverlay ? `
         <div class="banner-overlay">
           <h2>${b.title || ''}</h2>
