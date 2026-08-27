@@ -93,7 +93,7 @@ export const DEFAULT_BANNERS = [
     id: 'banner_2',
     image: 'assets/banners/hero-banner-2.png',
     fallbackImage: 'assets/banners/hero-banner-2.png',
-    linkTo: 'shop.html?category=electronics'
+    linkTo: 'shop.html'
   },
   {
     id: 'banner_3',
@@ -104,23 +104,7 @@ export const DEFAULT_BANNERS = [
 ];
 
 export async function fetchBanners() {
-  const defaultBanners = DEFAULT_BANNERS;
-
-  try {
-    const snap = await getDocs(collection(db, 'banners'));
-    const banners = [];
-    snap.forEach(docSnap => {
-      banners.push({ id: docSnap.id, ...docSnap.data() });
-    });
-    if (banners.length >= 3) return banners;
-    if (banners.length > 0) {
-      // If Firestore has fewer than 3 banners, append default banners to reach 3
-      return [...banners, ...defaultBanners.slice(banners.length)];
-    }
-  } catch (e) {
-    console.warn('Banner fetch error, using default banners');
-  }
-  return defaultBanners;
+  return DEFAULT_BANNERS;
 }
 
 // Generate product card HTML snippet
