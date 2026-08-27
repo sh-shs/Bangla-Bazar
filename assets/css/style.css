@@ -1518,7 +1518,7 @@ body {
 @media (min-width: 768px) {
   .pd-main-card {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 24px;
     align-items: start;
   }
@@ -1530,18 +1530,22 @@ body {
   flex-direction: column;
   gap: 12px;
   width: 100%;
+  min-width: 0;
 }
 
 .pd-hero-box {
   position: relative;
   width: 100%;
-  aspect-ratio: 1/1;
+  aspect-ratio: 1 / 1;
   border-radius: 16px;
   overflow: hidden;
   background-color: #F8F9FA;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(11, 77, 60, 0.08);
   touch-action: pan-y;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .pd-hero-viewport {
@@ -1550,23 +1554,28 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 .pd-hero-img {
+  max-width: 100%;
+  max-height: 100%;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  padding: 8px;
   transition: transform 0.3s ease;
+  box-sizing: border-box;
 }
 
 .pd-hero-img:hover {
-  transform: scale(1.03);
+  transform: scale(1.04);
 }
 
 .pd-hero-video {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   background: #000;
 }
 
@@ -1603,14 +1612,18 @@ body {
   display: flex;
   gap: 10px;
   overflow-x: auto;
+  width: 100%;
+  min-width: 0;
   padding: 4px 2px 8px 2px;
   scrollbar-width: thin;
+  box-sizing: border-box;
 }
 
 .pd-thumb-btn {
   position: relative;
   flex: 0 0 64px;
   height: 64px;
+  width: 64px;
   border-radius: 12px;
   overflow: hidden;
   border: 2px solid transparent;
@@ -1618,6 +1631,7 @@ body {
   padding: 0;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 .pd-thumb-btn img {
@@ -1648,6 +1662,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-width: 0;
 }
 
 .pd-title {
