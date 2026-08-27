@@ -17,6 +17,40 @@ import {
   getDownloadURL
 } from './firebase-config.js';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_EMAIL, currentUser, userProfile } from './auth.js';
+import { generateProductSlug } from './products.js';
+
+export async function ensureUniqueProductSlug(baseSlug, currentProductId = null) {
+  let cleanSlug = generateProductSlug(baseSlug);
+  if (!cleanSlug) {
+    cleanSlug = 'product-' + Date.now();
+  }
+
+  let candidateSlug = cleanSlug;
+  let counter = 1;
+
+  try {
+    const snap = await getDocs(collection(db, 'products'));
+    const existingSlugs = new Set();
+
+    snap.forEach(d => {
+      if (d.id !== currentProductId) {
+        const data = d.data();
+        if (data.slug) {
+          existingSlugs.add(data.slug.toLowerCase());
+        }
+      }
+    });
+
+    while (existingSlugs.has(candidateSlug.toLowerCase())) {
+      counter++;
+      candidateSlug = `${cleanSlug}-${counter}`;
+    }
+  } catch (err) {
+    console.warn('Error checking unique slug in DB:', err);
+  }
+
+  return candidateSlug;
+}
 
 export function isSuperAdminUser(user, profile) {
   if (!user) return false;
@@ -304,8 +338,12 @@ export async function uploadMediaFile(file, folderPath = 'products/images', time
 
 export async function saveAdminProduct(productData, productId = null) {
   try {
+    const rawSlug = productData.slug || productData.name || '';
+    const uniqueSlug = await ensureUniqueProductSlug(rawSlug, productId);
+
     const payload = {
       ...productData,
+      slug: uniqueSlug,
       sellerId: 'admin',
       sellerName: 'SHS Bazar Admin',
       updatedAt: new Date()

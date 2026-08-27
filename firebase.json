@@ -9,6 +9,10 @@
     ],
     "rewrites": [
       {
+        "source": "/product/**",
+        "destination": "/product-detail.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
