@@ -740,7 +740,7 @@
                 <tr>
                   <td>
                     <div style="display:flex; align-items:center; gap:10px;">
-                      <img src="${p.images?.[0] || 'https://via.placeholder.com/40'}" style="width:40px; height:40px; object-fit:cover; border-radius:6px; border:1px solid #E5E7EB;">
+                      <img src="${p.images?.[0] || p.image || 'https://via.placeholder.com/40'}" style="width:40px; height:40px; object-fit:cover; border-radius:6px; border:1px solid #E5E7EB;">
                       <div>
                         <div style="font-weight:700;">${p.name}</div>
                         <div style="font-size:0.75rem; color:#6B7280;">SKU: ${p.sku || 'N/A'}</div>

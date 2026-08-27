@@ -118,6 +118,8 @@
         product.images.forEach((imgUrl, idx) => {
           if (imgUrl) mediaItems.push({ type: 'image', url: imgUrl, index: idx });
         });
+      } else if (product.image) {
+        mediaItems.push({ type: 'image', url: product.image, index: 0 });
       }
       const videoSrc = product.videoUrl || product.video;
       if (videoSrc) {
@@ -125,11 +127,11 @@
           type: 'video',
           url: videoSrc,
           index: mediaItems.length,
-          thumb: product.images?.[0] || 'https://via.placeholder.com/600?text=SHS+Bazar'
+          thumb: product.images?.[0] || product.image || 'assets/images/logo.png'
         });
       }
       if (mediaItems.length === 0) {
-        mediaItems.push({ type: 'image', url: 'https://via.placeholder.com/600?text=SHS+Bazar', index: 0 });
+        mediaItems.push({ type: 'image', url: 'assets/images/logo.png', index: 0 });
       }
 
       let activeMediaIndex = 0;
@@ -321,7 +323,7 @@
           id: product.id,
           name: product.name,
           price: currentPrice,
-          image: product.images?.[0] || 'https://via.placeholder.com/600?text=SHS+Bazar',
+          image: product.images?.[0] || product.image || 'assets/images/logo.png',
           variant,
           sellerId: product.sellerId || 'admin',
           quantity: 1
@@ -331,7 +333,7 @@
       function handleBuyNowAction() {
         if (isOutOfStock) return;
         const variant = document.getElementById('pd-variant-select')?.value || '';
-        const url = `checkout.html?buyNowId=${product.id}&name=${encodeURIComponent(product.name)}&price=${currentPrice}&image=${encodeURIComponent(product.images?.[0] || '')}&variant=${encodeURIComponent(variant)}&qty=1`;
+        const url = `checkout.html?buyNowId=${product.id}&name=${encodeURIComponent(product.name)}&price=${currentPrice}&image=${encodeURIComponent(product.images?.[0] || product.image || '')}&variant=${encodeURIComponent(variant)}&qty=1`;
         window.location.href = url;
       }
 
