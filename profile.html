@@ -3,30 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Profile - Bangla Bazar</title>
+  <title>My Account - Bangla Bazar</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
   <div class="page-top-bar">
     <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
-    <span class="page-title">My Profile & Orders</span>
+    <span class="page-title">My Account</span>
   </div>
 
-  <div class="section-wrapper" style="max-width: 600px; margin: 0 auto;">
+  <div class="section-wrapper" style="max-width: 650px; margin: 0 auto;">
+    <!-- Profile Card -->
     <div class="glass-card" style="margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
       <div>
         <h3 id="profile-name" style="font-size: 1.1rem; color: var(--primary-color);">...</h3>
         <p id="profile-email" style="font-size: 0.85rem; color: var(--text-muted);">...</p>
         <span id="profile-role-badge" style="font-size: 0.7rem; background: var(--primary-light); color: var(--primary-color); padding: 2px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase;">Customer</span>
       </div>
-      <button id="logout-btn" class="btn-outline" style="color: var(--danger-color); border-color: var(--danger-color); font-size: 0.8rem; padding: 6px 12px;">Logout</button>
+      <button id="logout-btn" class="btn-outline" style="color: var(--danger-color); border-color: var(--danger-color); font-size: 0.8rem; padding: 6px 12px;"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </div>
 
-    <!-- Orders Section -->
+    <!-- Order History Section -->
     <div class="glass-card">
-      <h3 style="color: var(--primary-color); font-size: 1.05rem; margin-bottom: 14px;"><i class="fas fa-shopping-bag"></i> My Order History</h3>
-      <div id="user-orders-list"></div>
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+        <h3 style="color: var(--primary-color); font-size: 1.05rem; margin: 0;"><i class="fas fa-shopping-bag"></i> Order History</h3>
+        <span id="orders-count-badge" style="font-size: 0.8rem; background: #E5E7EB; color: #374151; padding: 2px 8px; border-radius: 12px; font-weight: 600;">0 Orders</span>
+      </div>
+      <div id="user-orders-list">
+        <div style="text-align: center; color: var(--text-muted); padding: 20px;">
+          <i class="fas fa-spinner fa-spin" style="font-size: 1.5rem;"></i>
+          <p style="margin-top: 8px; font-size: 0.9rem;">Loading order history...</p>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -70,6 +79,32 @@
       if (order) generatePDFInvoice(order);
     };
 
+    window.toggleOrderDetail = (orderId) => {
+      const detailEl = document.getElementById(`order-details-${orderId}`);
+      const iconEl = document.getElementById(`order-toggle-icon-${orderId}`);
+      if (!detailEl) return;
+      if (detailEl.style.display === 'none' || !detailEl.style.display) {
+        detailEl.style.display = 'block';
+        if (iconEl) iconEl.className = 'fas fa-chevron-up';
+      } else {
+        detailEl.style.display = 'none';
+        if (iconEl) iconEl.className = 'fas fa-chevron-down';
+      }
+    };
+
+    function formatOrderDate(createdAt) {
+      if (!createdAt) return 'N/A';
+      if (createdAt.seconds) {
+        return new Date(createdAt.seconds * 1000).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+      }
+      return new Date(createdAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+    }
+
+    function getBadgeClass(status) {
+      const s = (status || 'Pending').toLowerCase().replace(/\s+/g, '-');
+      return `admin-badge admin-badge-${s}`;
+    }
+
     onAuthStateUpdate(async (user, profile) => {
       if (!user) {
         window.location.href = 'login.html';
@@ -80,31 +115,148 @@
       document.getElementById('profile-email').textContent = user.email || '';
       document.getElementById('profile-role-badge').textContent = profile?.role || 'Customer';
 
-      // Load user orders
-      const q = query(collection(db, 'orders'), where('userId', '==', user.uid));
-      const snap = await getDocs(q);
-      currentOrders = [];
-      snap.forEach(d => currentOrders.push({ id: d.id, ...d.data() }));
-
       const container = document.getElementById('user-orders-list');
-      if (currentOrders.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: #777; padding: 20px;">No orders placed yet.</p>';
-      } else {
-        container.innerHTML = currentOrders.map(o => `
-          <div style="background: #FFF; border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; margin-bottom: 10px;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: bold; margin-bottom: 6px;">
-              <span>Order #${o.id.substring(0,6)}</span>
-              <span style="color: var(--accent-color);">${o.orderStatus || 'Pending'}</span>
+      const countBadge = document.getElementById('orders-count-badge');
+
+      try {
+        // Query orders for logged-in user only using request.auth.uid / user.uid
+        const q = query(collection(db, 'orders'), where('userId', '==', user.uid));
+        const snap = await getDocs(q);
+        currentOrders = [];
+        snap.forEach(d => currentOrders.push({ id: d.id, ...d.data() }));
+
+        // Sort most recent first
+        currentOrders.sort((a, b) => {
+          const timeA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : (a.createdAt || 0);
+          const timeB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : (b.createdAt || 0);
+          return timeB - timeA;
+        });
+
+        if (countBadge) {
+          countBadge.textContent = `${currentOrders.length} Order${currentOrders.length === 1 ? '' : 's'}`;
+        }
+
+        if (currentOrders.length === 0) {
+          container.innerHTML = `
+            <div style="text-align: center; padding: 30px 15px;">
+              <div style="font-size: 2.5rem; color: var(--text-muted); margin-bottom: 10px;">
+                <i class="fas fa-shopping-bag"></i>
+              </div>
+              <h4 style="font-size: 1rem; color: var(--text-color); margin-bottom: 6px;">You haven't placed any orders yet</h4>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Start shopping to explore our rich product catalog!</p>
+              <a href="shop.html" class="btn-primary" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; padding: 8px 18px; border-radius: 20px; font-size: 0.88rem;">
+                <i class="fas fa-store"></i> Start Shopping
+              </a>
             </div>
-            <div style="font-size: 0.8rem; color: #555; margin-bottom: 8px;">
-              Items: ${o.items ? o.items.map(i => i.name).join(', ') : 'Products'}<br>
-              Total: <strong>৳${o.totalAmount}</strong> | Method: ${o.paymentMethod?.toUpperCase()}
+          `;
+          return;
+        }
+
+        container.innerHTML = currentOrders.map(o => {
+          const items = Array.isArray(o.items) ? o.items : [];
+          const status = o.orderStatus || 'Pending';
+          const badgeClass = getBadgeClass(status);
+          const dateStr = formatOrderDate(o.createdAt);
+          const totalPaid = Number(o.totalAmount || 0).toLocaleString('bn-BD');
+          const paymentMethod = (o.paymentMethod || 'COD').toUpperCase();
+
+          const itemsSummaryText = items.length > 0
+            ? items.slice(0, 2).map(i => `${i.name || 'Product'} (x${i.quantity || 1})`).join(', ') + (items.length > 2 ? ` + ${items.length - 2} more` : '')
+            : 'Product details';
+
+          const itemsDetailHTML = items.map(item => `
+            <div style="display: flex; gap: 10px; align-items: center; background: #FFF; padding: 8px; border-radius: 6px; margin-bottom: 6px; border: 1px solid #E5E7EB;">
+              <img src="${item.image || (item.images && item.images[0]) || 'https://via.placeholder.com/50'}" alt="${item.name || 'Item'}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 4px; border: 1px solid #E5E7EB;">
+              <div style="flex: 1;">
+                <div style="font-weight: 600; font-size: 0.82rem; color: #111827;">${item.name || 'Unnamed Product'}</div>
+                <div style="font-size: 0.75rem; color: #6B7280;">
+                  ৳${Number(item.price || 0).toLocaleString('bn-BD')} × ${item.quantity || 1}
+                  ${item.variant ? ` | <span style="color: var(--accent-color); font-weight: 600;">Variant: ${item.variant}</span>` : ''}
+                </div>
+              </div>
+              <div style="font-weight: 700; color: var(--primary-color); font-size: 0.85rem;">৳${(Number(item.price || 0) * Number(item.quantity || 1)).toLocaleString('bn-BD')}</div>
             </div>
-            <button onclick="window.downloadInvoiceHandler('${o.id}')" class="btn-outline" style="font-size: 0.75rem; padding: 4px 10px; width: 100%;">
-              <i class="fas fa-file-pdf"></i> Download PDF Invoice
-            </button>
+          `).join('');
+
+          const subtotal = Number(o.subtotal || items.reduce((s, i) => s + (Number(i.price || 0) * Number(i.quantity || 1)), 0));
+          const deliveryCharge = Number(o.deliveryCharge || 0);
+          const discountAmount = Number(o.discountAmount || 0);
+
+          return `
+            <div style="background: #FFF; border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+              <!-- Top Header -->
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+                <div>
+                  <span style="font-weight: 700; font-size: 0.9rem; color: var(--primary-color);">Order #${o.id}</span>
+                  <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;"><i class="far fa-clock"></i> ${dateStr}</div>
+                </div>
+                <span class="${badgeClass}">${status}</span>
+              </div>
+
+              <!-- Quick Info Summary -->
+              <div style="font-size: 0.82rem; color: #4B5563; margin-bottom: 10px; background: #F9FAFB; padding: 8px 10px; border-radius: 6px; border: 1px solid #F3F4F6;">
+                <div><strong>Items:</strong> ${itemsSummaryText}</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                  <span><strong>Grand Total:</strong> <span style="color: var(--primary-color); font-weight: 700; font-size: 0.9rem;">৳${totalPaid}</span> (${paymentMethod})</span>
+                </div>
+              </div>
+
+              <!-- Action Bar -->
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <button onclick="window.toggleOrderDetail('${o.id}')" class="btn-outline" style="flex: 1; font-size: 0.78rem; padding: 6px 10px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                  <i class="fas fa-list"></i> Details <i id="order-toggle-icon-${o.id}" class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </button>
+                <button onclick="window.downloadInvoiceHandler('${o.id}')" class="btn-accent" style="flex: 1; font-size: 0.78rem; padding: 6px 10px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                  <i class="fas fa-file-pdf"></i> Download Invoice
+                </button>
+              </div>
+
+              <!-- Expandable Order Detail View -->
+              <div id="order-details-${o.id}" style="display: none; margin-top: 12px; border-top: 1px dashed var(--border-color); padding-top: 12px;">
+                <!-- Purchased Items -->
+                <h4 style="font-size: 0.82rem; color: var(--primary-color); font-weight: 700; margin-bottom: 6px;"><i class="fas fa-box"></i> Order Items (${items.length})</h4>
+                <div style="margin-bottom: 10px;">
+                  ${itemsDetailHTML}
+                </div>
+
+                <!-- Address & Payment Info Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; font-size: 0.78rem; margin-bottom: 10px;">
+                  <div style="background: #F9FAFB; padding: 8px 10px; border-radius: 6px; border: 1px solid #E5E7EB;">
+                    <strong style="color: var(--primary-color); display: block; margin-bottom: 4px;"><i class="fas fa-map-marker-alt"></i> Delivery Address</strong>
+                    <div><strong>Division:</strong> ${o.shippingAddress?.division || 'N/A'}</div>
+                    <div><strong>District:</strong> ${o.shippingAddress?.district || 'N/A'}</div>
+                    <div><strong>Upazila:</strong> ${o.shippingAddress?.thana || o.shippingAddress?.upazila || 'N/A'}</div>
+                    <div><strong>Union:</strong> ${o.shippingAddress?.union || 'N/A'}</div>
+                    <div><strong>Address:</strong> ${o.shippingAddress?.village || 'N/A'}</div>
+                    ${o.shippingAddress?.notes ? `<div style="margin-top:2px; font-style:italic; color:#6B7280;">Notes: ${o.shippingAddress.notes}</div>` : ''}
+                  </div>
+
+                  <div style="background: #F9FAFB; padding: 8px 10px; border-radius: 6px; border: 1px solid #E5E7EB;">
+                    <strong style="color: var(--primary-color); display: block; margin-bottom: 4px;"><i class="fas fa-credit-card"></i> Payment Summary</strong>
+                    <div><strong>Method:</strong> ${paymentMethod}</div>
+                    ${o.bKashTxnId ? `<div style="color: #D84315; font-weight: 700; margin-top: 2px;">bKash TrxID: ${o.bKashTxnId}</div>` : ''}
+                    <div style="margin-top: 4px; border-top: 1px solid #E5E7EB; padding-top: 4px;">
+                      <div>Subtotal: ৳${subtotal.toLocaleString('bn-BD')}</div>
+                      ${discountAmount > 0 ? `<div style="color: #059669;">Discount: -৳${discountAmount.toLocaleString('bn-BD')}</div>` : ''}
+                      <div>Delivery Charge: ৳${deliveryCharge.toLocaleString('bn-BD')}</div>
+                      <div style="font-weight: 700; color: var(--primary-color); font-size: 0.85rem; margin-top: 2px;">
+                        Grand Total: ৳${totalPaid}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error('Error fetching user orders:', err);
+        container.innerHTML = `
+          <div style="text-align: center; color: var(--danger-color); padding: 20px;">
+            <i class="fas fa-exclamation-circle" style="font-size: 1.5rem;"></i>
+            <p style="margin-top: 8px; font-size: 0.85rem;">Failed to load order history. Please try again.</p>
           </div>
-        `).join('');
+        `;
       }
     });
 
