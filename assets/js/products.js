@@ -130,7 +130,7 @@ export function renderProductCard(product) {
   const discountPercent = isDiscounted ? Math.round(((product.regularPrice - product.discountPrice) / product.regularPrice) * 100) : 0;
   const isOutOfStock = !product.stock || Number(product.stock) <= 0;
   const productUrl = `product-detail.html?slug=${product.slug || product.id}`;
-  const imageSrc = product.images && product.images.length > 0 ? product.images[0] : 'https://via.placeholder.com/300?text=Bangla+Bazar';
+  const imageSrc = product.images && product.images.length > 0 ? product.images[0] : 'https://via.placeholder.com/300?text=SHS+Bazar';
   const sellerId = product.sellerId || 'admin';
 
   return `

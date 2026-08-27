@@ -1,4 +1,4 @@
-name: Deploy Bangla Bazar to Firebase Hosting
+name: Deploy SHS Bazar to Firebase Hosting
 
 on:
   push:

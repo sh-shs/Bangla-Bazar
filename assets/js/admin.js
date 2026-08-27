@@ -37,14 +37,14 @@ export async function fetchAdminSettings() {
     return {
       delivery: deliverySnap.exists() ? deliverySnap.data() : { insideKushtia: 100, outsideKushtia: 160 },
       payment: paymentSnap.exists() ? paymentSnap.data() : { bKashNumber: '01342697743', codEnabled: true },
-      general: generalSnap.exists() ? generalSnap.data() : { siteName: 'Bangla Bazar', hotline: '+8809658183506', supportEmail: 'saripofficialsupport@gmail.com' }
+      general: generalSnap.exists() ? generalSnap.data() : { siteName: 'SHS Bazar', hotline: '+8809658183506', supportEmail: 'saripofficialsupport@gmail.com' }
     };
   } catch (err) {
     console.error('Error fetching admin settings:', err);
     return {
       delivery: { insideKushtia: 100, outsideKushtia: 160 },
       payment: { bKashNumber: '01342697743', codEnabled: true },
-      general: { siteName: 'Bangla Bazar', hotline: '+8809658183506', supportEmail: 'saripofficialsupport@gmail.com' }
+      general: { siteName: 'SHS Bazar', hotline: '+8809658183506', supportEmail: 'saripofficialsupport@gmail.com' }
     };
   }
 }

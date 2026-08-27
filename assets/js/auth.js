@@ -1,4 +1,4 @@
-// Bangla Bazar Authentication & User State Module
+// SHS Bazar Authentication & User State Module
 import {
   auth,
   db,

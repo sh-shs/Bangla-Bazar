@@ -96,7 +96,7 @@ export async function uploadMediaFile(file, folderPath = 'products/images', time
   try {
     const formData = new FormData();
     formData.append('file', uploadFile);
-    formData.append('upload_preset', 'Bangla Bazar');
+    formData.append('upload_preset', 'SHS Bazar');
     const isVideo = uploadFile.type && uploadFile.type.startsWith('video');
     const resourceType = isVideo ? 'video' : 'image';
 
@@ -147,7 +147,7 @@ export async function saveSellerProduct(productData, productId = null) {
     const payload = {
       ...productData,
       sellerId: activeUser ? activeUser.uid : 'admin',
-      sellerName: userProfile?.storeName || (activeUser ? activeUser.displayName : null) || 'Bangla Bazar Admin',
+      sellerName: userProfile?.storeName || (activeUser ? activeUser.displayName : null) || 'SHS Bazar Admin',
       updatedAt: new Date()
     };
 
