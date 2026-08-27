@@ -47,7 +47,9 @@ export async function fetchPublishedProducts() {
     const snap = await getDocs(q);
     const products = [];
     snap.forEach(docSnap => {
-      products.push({ id: docSnap.id, ...docSnap.data() });
+      const data = docSnap.data();
+      const slug = data.slug || generateProductSlug(data.name) || docSnap.id;
+      products.push({ id: docSnap.id, slug, ...data });
     });
     return products;
   } catch (err) {
@@ -56,21 +58,47 @@ export async function fetchPublishedProducts() {
   }
 }
 
+export function generateProductSlug(name) {
+  if (!name) return '';
+  return name
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s-]/gu, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+export function getProductUrl(product) {
+  if (!product) return '';
+  const slug = product.slug || generateProductSlug(product.name) || product.id;
+  const origin = window.location.origin;
+  const pathname = window.location.pathname;
+  let basePath = '';
+  if (pathname.includes('/shs-bazar')) {
+    basePath = '/shs-bazar';
+  }
+  return `${origin}${basePath}/product/${slug}`;
+}
+
 export async function fetchProductBySlugOrId(identifier) {
   const fetchPromise = (async () => {
     try {
-      // Check by ID
-      const docRef = doc(db, 'products', identifier);
-      const snap = await getDoc(docRef);
-      if (snap.exists()) {
-        return { id: snap.id, ...snap.data() };
-      }
-      // Check by slug
+      // First check by slug
       const q = query(collection(db, 'products'), where('slug', '==', identifier), limit(1));
       const querySnap = await getDocs(q);
       if (!querySnap.empty) {
         const docSnap = querySnap.docs[0];
-        return { id: docSnap.id, ...docSnap.data() };
+        const data = docSnap.data();
+        return { id: docSnap.id, slug: data.slug || identifier, ...data };
+      }
+      // Check by ID
+      const docRef = doc(db, 'products', identifier);
+      const snap = await getDoc(docRef);
+      if (snap.exists()) {
+        const data = snap.data();
+        const slug = data.slug || generateProductSlug(data.name) || snap.id;
+        return { id: snap.id, slug, ...data };
       }
     } catch (err) {
       console.warn('Error fetching product detail from Firestore:', err);
@@ -78,7 +106,7 @@ export async function fetchProductBySlugOrId(identifier) {
     return null;
   })();
 
-  const timeoutPromise = new Promise(resolve => setTimeout(() => resolve(null), 1200));
+  const timeoutPromise = new Promise(resolve => setTimeout(() => resolve(null), 2500));
   return Promise.race([fetchPromise, timeoutPromise]);
 }
 

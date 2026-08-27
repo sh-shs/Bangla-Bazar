@@ -295,6 +295,13 @@
             <label class="form-label">Product Title *</label>
             <input type="text" id="adm-p-name" class="form-control" required placeholder="Full Product Title">
           </div>
+          <div class="form-group" id="adm-p-link-group" style="display: none;">
+            <label class="form-label">Product Link</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="adm-p-link-input" class="form-control" readonly style="background: #F3F4F6; color: #374151; font-family: monospace; font-size: 0.82rem;">
+              <button type="button" class="btn-outline" onclick="window.copyProductLinkFromModal()" style="white-space: nowrap; padding: 8px 14px; font-size: 0.8rem;"><i class="fas fa-copy"></i> Copy Link</button>
+            </div>
+          </div>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
             <div class="form-group">
               <label class="form-label">Category *</label>
@@ -600,6 +607,7 @@
       uploadMediaFile
     } from './assets/js/admin.js';
     import { onAuthStateUpdate, SUPER_ADMIN_EMAIL } from './assets/js/auth.js';
+    import { getProductUrl } from './assets/js/products.js';
     import { showToast } from './assets/js/app.js';
     import { db, collection, getDocs, doc, deleteDoc } from './assets/js/firebase-config.js';
     import { generatePDFInvoice } from './assets/js/invoice.js';
@@ -705,6 +713,41 @@
       renderProductsTable();
     }
 
+    window.copyToClipboard = (text) => {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('Product link copied successfully!');
+        }).catch(() => {
+          fallbackCopyTextToClipboard(text);
+        });
+      } else {
+        fallbackCopyTextToClipboard(text);
+      }
+    };
+
+    function fallbackCopyTextToClipboard(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        showToast('Product link copied successfully!');
+      } catch (err) {
+        showToast('Failed to copy link');
+      }
+      document.body.removeChild(textArea);
+    }
+
+    window.copyProductLinkFromModal = () => {
+      const input = document.getElementById('adm-p-link-input');
+      if (input && input.value) {
+        window.copyToClipboard(input.value);
+      }
+    };
+
     window.renderProductsTable = () => {
       const container = document.getElementById('admin-products-list');
       const search = (document.getElementById('prod-search')?.value || '').toLowerCase();
@@ -730,49 +773,59 @@
                 <th>Category</th>
                 <th>Price</th>
                 <th>Stock</th>
-                <th>Vendor</th>
+                <th>Product Link</th>
                 <th>Flags</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              ${filtered.map(p => `
-                <tr>
-                  <td>
-                    <div style="display:flex; align-items:center; gap:10px;">
-                      <img src="${p.images?.[0] || p.image || 'https://via.placeholder.com/40'}" style="width:40px; height:40px; object-fit:cover; border-radius:6px; border:1px solid #E5E7EB;">
-                      <div>
-                        <div style="font-weight:700;">${p.name}</div>
-                        <div style="font-size:0.75rem; color:#6B7280;">SKU: ${p.sku || 'N/A'}</div>
+              ${filtered.map(p => {
+                const prodUrl = getProductUrl(p);
+                return `
+                  <tr>
+                    <td>
+                      <div style="display:flex; align-items:center; gap:10px;">
+                        <img src="${p.images?.[0] || p.image || 'https://via.placeholder.com/40'}" style="width:40px; height:40px; object-fit:cover; border-radius:6px; border:1px solid #E5E7EB;">
+                        <div>
+                          <div style="font-weight:700;">${p.name}</div>
+                          <div style="font-size:0.75rem; color:#6B7280;">SKU: ${p.sku || 'N/A'}</div>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td><span class="admin-badge admin-badge-active">${p.category || 'General'}</span></td>
-                  <td>
-                    <div style="font-weight:700; color:var(--accent-color);">৳${p.discountPrice || p.regularPrice}</div>
-                    ${p.discountPrice ? `<div style="font-size:0.72rem; text-decoration:line-through; color:#9CA3AF;">৳${p.regularPrice}</div>` : ''}
-                  </td>
-                  <td>
-                    <span class="admin-badge ${p.stock > 0 ? 'admin-badge-approved' : 'admin-badge-rejected'}">
-                      ${p.stock > 0 ? `${p.stock} in stock` : 'Out of Stock'}
-                    </span>
-                  </td>
-                  <td>${p.sellerName || 'Admin'}</td>
-                  <td>
-                    <div style="display:flex; gap:4px; font-size:0.8rem;">
-                      ${p.isFeatured ? '<i class="fas fa-star" title="Featured" style="color:#F59E0B;"></i>' : ''}
-                      ${p.isFlashSale ? '<i class="fas fa-bolt" title="Flash Sale" style="color:#EF4444;"></i>' : ''}
-                      ${p.isTrending ? '<i class="fas fa-fire" title="Trending" style="color:#F97316;"></i>' : ''}
-                    </div>
-                  </td>
-                  <td>
-                    <div class="admin-action-btn-group">
-                      <button onclick="window.editAdminProduct('${p.id}')" class="btn-outline admin-btn-sm"><i class="fas fa-edit"></i> Edit</button>
-                      <button onclick="window.deleteAdminProduct('${p.id}')" class="admin-btn-sm" style="background:var(--danger-color); color:#FFF;"><i class="fas fa-trash"></i></button>
-                    </div>
-                  </td>
-                </tr>
-              `).join('')}
+                    </td>
+                    <td><span class="admin-badge admin-badge-active">${p.category || 'General'}</span></td>
+                    <td>
+                      <div style="font-weight:700; color:var(--accent-color);">৳${p.discountPrice || p.regularPrice}</div>
+                      ${p.discountPrice ? `<div style="font-size:0.72rem; text-decoration:line-through; color:#9CA3AF;">৳${p.regularPrice}</div>` : ''}
+                    </td>
+                    <td>
+                      <span class="admin-badge ${p.stock > 0 ? 'admin-badge-approved' : 'admin-badge-rejected'}">
+                        ${p.stock > 0 ? `${p.stock} in stock` : 'Out of Stock'}
+                      </span>
+                    </td>
+                    <td>
+                      <div style="display: flex; align-items: center; gap: 6px; max-width: 240px;">
+                        <input type="text" value="${prodUrl}" readonly style="width: 140px; padding: 4px 8px; font-size: 0.75rem; border-radius: 6px; border: 1px solid #D1D5DB; background: #F9FAFB; font-family: monospace; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                        <button onclick="window.copyToClipboard('${prodUrl}')" class="btn-outline admin-btn-sm" style="white-space: nowrap;" title="Copy Product Link">
+                          <i class="fas fa-copy"></i> Copy Link
+                        </button>
+                      </div>
+                    </td>
+                    <td>
+                      <div style="display:flex; gap:4px; font-size:0.8rem;">
+                        ${p.isFeatured ? '<i class="fas fa-star" title="Featured" style="color:#F59E0B;"></i>' : ''}
+                        ${p.isFlashSale ? '<i class="fas fa-bolt" title="Flash Sale" style="color:#EF4444;"></i>' : ''}
+                        ${p.isTrending ? '<i class="fas fa-fire" title="Trending" style="color:#F97316;"></i>' : ''}
+                      </div>
+                    </td>
+                    <td>
+                      <div class="admin-action-btn-group">
+                        <button onclick="window.editAdminProduct('${p.id}')" class="btn-outline admin-btn-sm"><i class="fas fa-edit"></i> Edit</button>
+                        <button onclick="window.deleteAdminProduct('${p.id}')" class="admin-btn-sm" style="background:var(--danger-color); color:#FFF;"><i class="fas fa-trash"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
             </tbody>
           </table>
         </div>
@@ -783,6 +836,8 @@
       document.getElementById('modal-product-title').innerHTML = '<i class="fas fa-box-open"></i> Add New Product';
       document.getElementById('admin-product-form').reset();
       document.getElementById('adm-p-id').value = '';
+      const linkGroup = document.getElementById('adm-p-link-group');
+      if (linkGroup) linkGroup.style.display = 'none';
       window.openModal('modal-product');
     };
 
@@ -807,6 +862,14 @@
       document.getElementById('adm-flag-flash').checked = !!p.isFlashSale;
       document.getElementById('adm-flag-trending').checked = !!p.isTrending;
       document.getElementById('adm-flag-bestseller').checked = !!p.isBestSeller;
+
+      const linkGroup = document.getElementById('adm-p-link-group');
+      const linkInput = document.getElementById('adm-p-link-input');
+      if (linkGroup && linkInput) {
+        linkInput.value = getProductUrl(p);
+        linkGroup.style.display = 'block';
+      }
+
       window.openModal('modal-product');
     };
 
