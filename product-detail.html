@@ -5,18 +5,7 @@
   <link rel="apple-touch-icon" href="assets/images/logo.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="page-title">Product Details - SHS Bazar</title>
-  <meta name="description" id="meta-description" content="G-Shape Smart Light Speaker – বিস্তারিত তথ্য, মূল্য এবং অর্ডারের জন্য SHS Bazar দেখুন।">
-  <link rel="canonical" id="canonical-url" href="">
-
-  <!-- Open Graph / Social Sharing Meta Tags -->
-  <meta property="og:type" content="product">
-  <meta property="og:site_name" content="SHS Bazar">
-  <meta property="og:title" id="og-title" content="Product Details - SHS Bazar">
-  <meta property="og:description" id="og-desc" content="বিস্তারিত তথ্য, মূল্য এবং অর্ডারের জন্য SHS Bazar দেখুন।">
-  <meta property="og:image" id="og-image" content="">
-  <meta property="og:url" id="og-url" content="">
-
+  <title>Product Details - SHS Bazar</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -49,157 +38,20 @@
     </div>
   </div>
 
-  <!-- Modal: Share Product -->
-  <div id="modal-share" class="admin-modal-overlay">
-    <div class="admin-modal" style="max-width: 440px; border-radius: 20px;">
-      <div class="admin-modal-header" style="background: var(--primary-color); color: #FFF; padding: 16px 20px;">
-        <h3 class="admin-modal-title" style="font-size: 1.05rem;"><i class="fas fa-share-alt" style="color: var(--accent-color);"></i> Share Product</h3>
-        <button class="admin-modal-close" onclick="window.closeModal('modal-share')">&times;</button>
-      </div>
-      <div class="admin-modal-body" style="padding: 20px;">
-        <p style="font-size: 0.88rem; color: var(--primary-color); margin-bottom: 16px; font-weight: 700;" id="share-modal-product-name"></p>
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px;">
-          <button onclick="window.shareToSocial('facebook')" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 12px; background: #1877F2; color: #FFF; font-weight: 700; font-size: 0.85rem; border: none; cursor: pointer;">
-            <i class="fab fa-facebook-f fa-lg"></i> Facebook
-          </button>
-          <button onclick="window.shareToSocial('whatsapp')" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 12px; background: #25D366; color: #FFF; font-weight: 700; font-size: 0.85rem; border: none; cursor: pointer;">
-            <i class="fab fa-whatsapp fa-lg"></i> WhatsApp
-          </button>
-          <button onclick="window.shareToSocial('telegram')" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 12px; background: #229ED9; color: #FFF; font-weight: 700; font-size: 0.85rem; border: none; cursor: pointer;">
-            <i class="fab fa-telegram-plane fa-lg"></i> Telegram
-          </button>
-          <button onclick="window.shareToSocial('tiktok')" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 12px; background: #000000; color: #FFF; font-weight: 700; font-size: 0.85rem; border: none; cursor: pointer;">
-            <i class="fab fa-tiktok fa-lg"></i> TikTok
-          </button>
-        </div>
-        <div class="form-group" style="margin-bottom: 0;">
-          <label class="form-label">Direct Product Link</label>
-          <div style="display: flex; gap: 8px;">
-            <input type="text" id="share-modal-url-input" class="form-control" readonly style="font-family: monospace; font-size: 0.8rem; background: #F8F9FA;">
-            <button type="button" class="btn-accent" onclick="window.copyProductLinkFromShareModal()" style="white-space: nowrap; font-size: 0.8rem;"><i class="fas fa-copy"></i> Copy Link</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script type="module" src="assets/js/firebase-config.js"></script>
   <script type="module" src="assets/js/auth.js"></script>
   <script type="module" src="assets/js/app.js"></script>
   <script type="module">
-    import { fetchProductBySlugOrId, fetchPublishedProducts, renderProductCard, getProductUrl } from './assets/js/products.js';
-    import { addToCart, showToast } from './assets/js/app.js';
+    import { fetchProductBySlugOrId, fetchPublishedProducts, renderProductCard } from './assets/js/products.js';
+    import { addToCart } from './assets/js/app.js';
 
     const fallbackImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600'%3E%3Crect width='600' height='600' fill='%23F8F9FA'/%3E%3Ctext x='50%25' y='46%25' dominant-baseline='middle' text-anchor='middle' fill='%230B4D3C' font-size='28' font-weight='bold' font-family='sans-serif'%3ESHS Bazar%3C/text%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' fill='%236B7280' font-size='18' font-family='sans-serif'%3EProduct Image%3C/text%3E%3C/svg%3E";
 
     let currentRequestSlug = null;
-    let currentLoadedProduct = null;
-    let currentProductFullUrl = '';
-
-    function getSlugFromUrl() {
-      const params = new URLSearchParams(window.location.search);
-      let slug = params.get('slug');
-      if (!slug) {
-        const pathname = window.location.pathname;
-        const match = pathname.match(/\/(?:shs-bazar\/)?product\/([^\/\?#]+)/);
-        if (match && match[1]) {
-          slug = decodeURIComponent(match[1]);
-        }
-      }
-      return slug;
-    }
-
-    window.copyTextToClipboard = (text, successMsg = 'Product link copied!') => {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(() => {
-          showToast(successMsg);
-        }).catch(() => {
-          fallbackCopyTextToClipboard(text, successMsg);
-        });
-      } else {
-        fallbackCopyTextToClipboard(text, successMsg);
-      }
-    };
-
-    function fallbackCopyTextToClipboard(text, successMsg) {
-      const textArea = document.createElement("textarea");
-      textArea.value = text;
-      textArea.style.position = "fixed";
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      try {
-        document.execCommand('copy');
-        showToast(successMsg);
-      } catch (err) {
-        showToast('Failed to copy link');
-      }
-      document.body.removeChild(textArea);
-    }
-
-    window.openShareModal = () => {
-      if (!currentLoadedProduct) return;
-      const modalEl = document.getElementById('modal-share');
-      const nameEl = document.getElementById('share-modal-product-name');
-      const inputEl = document.getElementById('share-modal-url-input');
-
-      if (nameEl) nameEl.textContent = currentLoadedProduct.name;
-      if (inputEl) inputEl.value = currentProductFullUrl;
-
-      if (modalEl) modalEl.classList.add('active');
-    };
-
-    window.closeModal = (id) => {
-      const modalEl = document.getElementById(id);
-      if (modalEl) modalEl.classList.remove('active');
-    };
-
-    window.handleShareProduct = () => {
-      if (!currentLoadedProduct) return;
-
-      if (navigator.share) {
-        navigator.share({
-          title: `${currentLoadedProduct.name} | SHS Bazar`,
-          text: currentLoadedProduct.shortDescription || currentLoadedProduct.name,
-          url: currentProductFullUrl
-        }).catch(err => {
-          if (err.name !== 'AbortError') {
-            window.openShareModal();
-          }
-        });
-      } else {
-        window.openShareModal();
-      }
-    };
-
-    window.copyProductLinkFromShareModal = () => {
-      window.copyTextToClipboard(currentProductFullUrl, 'Product link copied!');
-    };
-
-    window.shareToSocial = (platform) => {
-      if (!currentLoadedProduct || !currentProductFullUrl) return;
-      const url = encodeURIComponent(currentProductFullUrl);
-      const text = encodeURIComponent(`${currentLoadedProduct.name} - SHS Bazar`);
-
-      let shareUrl = '';
-      if (platform === 'facebook') {
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-      } else if (platform === 'whatsapp') {
-        shareUrl = `https://api.whatsapp.com/send?text=${text}%20${url}`;
-      } else if (platform === 'telegram') {
-        shareUrl = `https://t.me/share/url?url=${url}&text=${text}`;
-      } else if (platform === 'tiktok') {
-        window.copyTextToClipboard(currentProductFullUrl, 'Product link copied for TikTok!');
-        return;
-      }
-
-      if (shareUrl) {
-        window.open(shareUrl, '_blank', 'noopener,noreferrer');
-      }
-    };
 
     async function initProductDetail() {
-      const slug = getSlugFromUrl();
+      const params = new URLSearchParams(window.location.search);
+      const slug = params.get('slug');
       currentRequestSlug = slug;
 
       const container = document.getElementById('pd-container');
@@ -218,18 +70,11 @@
 
       if (!slug) {
         container.innerHTML = `
-          <div class="glass-card" style="text-align: center; padding: 50px 20px; max-width: 500px; margin: 40px auto; border-radius: 20px;">
-            <div style="width: 80px; height: 80px; background: #FEF2F2; color: #EF4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px auto; font-size: 2rem;">
-              <i class="fas fa-box-open"></i>
-            </div>
-            <h2 style="color: var(--primary-color); font-size: 1.4rem; font-weight: 800; margin-bottom: 8px;">Product Not Found</h2>
-            <p style="font-size: 0.9rem; color: #666; line-height: 1.5; margin-bottom: 24px;">
-              The requested product could not be located or may have been removed.
-            </p>
-            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-              <a href="index.html" class="btn-primary" style="padding: 10px 20px; border-radius: 10px; text-decoration: none;"><i class="fas fa-home"></i> Back to Home</a>
-              <a href="shop.html" class="btn-outline" style="padding: 10px 20px; border-radius: 10px; text-decoration: none;"><i class="fas fa-store"></i> Browse Products</a>
-            </div>
+          <div class="glass-card" style="text-align: center; padding: 40px 20px;">
+            <i class="fas fa-exclamation-triangle fa-3x" style="color: var(--warning-color); margin-bottom: 12px;"></i>
+            <h3>Product Not Found</h3>
+            <p style="font-size: 0.85rem; color: #666; margin-top: 8px;">The requested product could not be located.</p>
+            <a href="index.html" class="btn-primary" style="display: inline-block; margin-top: 16px;">Back to Home</a>
           </div>`;
         return;
       }
@@ -240,72 +85,27 @@
       if (currentRequestSlug !== slug) {
         return;
       }
-
-      if (!product && (slug === 'demo' || slug === 'demo-sample-product' || slug === 'g-shape-smart-light-speaker')) {
+      if (!product) {
+        // Mock fallback product for demo & visual verification
         product = {
-          id: slug,
-          slug: slug,
-          name: 'G-Shape Smart Light Speaker',
+          id: 'demo-sample-product',
+          slug: 'demo-sample-product',
+          name: 'Premium Wireless Headphones with Noise Cancellation',
           category: 'Electronics',
           regularPrice: 3500,
           discountPrice: 2800,
-          stock: 8,
-          shortDescription: 'G-Shape Smart Light Speaker – বিস্তারিত তথ্য, মূল্য এবং অর্ডারের জন্য SHS Bazar দেখুন।',
-          fullDescription: 'Multifunctional G-Shape Smart Light Speaker with fast wireless charging, ambient RGB night light, and high-quality bluetooth sound.\n\n• Built-in Wireless Charger\n• RGB Ambient Lighting\n• High Quality Bluetooth Audio Speaker',
+          stock: 4,
+          shortDescription: 'High-fidelity audio headphone with active noise cancellation, 30-hour battery life, and ergonomic earcups.',
+          fullDescription: 'Experience superior sound quality with SHS Bazar Wireless Headphones. Engineered with 40mm drivers and dynamic bass boost, these headphones deliver deep bass and crisp highs.\n\n• Active Noise Cancellation (ANC)\n• Up to 30 Hours Playtime\n• Bluetooth 5.2 Seamless Pairing\n• Built-in HD Microphone for Calls\n• Soft Memory Foam Ear Cushions',
           images: [
             fallbackImage
           ],
           videoUrl: null,
-          variants: ['White Edition', 'Black Edition']
+          variants: ['Black Matte', 'Silver Metallic', 'Deep Green Edition']
         };
       }
 
-      if (!product) {
-        container.innerHTML = `
-          <div class="glass-card" style="text-align: center; padding: 50px 20px; max-width: 500px; margin: 40px auto; border-radius: 20px;">
-            <div style="width: 80px; height: 80px; background: #FEF2F2; color: #EF4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px auto; font-size: 2rem;">
-              <i class="fas fa-box-open"></i>
-            </div>
-            <h2 style="color: var(--primary-color); font-size: 1.4rem; font-weight: 800; margin-bottom: 8px;">Product Not Found</h2>
-            <p style="font-size: 0.9rem; color: #666; line-height: 1.5; margin-bottom: 24px;">
-              The requested product could not be located or may have been removed.
-            </p>
-            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-              <a href="index.html" class="btn-primary" style="padding: 10px 20px; border-radius: 10px; text-decoration: none;"><i class="fas fa-home"></i> Back to Home</a>
-              <a href="shop.html" class="btn-outline" style="padding: 10px 20px; border-radius: 10px; text-decoration: none;"><i class="fas fa-store"></i> Browse Products</a>
-            </div>
-          </div>`;
-        return;
-      }
-
-      currentLoadedProduct = product;
-      currentProductFullUrl = getProductUrl(product);
-
-      // Update Dynamic SEO & Open Graph Meta Tags
-      const pageTitle = `${product.name} | SHS Bazar`;
-      const metaDesc = product.shortDescription || `${product.name} – বিস্তারিত তথ্য, মূল্য এবং অর্ডারের জন্য SHS Bazar দেখুন।`;
-      const productImage = product.images?.[0] || product.image || 'https://via.placeholder.com/600?text=SHS+Bazar';
-
-      document.title = pageTitle;
       document.getElementById('pd-header-title').textContent = product.name;
-
-      const elMetaDesc = document.getElementById('meta-description') || document.querySelector('meta[name="description"]');
-      if (elMetaDesc) elMetaDesc.setAttribute('content', metaDesc);
-
-      const elCanonical = document.getElementById('canonical-url');
-      if (elCanonical) elCanonical.setAttribute('href', currentProductFullUrl);
-
-      const elOgTitle = document.getElementById('og-title') || document.querySelector('meta[property="og:title"]');
-      if (elOgTitle) elOgTitle.setAttribute('content', pageTitle);
-
-      const elOgDesc = document.getElementById('og-desc') || document.querySelector('meta[property="og:description"]');
-      if (elOgDesc) elOgDesc.setAttribute('content', metaDesc);
-
-      const elOgImage = document.getElementById('og-image') || document.querySelector('meta[property="og:image"]');
-      if (elOgImage) elOgImage.setAttribute('content', productImage);
-
-      const elOgUrl = document.getElementById('og-url') || document.querySelector('meta[property="og:url"]');
-      if (elOgUrl) elOgUrl.setAttribute('content', currentProductFullUrl);
 
       const isDiscounted = product.discountPrice && Number(product.discountPrice) < Number(product.regularPrice);
       const currentPrice = isDiscounted ? Number(product.discountPrice) : Number(product.regularPrice);
@@ -320,8 +120,6 @@
         product.images.forEach((imgUrl, idx) => {
           if (imgUrl) mediaItems.push({ type: 'image', url: imgUrl, index: idx });
         });
-      } else if (product.image) {
-        mediaItems.push({ type: 'image', url: product.image, index: 0 });
       }
       const videoSrc = product.videoUrl || product.video;
       if (videoSrc) {
@@ -329,7 +127,7 @@
           type: 'video',
           url: videoSrc,
           index: mediaItems.length,
-          thumb: product.images?.[0] || product.image || fallbackImage
+          thumb: product.images?.[0] || fallbackImage
         });
       }
       if (mediaItems.length === 0) {
@@ -347,7 +145,7 @@
               ${isDiscounted ? `<span class="pd-discount-badge">-${discountPercent}% OFF</span>` : ''}
               ${mediaItems.length > 1 ? `<span class="pd-gallery-counter" id="pd-gallery-counter">1 / ${mediaItems.length}</span>` : ''}
               <div class="pd-hero-viewport" id="pd-hero-viewport">
-                <!-- Injected via renderMediaItem() -->
+                <!-- Injected via updateHeroMedia() -->
               </div>
             </div>
 
@@ -392,16 +190,6 @@
               <div class="pd-trust-item"><i class="fas fa-check-circle"></i> <span>100% Authentic</span></div>
               <div class="pd-trust-item"><i class="fas fa-truck-fast"></i> <span>Kushtia Express</span></div>
               <div class="pd-trust-item"><i class="fas fa-shield-halved"></i> <span>Secure Pay</span></div>
-            </div>
-
-            <!-- Share & Copy Link Toolbar -->
-            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin: 4px 0 8px 0;">
-              <button type="button" id="pd-share-btn" onclick="window.handleShareProduct()" class="btn-outline" style="flex: 1; padding: 8px 12px; font-size: 0.82rem; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
-                <i class="fas fa-share-alt" style="color: var(--accent-color);"></i> Share Product
-              </button>
-              <button type="button" id="pd-copy-link-btn" onclick="window.copyTextToClipboard('${currentProductFullUrl}', 'Product link copied!')" class="btn-outline" style="flex: 1; padding: 8px 12px; font-size: 0.82rem; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
-                <i class="fas fa-link" style="color: var(--primary-color);"></i> 🔗 Copy Product Link
-              </button>
             </div>
 
             <!-- Variants Selection -->
@@ -535,7 +323,7 @@
           id: product.id,
           name: product.name,
           price: currentPrice,
-          image: product.images?.[0] || product.image || fallbackImage,
+          image: product.images?.[0] || fallbackImage,
           variant,
           sellerId: product.sellerId || 'admin',
           quantity: 1
@@ -545,7 +333,7 @@
       function handleBuyNowAction() {
         if (isOutOfStock) return;
         const variant = document.getElementById('pd-variant-select')?.value || '';
-        const url = `checkout.html?buyNowId=${product.id}&name=${encodeURIComponent(product.name)}&price=${currentPrice}&image=${encodeURIComponent(product.images?.[0] || product.image || '')}&variant=${encodeURIComponent(variant)}&qty=1`;
+        const url = `checkout.html?buyNowId=${product.id}&name=${encodeURIComponent(product.name)}&price=${currentPrice}&image=${encodeURIComponent(product.images?.[0] || '')}&variant=${encodeURIComponent(variant)}&qty=1`;
         window.location.href = url;
       }
 
