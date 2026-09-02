@@ -11,31 +11,42 @@
 </head>
 <body>
 
+  <!-- Top Contact Strip -->
+  <div class="top-contact-strip">
+    <div class="contact-strip-inner">
+      <div class="strip-item"><i class="fas fa-headset"></i> Hotline: <a href="tel:+8809658183506">+8809658183506</a></div>
+      <div class="strip-divider">|</div>
+      <div class="strip-item"><i class="fab fa-whatsapp"></i> <a href="https://wa.me/8801342697743" target="_blank" rel="noopener">01342697743</a></div>
+      <div class="strip-divider">|</div>
+      <div class="strip-item"><i class="fab fa-telegram-plane"></i> <a href="https://t.me/shsbazarofficial" target="_blank" rel="noopener">Telegram Support</a></div>
+    </div>
+  </div>
+
   <!-- Top Header -->
   <header class="top-header">
     <div class="header-left">
-      <button class="hamburger-btn" onclick="toggleDrawer()">
+      <button class="hamburger-btn" onclick="toggleDrawer()" aria-label="Open Navigation Menu">
         <i class="fas fa-bars"></i>
       </button>
       <a href="index.html" class="logo-container">
         <img src="assets/images/logo.png" alt="SHS Bazar Logo" class="logo-img">
         <div class="brand-text">
           <span class="brand-name">SHS Bazar</span>
-          <span class="brand-tagline">OFFER OFFER OFFER</span>
+          <span class="offer-badge-ribbon"><i class="fas fa-fire-alt"></i> OFFER OFFER OFFER</span>
         </div>
       </a>
     </div>
 
     <div class="header-right">
-      <a href="wishlist.html" class="icon-btn">
+      <a href="wishlist.html" class="icon-btn" aria-label="Wishlist">
         <i class="far fa-heart"></i>
         <span class="badge-count wishlist-count-badge">0</span>
       </a>
-      <a href="cart.html" class="icon-btn">
+      <a href="cart.html" class="icon-btn" aria-label="Shopping Cart">
         <i class="fas fa-shopping-bag"></i>
         <span class="badge-count cart-count-badge">0</span>
       </a>
-      <a href="login.html" class="icon-btn account-icon-btn">
+      <a href="login.html" class="icon-btn account-icon-btn" aria-label="Account">
         <i class="far fa-user"></i>
       </a>
     </div>
@@ -64,8 +75,9 @@
   <!-- Search Bar Sticky Section -->
   <div class="search-container">
     <div class="search-box">
-      <input type="text" id="search-input" placeholder="Search products in Kushtia..." autocomplete="off">
-      <button><i class="fas fa-search"></i></button>
+      <i class="fas fa-search search-icon-left"></i>
+      <input type="text" id="search-input" placeholder="Search products in Kushtia (e.g. Honey, Electronics, Ghee)..." autocomplete="off">
+      <button class="search-submit-btn" aria-label="Search"><i class="fas fa-arrow-right"></i></button>
     </div>
     <div class="search-results-dropdown" id="search-results"></div>
   </div>
@@ -101,10 +113,20 @@
   </section>
 
   <!-- Flash Sale Section -->
-  <section class="section-wrapper" style="background-color: #FFF3E0; border-radius: var(--radius-md); margin: 12px; padding: 16px;">
-    <div class="section-header">
+  <section class="section-wrapper flash-sale-wrapper">
+    <div class="section-header flash-sale-header">
       <div class="section-title-wrap">
-        <h2 class="section-title" style="color: var(--accent-color);"><i class="fas fa-bolt"></i> Flash Sale</h2>
+        <div class="flash-title-row">
+          <h2 class="section-title flash-title"><i class="fas fa-bolt"></i> Flash Sale</h2>
+          <div class="countdown-timer-box" id="flash-sale-timer">
+            <span class="timer-label">Ends in:</span>
+            <div class="timer-unit"><span id="timer-hrs">05</span><label>h</label></div>
+            <span class="timer-colon">:</span>
+            <div class="timer-unit"><span id="timer-mins">30</span><label>m</label></div>
+            <span class="timer-colon">:</span>
+            <div class="timer-unit"><span id="timer-secs">00</span><label>s</label></div>
+          </div>
+        </div>
         <div class="section-accent-line"></div>
       </div>
       <a href="shop.html?filter=flash" class="see-all-btn">See All <i class="fas fa-chevron-right"></i></a>
