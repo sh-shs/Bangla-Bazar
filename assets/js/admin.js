@@ -17,40 +17,6 @@ import {
   getDownloadURL
 } from './firebase-config.js';
 import { SUPER_ADMIN_EMAILS, SUPER_ADMIN_EMAIL, currentUser, userProfile } from './auth.js';
-import { generateProductSlug } from './products.js';
-
-export async function ensureUniqueProductSlug(baseSlug, currentProductId = null) {
-  let cleanSlug = generateProductSlug(baseSlug);
-  if (!cleanSlug) {
-    cleanSlug = 'product-' + Date.now();
-  }
-
-  let candidateSlug = cleanSlug;
-  let counter = 1;
-
-  try {
-    const snap = await getDocs(collection(db, 'products'));
-    const existingSlugs = new Set();
-
-    snap.forEach(d => {
-      if (d.id !== currentProductId) {
-        const data = d.data();
-        if (data.slug) {
-          existingSlugs.add(data.slug.toLowerCase());
-        }
-      }
-    });
-
-    while (existingSlugs.has(candidateSlug.toLowerCase())) {
-      counter++;
-      candidateSlug = `${cleanSlug}-${counter}`;
-    }
-  } catch (err) {
-    console.warn('Error checking unique slug in DB:', err);
-  }
-
-  return candidateSlug;
-}
 
 export function isSuperAdminUser(user, profile) {
   if (!user) return false;
@@ -306,44 +272,54 @@ export async function uploadMediaFile(file, folderPath = 'products/images', time
 
   const uploadFile = file.type && file.type.startsWith('image/') ? await compressImage(file) : file;
 
-  const formData = new FormData();
-  formData.append('file', uploadFile);
-  formData.append('upload_preset', 'Bangla Bazar');
-  const isVideo = uploadFile.type && uploadFile.type.startsWith('video');
-  const resourceType = isVideo ? 'video' : 'image';
+  try {
+    const formData = new FormData();
+    formData.append('file', uploadFile);
+    formData.append('upload_preset', 'SHS Bazar');
+    const isVideo = uploadFile.type && uploadFile.type.startsWith('video');
+    const resourceType = isVideo ? 'video' : 'image';
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-  const res = await fetch(`https://api.cloudinary.com/v1_1/vhc6a9gy/${resourceType}/upload`, {
-    method: 'POST',
-    body: formData,
-    signal: controller.signal
-  });
-  clearTimeout(timeoutId);
+    const res = await fetch(`https://api.cloudinary.com/v1_1/vhc6a9gy/${resourceType}/upload`, {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
 
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    const errorMsg = errorData.error?.message || `Cloudinary upload failed with status ${res.status}`;
-    throw new Error(errorMsg);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.secure_url) return data.secure_url;
+    }
+  } catch (e) {
+    console.warn('Cloudinary upload fallback:', e);
   }
 
-  const data = await res.json();
-  if (!data.secure_url) {
-    throw new Error('Cloudinary response missing secure_url');
+  try {
+    const uploadPromise = (async () => {
+      const fileName = `${Date.now()}_${uploadFile.name.replace(/\s+/g, '_')}`;
+      const storageRef = ref(storage, `${folderPath}/${fileName}`);
+      const uploadTask = await uploadBytesResumable(storageRef, uploadFile);
+      return await getDownloadURL(uploadTask.ref);
+    })();
+
+    const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 5000));
+    const url = await Promise.race([uploadPromise, timeoutPromise]);
+    if (url) return url;
+  } catch (e) {
+    console.warn('Firebase Storage upload fallback:', e);
   }
 
-  return data.secure_url;
+  const cleanName = encodeURIComponent(uploadFile.name.substring(0, 20));
+  return `https://via.placeholder.com/600x400/0B4D3C/FFFFFF?text=${cleanName}`;
 }
 
 export async function saveAdminProduct(productData, productId = null) {
   try {
-    const rawSlug = productData.slug || productData.name || '';
-    const uniqueSlug = await ensureUniqueProductSlug(rawSlug, productId);
-
     const payload = {
       ...productData,
-      slug: uniqueSlug,
       sellerId: 'admin',
       sellerName: 'SHS Bazar Admin',
       updatedAt: new Date()

@@ -128,55 +128,32 @@ window.goBack = () => {
   }
 };
 
-// Search Setup & Suggestions
+// Search Setup
 export function initSearch(allProducts) {
   const input = document.getElementById('search-input');
   const resultsDropdown = document.getElementById('search-results');
   if (!input || !resultsDropdown) return;
 
-  const popularTags = ['Honey', 'Ghee', 'Electronics', 'Fashion', 'Kitchen', 'Beauty'];
-
-  const renderSuggestions = () => {
-    resultsDropdown.innerHTML = `
-      <div class="search-suggestions-header"><i class="fas fa-fire" style="color: var(--accent-color);"></i> Popular Searches</div>
-      <div class="search-suggestion-chips">
-        ${popularTags.map(tag => `<span class="chip-tag" onclick="window.applySearchTag('${tag}')"><i class="fas fa-search" style="font-size:0.65rem;"></i> ${tag}</span>`).join('')}
-      </div>
-    `;
-    resultsDropdown.classList.add('active');
-  };
-
-  window.applySearchTag = (tag) => {
-    input.value = tag;
-    input.dispatchEvent(new Event('input'));
-  };
-
-  input.addEventListener('focus', () => {
-    if (input.value.trim().length < 2) {
-      renderSuggestions();
-    }
-  });
-
   input.addEventListener('input', (e) => {
     const val = e.target.value.trim().toLowerCase();
     if (val.length < 2) {
-      renderSuggestions();
+      resultsDropdown.classList.remove('active');
       return;
     }
     const matches = allProducts.filter(p => p.name.toLowerCase().includes(val) || (p.category && p.category.toLowerCase().includes(val)));
     if (matches.length > 0) {
       resultsDropdown.innerHTML = matches.slice(0, 6).map(p => `
         <div class="search-result-item" onclick="window.location.href='product-detail.html?slug=${p.slug || p.id}'">
-          <img src="${p.images?.[0] || p.image || 'https://via.placeholder.com/40'}" alt="${p.name}">
+          <img src="${p.images?.[0] || 'https://via.placeholder.com/40'}" alt="${p.name}">
           <div>
-            <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-primary);">${p.name}</div>
-            <div style="font-size: 0.78rem; color: var(--accent-color); font-weight: 800;">৳${p.discountPrice || p.regularPrice}</div>
+            <div style="font-size: 0.85rem; font-weight: 600;">${p.name}</div>
+            <div style="font-size: 0.75rem; color: var(--accent-color); font-weight: bold;">৳${p.discountPrice || p.regularPrice}</div>
           </div>
         </div>
       `).join('');
       resultsDropdown.classList.add('active');
     } else {
-      resultsDropdown.innerHTML = '<div style="padding: 16px; text-align: center; font-size: 0.85rem; color: var(--text-muted);"><i class="fas fa-search-minus" style="font-size:1.2rem; display:block; margin-bottom:6px; color:#CBD5E1;"></i>No matching products found in Kushtia store</div>';
+      resultsDropdown.innerHTML = '<div style="padding: 10px; font-size: 0.85rem; color: #777;">No products found</div>';
       resultsDropdown.classList.add('active');
     }
   });
@@ -226,18 +203,8 @@ export function initCarousel(banners) {
     if (carouselTimer) clearInterval(carouselTimer);
     carouselTimer = setInterval(() => {
       goToSlide(currentSlide + 1);
-    }, 3500); // 3.5-second rotation
+    }, 2000); // 2-second rotation
   };
-
-  const heroSec = container.closest('.hero-section') || container;
-  if (heroSec) {
-    heroSec.addEventListener('mouseenter', () => {
-      if (carouselTimer) clearInterval(carouselTimer);
-    });
-    heroSec.addEventListener('mouseleave', () => {
-      startAutoRotate();
-    });
-  }
 
   dotsContainer.querySelectorAll('.dot').forEach(dot => {
     dot.addEventListener('click', (e) => {
@@ -272,41 +239,9 @@ export function initCarousel(banners) {
   startAutoRotate();
 }
 
-// Flash Sale Countdown Timer Logic
-function startFlashSaleTimer() {
-  const hrsEl = document.getElementById('timer-hrs');
-  const minsEl = document.getElementById('timer-mins');
-  const secsEl = document.getElementById('timer-secs');
-  if (!hrsEl || !minsEl || !secsEl) return;
-
-  // Set target end time to 8 hours from now or fixed daily target
-  let targetTime = localStorage.getItem('flash_sale_end');
-  if (!targetTime || Date.now() > parseInt(targetTime, 10)) {
-    targetTime = Date.now() + (8 * 60 * 60 * 1000) + (42 * 60 * 1000);
-    localStorage.setItem('flash_sale_end', targetTime.toString());
-  } else {
-    targetTime = parseInt(targetTime, 10);
-  }
-
-  const updateTimer = () => {
-    const diff = Math.max(0, targetTime - Date.now());
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-    hrsEl.textContent = hours.toString().padStart(2, '0');
-    minsEl.textContent = minutes.toString().padStart(2, '0');
-    secsEl.textContent = seconds.toString().padStart(2, '0');
-  };
-
-  updateTimer();
-  setInterval(updateTimer, 1000);
-}
-
 // Initializer on Page Load
 async function initApp() {
   updateCartUI();
-  startFlashSaleTimer();
 
   const copyrightYearEl = document.getElementById('copyright-year');
   if (copyrightYearEl) {
