@@ -5,21 +5,77 @@
   <link rel="apple-touch-icon" href="assets/images/logo.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shipping Policy - SHS Bazar</title>
+  <title>Shipping & Delivery Info - SHS Bazar</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
   <div class="page-top-bar">
     <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
-    <span class="page-title">Shipping Policy</span>
+    <span class="page-title">Shipping & Delivery Info</span>
   </div>
-  <div class="section-wrapper" style="max-width: 650px; margin: 0 auto;">
-    <div class="glass-card" style="padding: 24px; font-size: 0.9rem; line-height: 1.6;">
-      <h2 style="color: var(--primary-color); margin-bottom: 12px;">Shipping Policy</h2>
-      <p>Standard delivery charge inside Kushtia town is ৳100 (1-2 working days). Standard delivery outside Kushtia across Bangladesh is ৳160 (3-5 working days).</p>
+
+  <div class="section-wrapper" style="max-width: 680px; margin: 0 auto;">
+    <div class="glass-card" style="padding: 24px; font-size: 0.9rem; line-height: 1.7;">
+      <h2 style="color: var(--primary-color); margin-bottom: 16px; font-size: 1.25rem; border-bottom: 2px solid var(--accent-color); padding-bottom: 6px; display: inline-block;">
+        <i class="fas fa-truck" style="color: var(--accent-color);"></i> Shipping & Delivery Information
+      </h2>
+
+      <p style="margin-bottom: 16px;"><strong>SHS Bazar</strong> delivers products directly across Kushtia district and all 64 districts in Bangladesh through trusted local delivery agents and national courier networks.</p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px;">
+        <div style="background: var(--bg-color); border: 1px solid var(--border-color); padding: 16px; border-radius: 12px;">
+          <h3 style="color: var(--primary-color); font-size: 1rem; margin-bottom: 6px;"><i class="fas fa-map-marker-alt" style="color: var(--accent-color);"></i> Inside Kushtia Town</h3>
+          <p style="font-size: 0.85rem; color: var(--text-primary); margin-bottom: 6px;"><strong>Delivery Fee:</strong> ৳100</p>
+          <p style="font-size: 0.82rem; color: var(--text-muted);"><strong>Estimated Time:</strong> 1 - 2 Working Days</p>
+        </div>
+
+        <div style="background: var(--bg-color); border: 1px solid var(--border-color); padding: 16px; border-radius: 12px;">
+          <h3 style="color: var(--primary-color); font-size: 1rem; margin-bottom: 6px;"><i class="fas fa-globe-asia" style="color: var(--accent-color);"></i> Outside Kushtia (All BD)</h3>
+          <p style="font-size: 0.85rem; color: var(--text-primary); margin-bottom: 6px;"><strong>Delivery Fee:</strong> ৳160</p>
+          <p style="font-size: 0.82rem; color: var(--text-muted);"><strong>Estimated Time:</strong> 3 - 5 Working Days</p>
+        </div>
+      </div>
+
+      <h3 style="color: var(--primary-color); font-size: 1.05rem; margin: 18px 0 8px 0;"><i class="fas fa-box-check" style="color: var(--accent-color);"></i> Delivery Process</h3>
+      <ul style="padding-left: 20px; list-style-type: disc; margin-bottom: 16px; color: var(--text-primary);">
+        <li>Once your order is confirmed, our team packages and dispatches the item.</li>
+        <li>You will receive SMS or phone confirmation prior to delivery.</li>
+        <li>You can inspect the product outer packaging before accepting Cash on Delivery.</li>
+      </ul>
+
+      <div style="background: var(--bg-color); padding: 14px; border-radius: 10px; border-left: 4px solid var(--primary-color); margin-top: 18px;">
+        <strong>Questions about your delivery?</strong><br>
+        Call hotline: <a href="tel:+8809658183506" style="color: var(--primary-color); text-decoration: underline;">+8809658183506</a> or WhatsApp: <a href="https://wa.me/8801342697743" style="color: var(--primary-color); text-decoration: underline;">01342697743</a>
+      </div>
     </div>
   </div>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item">
+      <div class="nav-icon-wrap"><i class="fas fa-home"></i></div>
+      <span data-i18n="home">Home</span>
+    </a>
+    <a href="shop.html" class="nav-item">
+      <div class="nav-icon-wrap"><i class="fas fa-th-large"></i></div>
+      <span data-i18n="allCategories">Menu</span>
+    </a>
+    <div class="center-cart-wrapper">
+      <a href="cart.html" class="center-cart-shortcut" aria-label="Cart">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="nav-cart-badge cart-count-badge">0</span>
+      </a>
+    </div>
+    <a href="orders.html" class="nav-item">
+      <div class="nav-icon-wrap"><i class="fas fa-box"></i></div>
+      <span data-i18n="myOrders">Orders</span>
+    </a>
+    <a href="profile.html" class="nav-item account-link">
+      <div class="nav-icon-wrap"><i class="fas fa-user"></i></div>
+      <span data-i18n="myAccount">Account</span>
+    </a>
+  </nav>
+
   <script type="module" src="assets/js/firebase-config.js"></script>
   <script type="module" src="assets/js/auth.js"></script>
   <script type="module" src="assets/js/app.js"></script>

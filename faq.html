@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="assets/images/logo.png">
+  <link rel="apple-touch-icon" href="assets/images/logo.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ & Help Center - SHS Bazar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .faq-search-box {
+      margin-bottom: 20px;
+    }
+    .faq-category-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--primary-color);
+      margin: 20px 0 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .faq-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      margin-bottom: 10px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+    .faq-question {
+      padding: 14px 16px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+    .faq-question i {
+      color: var(--accent-color);
+      transition: transform 0.25s ease;
+    }
+    .faq-answer {
+      display: none;
+      padding: 0 16px 14px 16px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      border-top: 1px dashed var(--border-color);
+      padding-top: 10px;
+    }
+    .faq-item.active .faq-answer {
+      display: block;
+    }
+    .faq-item.active .faq-question i {
+      transform: rotate(180deg);
+    }
+  </style>
+</head>
+<body>
+  <div class="page-top-bar">
+    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+    <span class="page-title">FAQ & Help Center</span>
+  </div>
+
+  <div class="section-wrapper" style="max-width: 680px; margin: 0 auto;">
+    <!-- Search Bar -->
+    <div class="search-box faq-search-box">
+      <input type="text" id="faq-search-input" placeholder="Search questions (e.g., delivery, bKash, return)...">
+      <button><i class="fas fa-search"></i></button>
+    </div>
+
+    <!-- Category 1: Ordering & Delivery -->
+    <div class="faq-category-title"><i class="fas fa-truck" style="color: var(--accent-color);"></i> Ordering & Delivery</div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>How do I place an order on SHS Bazar?</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Browse our catalog or search for products, click "Add to Cart", proceed to checkout, enter your shipping details, select your payment method (Cash on Delivery or bKash), and click "Place Order".
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>What are the delivery charges?</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Standard home delivery inside Kushtia town is only <strong>৳100</strong> (1-2 business days). For deliveries outside Kushtia across Bangladesh, the charge is <strong>৳160</strong> (3-5 business days).
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>Can I track my order status?</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Yes! You can view live updates on your order status (Pending, Processing, Shipped, Delivered) in the <strong>My Orders</strong> page or inside your account profile.
+      </div>
+    </div>
+
+    <!-- Category 2: Payment Options -->
+    <div class="faq-category-title"><i class="fas fa-wallet" style="color: var(--accent-color);"></i> Payment Options</div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>What payment methods are supported?</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        We support <strong>Cash on Delivery (COD)</strong> for convenient payment upon receipt, as well as <strong>bKash Send Money / Payment</strong> with instant Transaction ID verification.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>How do I pay using bKash?</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        During checkout, choose bKash, send the total amount to our official bKash number <code>01342697743</code>, and enter your 10-character TrxID in the popup modal to complete your order.
+      </div>
+    </div>
+
+    <!-- Category 3: Returns & Refunds -->
+    <div class="faq-category-title"><i class="fas fa-undo" style="color: var(--accent-color);"></i> Returns & Refunds</div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>What is your return policy?</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        We offer a 7-day hassle-free return policy if you receive a damaged, defective, or incorrect product. Contact our support team with your Order ID and photo proof to initiate a replacement or refund.
+      </div>
+    </div>
+
+    <!-- Category 4: Support & Contact -->
+    <div class="faq-category-title"><i class="fas fa-headset" style="color: var(--accent-color);"></i> Customer Support</div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>How can I reach customer support?</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Our support hotline is <strong>+8809658183506</strong> / <strong>01342697743</strong>. You can also contact us via Telegram (<strong>@shsaripofficial</strong>) or WhatsApp.
+      </div>
+    </div>
+
+    <!-- Quick Support Card -->
+    <div class="glass-card" style="margin-top: 24px; text-align: center; padding: 20px;">
+      <h3 style="color: var(--primary-color); font-size: 1rem; margin-bottom: 6px;">Still have questions?</h3>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">We are happy to assist you inside Kushtia and across Bangladesh!</p>
+      <a href="contact.html" class="btn-primary" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; padding: 8px 20px; border-radius: 20px; font-size: 0.85rem;">
+        <i class="fas fa-headset"></i> Contact Us
+      </a>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item">
+      <div class="nav-icon-wrap"><i class="fas fa-home"></i></div>
+      <span data-i18n="home">Home</span>
+    </a>
+    <a href="shop.html" class="nav-item">
+      <div class="nav-icon-wrap"><i class="fas fa-th-large"></i></div>
+      <span data-i18n="allCategories">Menu</span>
+    </a>
+    <div class="center-cart-wrapper">
+      <a href="cart.html" class="center-cart-shortcut" aria-label="Cart">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="nav-cart-badge cart-count-badge">0</span>
+      </a>
+    </div>
+    <a href="orders.html" class="nav-item">
+      <div class="nav-icon-wrap"><i class="fas fa-box"></i></div>
+      <span data-i18n="myOrders">Orders</span>
+    </a>
+    <a href="profile.html" class="nav-item account-link">
+      <div class="nav-icon-wrap"><i class="fas fa-user"></i></div>
+      <span data-i18n="myAccount">Account</span>
+    </a>
+  </nav>
+
+  <script type="module" src="assets/js/firebase-config.js"></script>
+  <script type="module" src="assets/js/auth.js"></script>
+  <script type="module" src="assets/js/app.js"></script>
+  <script>
+    // Accordion Toggle Handler
+    document.querySelectorAll('.faq-question').forEach(q => {
+      q.addEventListener('click', () => {
+        const item = q.parentElement;
+        item.classList.toggle('active');
+      });
+    });
+
+    // Search Filter Handler
+    const searchInput = document.getElementById('faq-search-input');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        document.querySelectorAll('.faq-item').forEach(item => {
+          const text = item.textContent.toLowerCase();
+          if (text.includes(query)) {
+            item.style.display = 'block';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>

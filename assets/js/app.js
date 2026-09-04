@@ -1,6 +1,307 @@
 // Main Application Script (UI Wiring, Search, Cart State, Mobile Nav)
 import { fetchPublishedProducts, fetchBanners, renderProductCard, fetchActiveCategories, DEFAULT_CATEGORIES, DEFAULT_BANNERS, getProductShareUrl } from './products.js';
-import { toggleWishlist, isProductInWishlist } from './auth.js';
+import { toggleWishlist, isProductInWishlist, currentUser, logoutUser, onAuthStateUpdate } from './auth.js';
+
+// Translations & Theme State
+export const TRANSLATIONS = {
+  en: {
+    home: "Home",
+    allCategories: "All Categories",
+    specialOffers: "Special Offers",
+    myOrders: "My Orders",
+    wishlist: "Wishlist",
+    myAccount: "My Account",
+    logout: "Logout",
+    darkMode: "Dark Mode",
+    lightMode: "Light Mode",
+    language: "Language",
+    returnPolicy: "Return & Refund Policy",
+    shippingInfo: "Shipping & Delivery Info",
+    privacyPolicy: "Privacy Policy",
+    termsOfService: "Terms of Service",
+    faq: "FAQ / Help Center",
+    contactUs: "Contact Us",
+    aboutUs: "About Us",
+    shareApp: "Share Website / Rate Us",
+    navSectionMain: "Shop & Orders",
+    navSectionAccount: "Account & Settings",
+    navSectionPolicies: "Policies & Info",
+    navSectionSupport: "Help & Social"
+  },
+  bn: {
+    home: "হোম",
+    allCategories: "সকল ক্যাটাগরি",
+    specialOffers: "স্পেশাল অফার",
+    myOrders: "আমার অর্ডারসমূহ",
+    wishlist: "উইশলিস্ট",
+    myAccount: "আমার অ্যাকাউন্ট",
+    logout: "লগআউট",
+    darkMode: "ডার্ক মোড",
+    lightMode: "লাইট মোড",
+    language: "ভাষা",
+    returnPolicy: "রিটার্ন ও রিফান্ড পলিসি",
+    shippingInfo: "শিপিং ও ডেলিভারি তথ্য",
+    privacyPolicy: "প্রাইভেসি পলিসি",
+    termsOfService: "টার্মস অফ সার্ভিস",
+    faq: "সাধারণ প্রশ্নাবলী (FAQ)",
+    contactUs: "যোগাযোগ করুন",
+    aboutUs: "আমাদের সম্পর্কে",
+    shareApp: "ওয়েবসাইট শেয়ার / রেটিং দিন",
+    navSectionMain: "শপিং ও অর্ডার",
+    navSectionAccount: "অ্যাকাউন্ট ও সেটিংস",
+    navSectionPolicies: "পলিসি ও তথ্য",
+    navSectionSupport: "হেল্প ও সোশ্যাল"
+  }
+};
+
+export function getCurrentLang() {
+  return localStorage.getItem('shs_lang') || 'bn';
+}
+
+export function toggleLanguage(lang) {
+  const newLang = lang || (getCurrentLang() === 'bn' ? 'en' : 'bn');
+  localStorage.setItem('shs_lang', newLang);
+  applyTranslations();
+  showToast(newLang === 'bn' ? 'ভাষা: বাংলা' : 'Language: English');
+}
+
+export function applyTranslations() {
+  const lang = getCurrentLang();
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (t[key]) {
+      el.textContent = t[key];
+    }
+  });
+  if (typeof window.renderDrawer === 'function') {
+    window.renderDrawer();
+  }
+}
+
+window.toggleLanguage = toggleLanguage;
+
+// Theme Logic
+export function initTheme() {
+  const savedTheme = localStorage.getItem('shs_theme');
+  if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.body.classList.add('dark-mode');
+    document.documentElement.setAttribute('data-theme', 'dark');
+  } else {
+    document.body.classList.remove('dark-mode');
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+}
+
+export function toggleDarkMode() {
+  const isDark = document.body.classList.toggle('dark-mode');
+  const theme = isDark ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('shs_theme', theme);
+  showToast(isDark ? 'Dark Mode Enabled' : 'Light Mode Enabled');
+  if (typeof window.renderDrawer === 'function') {
+    window.renderDrawer();
+  }
+}
+
+window.toggleDarkMode = toggleDarkMode;
+
+// Share & Rate Modal Logic
+export function openShareModal() {
+  let modal = document.getElementById('share-modal-overlay');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'share-modal-overlay';
+    modal.className = 'share-modal-overlay';
+    modal.onclick = (e) => {
+      if (e.target === modal) closeShareModal();
+    };
+    document.body.appendChild(modal);
+  }
+
+  const siteUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/index.html');
+  const shareText = encodeURIComponent("Check out SHS Bazar for amazing local deals in Kushtia! OFFER OFFER OFFER");
+  const encodedUrl = encodeURIComponent(siteUrl);
+
+  modal.innerHTML = `
+    <div class="share-modal-card">
+      <button class="bkash-close-btn" onclick="closeShareModal()"><i class="fas fa-times"></i></button>
+      <div style="text-align: center; margin-bottom: 12px;">
+        <img src="assets/images/logo.png" style="height: 48px; border-radius: 8px;" alt="Logo">
+        <h3 style="color: var(--primary-color); font-size: 1.2rem; margin-top: 6px;">Share SHS Bazar</h3>
+        <p style="font-size: 0.82rem; color: var(--text-muted);">Spread the word with friends & family in Kushtia!</p>
+      </div>
+
+      <div class="share-btn-grid">
+        <a href="https://api.whatsapp.com/send?text=${shareText}%20${encodedUrl}" target="_blank" class="share-option-btn" style="text-decoration:none;">
+          <i class="fab fa-whatsapp" style="font-size: 1.5rem; color: #25D366;"></i>
+          <span>WhatsApp</span>
+        </a>
+        <a href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}" target="_blank" class="share-option-btn" style="text-decoration:none;">
+          <i class="fab fa-facebook" style="font-size: 1.5rem; color: #1877F2;"></i>
+          <span>Facebook</span>
+        </a>
+        <button onclick="handleCopyWebsiteUrl()" class="share-option-btn">
+          <i class="fas fa-copy" style="font-size: 1.5rem; color: var(--accent-color);"></i>
+          <span>Copy Link</span>
+        </button>
+      </div>
+
+      <div style="border-top: 1px dashed var(--border-color); padding-top: 14px; text-align: center;">
+        <h4 style="font-size: 0.9rem; color: var(--primary-color); margin-bottom: 4px;">Rate Our Experience</h4>
+        <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px;">Tap stars to rate us</p>
+        <div class="rating-stars" id="rating-stars">
+          <i class="fas fa-star" data-rating="1"></i>
+          <i class="fas fa-star" data-rating="2"></i>
+          <i class="fas fa-star" data-rating="3"></i>
+          <i class="fas fa-star" data-rating="4"></i>
+          <i class="fas fa-star" data-rating="5"></i>
+        </div>
+        <button onclick="handleRateUsSubmit()" class="btn-accent" style="width: 100%; font-size: 0.85rem; padding: 8px; border-radius: 10px; margin-top: 8px;">
+          Submit Feedback
+        </button>
+      </div>
+    </div>
+  `;
+
+  modal.classList.add('active');
+
+  let selectedRating = 5;
+  const stars = modal.querySelectorAll('#rating-stars i');
+  const updateStars = (val) => {
+    stars.forEach((star, idx) => {
+      if (idx < val) {
+        star.classList.add('active');
+      } else {
+        star.classList.remove('active');
+      }
+    });
+  };
+  updateStars(5);
+
+  stars.forEach(star => {
+    star.addEventListener('click', () => {
+      selectedRating = parseInt(star.getAttribute('data-rating'), 10);
+      updateStars(selectedRating);
+    });
+  });
+}
+
+export function closeShareModal() {
+  const modal = document.getElementById('share-modal-overlay');
+  if (modal) modal.classList.remove('active');
+}
+
+window.openShareModal = openShareModal;
+window.closeShareModal = closeShareModal;
+
+window.handleCopyWebsiteUrl = () => {
+  const url = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/index.html');
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(url).then(() => {
+      showToast('Website link copied!');
+    }).catch(() => fallbackCopyText(url));
+  } else {
+    fallbackCopyText(url);
+  }
+};
+
+window.handleRateUsSubmit = () => {
+  showToast('Thank you for rating SHS Bazar!');
+  closeShareModal();
+};
+
+// Drawer Generator
+export function renderDrawer() {
+  let drawer = document.getElementById('nav-drawer');
+  let overlay = document.getElementById('drawer-overlay');
+
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'drawer-overlay';
+    overlay.className = 'drawer-overlay';
+    overlay.onclick = () => window.toggleDrawer();
+    document.body.appendChild(overlay);
+  }
+
+  if (!drawer) {
+    drawer = document.createElement('aside');
+    drawer.id = 'nav-drawer';
+    drawer.className = 'nav-drawer';
+    document.body.appendChild(drawer);
+  }
+
+  const lang = getCurrentLang();
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.bn;
+  const isDark = document.body.classList.contains('dark-mode');
+  const isLoggedIn = !!currentUser;
+  const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+
+  drawer.innerHTML = `
+    <div class="drawer-header">
+      <div class="logo-container">
+        <img src="assets/images/logo.png" alt="SHS Bazar Logo" class="logo-img">
+        <span class="brand-name">SHS Bazar</span>
+      </div>
+      <button class="hamburger-btn" onclick="toggleDrawer()"><i class="fas fa-times"></i></button>
+    </div>
+
+    <ul class="drawer-menu">
+      <!-- Section: Main Shopping Navigation -->
+      <li><a href="index.html" class="drawer-menu-item ${currentPath === 'index.html' ? 'active' : ''}"><i class="fas fa-home" style="width: 20px;"></i> <span>${t.home}</span></a></li>
+      <li><a href="shop.html" class="drawer-menu-item ${currentPath === 'shop.html' ? 'active' : ''}"><i class="fas fa-th-large" style="width: 20px;"></i> <span>${t.allCategories}</span></a></li>
+      <li><a href="offers.html" class="drawer-menu-item ${currentPath === 'offers.html' ? 'active' : ''}"><i class="fas fa-tags" style="width: 20px;"></i> <span>${t.specialOffers}</span></a></li>
+      <li><a href="orders.html" class="drawer-menu-item ${currentPath === 'orders.html' ? 'active' : ''}"><i class="fas fa-box" style="width: 20px;"></i> <span>${t.myOrders}</span></a></li>
+      <li><a href="wishlist.html" class="drawer-menu-item ${currentPath === 'wishlist.html' ? 'active' : ''}"><i class="fas fa-heart" style="width: 20px;"></i> <span>${t.wishlist}</span></a></li>
+
+      <!-- Account Section -->
+      <li style="padding: 10px 20px 4px 20px; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid var(--border-color); margin-top: 6px;">
+        ${t.navSectionAccount}
+      </li>
+      <li><a href="${isLoggedIn ? 'profile.html' : 'login.html'}" class="drawer-menu-item account-link ${currentPath === 'profile.html' || currentPath === 'login.html' ? 'active' : ''}"><i class="fas fa-user-circle" style="width: 20px;"></i> <span>${t.myAccount}</span></a></li>
+      ${isLoggedIn ? `
+      <li><a href="#" onclick="event.preventDefault(); toggleDrawer(); window.handleLogout();" class="drawer-menu-item" style="color: var(--danger-color);"><i class="fas fa-sign-out-alt" style="width: 20px;"></i> <span>${t.logout}</span></a></li>
+      ` : ''}
+
+      <!-- Preferences -->
+      <li>
+        <a href="#" onclick="event.preventDefault(); toggleDarkMode();" class="drawer-menu-item">
+          <i class="${isDark ? 'fas fa-sun' : 'fas fa-moon'} theme-toggle-icon" style="width: 20px; color: var(--accent-color);"></i>
+          <span class="theme-toggle-text">${isDark ? t.lightMode : t.darkMode}</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" onclick="event.preventDefault(); toggleLanguage();" class="drawer-menu-item">
+          <i class="fas fa-globe" style="width: 20px; color: var(--primary-color);"></i>
+          <span>${t.language}: <strong style="color: var(--accent-color);">${lang === 'bn' ? 'বাংলা' : 'EN'}</strong></span>
+        </a>
+      </li>
+
+      <!-- Policy Pages -->
+      <li style="padding: 10px 20px 4px 20px; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid var(--border-color); margin-top: 6px;">
+        ${t.navSectionPolicies}
+      </li>
+      <li><a href="return-policy.html" class="drawer-menu-item ${currentPath === 'return-policy.html' ? 'active' : ''}"><i class="fas fa-undo" style="width: 20px;"></i> <span>${t.returnPolicy}</span></a></li>
+      <li><a href="shipping-policy.html" class="drawer-menu-item ${currentPath === 'shipping-policy.html' ? 'active' : ''}"><i class="fas fa-truck" style="width: 20px;"></i> <span>${t.shippingInfo}</span></a></li>
+      <li><a href="privacy-policy.html" class="drawer-menu-item ${currentPath === 'privacy-policy.html' ? 'active' : ''}"><i class="fas fa-user-shield" style="width: 20px;"></i> <span>${t.privacyPolicy}</span></a></li>
+      <li><a href="terms.html" class="drawer-menu-item ${currentPath === 'terms.html' ? 'active' : ''}"><i class="fas fa-file-contract" style="width: 20px;"></i> <span>${t.termsOfService}</span></a></li>
+      <li><a href="faq.html" class="drawer-menu-item ${currentPath === 'faq.html' ? 'active' : ''}"><i class="fas fa-question-circle" style="width: 20px;"></i> <span>${t.faq}</span></a></li>
+
+      <!-- Support & App -->
+      <li style="padding: 10px 20px 4px 20px; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid var(--border-color); margin-top: 6px;">
+        ${t.navSectionSupport}
+      </li>
+      <li><a href="contact.html" class="drawer-menu-item ${currentPath === 'contact.html' ? 'active' : ''}"><i class="fas fa-headset" style="width: 20px;"></i> <span>${t.contactUs}</span></a></li>
+      <li><a href="about.html" class="drawer-menu-item ${currentPath === 'about.html' ? 'active' : ''}"><i class="fas fa-info-circle" style="width: 20px;"></i> <span>${t.aboutUs}</span></a></li>
+      <li><a href="#" onclick="event.preventDefault(); toggleDrawer(); openShareModal();" class="drawer-menu-item"><i class="fas fa-share-alt" style="width: 20px; color: var(--accent-color);"></i> <span>${t.shareApp}</span></a></li>
+    </ul>
+  `;
+}
+
+window.renderDrawer = renderDrawer;
+window.handleLogout = () => {
+  logoutUser();
+};
 
 // Global Cart State (localStorage backed)
 export function getCart() {
@@ -322,7 +623,14 @@ export function initCarousel(banners) {
 
 // Initializer on Page Load
 async function initApp() {
+  initTheme();
+  applyTranslations();
   updateCartUI();
+  renderDrawer();
+
+  onAuthStateUpdate(() => {
+    renderDrawer();
+  });
 
   const copyrightYearEl = document.getElementById('copyright-year');
   if (copyrightYearEl) {

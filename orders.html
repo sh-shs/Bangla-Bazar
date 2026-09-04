@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="assets/images/logo.png">
+  <link rel="apple-touch-icon" href="assets/images/logo.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders - SHS Bazar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .order-status-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 0 12px 0;
+      margin-bottom: 16px;
+      scrollbar-width: none;
+    }
+    .order-status-tabs::-webkit-scrollbar {
+      display: none;
+    }
+    .status-tab {
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .status-tab.active {
+      background: var(--primary-color);
+      color: #FFFFFF;
+      border-color: var(--primary-color);
+      box-shadow: 0 4px 10px rgba(11, 77, 60, 0.25);
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Navigation Bar -->
+  <div class="page-top-bar">
+    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+    <span class="page-title" data-i18n="myOrders">My Orders</span>
+  </div>
+
+  <div class="section-wrapper" style="max-width: 700px; margin: 0 auto;">
+    <!-- Status Filter Tabs -->
+    <div class="order-status-tabs" id="status-filter-tabs">
+      <button class="status-tab active" data-status="all">All Orders</button>
+      <button class="status-tab" data-status="pending">Pending</button>
+      <button class="status-tab" data-status="processing">Processing</button>
+      <button class="status-tab" data-status="shipped">Shipped</button>
+      <button class="status-tab" data-status="delivered">Delivered</button>
+      <button class="status-tab" data-status="cancelled">Cancelled</button>
+    </div>
+
+    <!-- Orders Container -->
+    <div id="orders-list-container">
+      <div style="text-align: center; color: var(--text-muted); padding: 40px 20px;" class="glass-card">
+        <i class="fas fa-spinner fa-spin" style="font-size: 1.8rem; color: var(--primary-color);"></i>
+        <p style="margin-top: 10px; font-size: 0.9rem;">Loading your order history...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item">
+      <div class="nav-icon-wrap"><i class="fas fa-home"></i></div>
+      <span data-i18n="home">Home</span>
+    </a>
+    <a href="shop.html" class="nav-item">
+      <div class="nav-icon-wrap"><i class="fas fa-th-large"></i></div>
+      <span data-i18n="allCategories">Menu</span>
+    </a>
+    <div class="center-cart-wrapper">
+      <a href="cart.html" class="center-cart-shortcut" aria-label="Cart">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="nav-cart-badge cart-count-badge">0</span>
+      </a>
+    </div>
+    <a href="orders.html" class="nav-item active">
+      <div class="nav-icon-wrap"><i class="fas fa-box"></i></div>
+      <span data-i18n="myOrders">Orders</span>
+    </a>
+    <a href="profile.html" class="nav-item account-link">
+      <div class="nav-icon-wrap"><i class="fas fa-user"></i></div>
+      <span data-i18n="myAccount">Account</span>
+    </a>
+  </nav>
+
+  <script type="module" src="assets/js/firebase-config.js"></script>
+  <script type="module" src="assets/js/auth.js"></script>
+  <script type="module" src="assets/js/app.js"></script>
+  <script type="module">
+    import { onAuthStateUpdate } from './assets/js/auth.js';
+    import { db, collection, getDocs, query, where } from './assets/js/firebase-config.js';
+    import { generatePDFInvoice } from './assets/js/invoice.js';
+
+    let allOrders = [];
+    let activeFilter = 'all';
+
+    window.downloadInvoiceHandler = (orderId) => {
+      const order = allOrders.find(o => o.id === orderId);
+      if (order) generatePDFInvoice(order);
+    };
+
+    window.toggleOrderDetail = (orderId) => {
+      const detailEl = document.getElementById(`order-details-${orderId}`);
+      const iconEl = document.getElementById(`order-toggle-icon-${orderId}`);
+      if (!detailEl) return;
+      if (detailEl.style.display === 'none' || !detailEl.style.display) {
+        detailEl.style.display = 'block';
+        if (iconEl) iconEl.className = 'fas fa-chevron-up';
+      } else {
+        detailEl.style.display = 'none';
+        if (iconEl) iconEl.className = 'fas fa-chevron-down';
+      }
+    };
+
+    function formatOrderDate(createdAt) {
+      if (!createdAt) return 'N/A';
+      if (createdAt.seconds) {
+        return new Date(createdAt.seconds * 1000).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+      }
+      return new Date(createdAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+    }
+
+    function getBadgeClass(status) {
+      const s = (status || 'Pending').toLowerCase().replace(/\s+/g, '-');
+      return `admin-badge admin-badge-${s}`;
+    }
+
+    function renderOrders() {
+      const container = document.getElementById('orders-list-container');
+      if (!container) return;
+
+      const filtered = activeFilter === 'all'
+        ? allOrders
+        : allOrders.filter(o => (o.orderStatus || 'Pending').toLowerCase() === activeFilter);
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="glass-card" style="text-align: center; padding: 36px 20px;">
+            <div style="font-size: 3rem; color: var(--text-muted); margin-bottom: 12px;">
+              <i class="fas fa-box-open"></i>
+            </div>
+            <h3 style="font-size: 1.1rem; color: var(--text-primary); margin-bottom: 8px;">No ${activeFilter === 'all' ? '' : activeFilter} orders found</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 18px;">Place your order now to enjoy discount deals inside Kushtia!</p>
+            <a href="shop.html" class="btn-accent" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; padding: 10px 22px; border-radius: 25px; font-weight: bold;">
+              <i class="fas fa-shopping-bag"></i> Start Shopping Now
+            </a>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(o => {
+        const items = Array.isArray(o.items) ? o.items : [];
+        const status = o.orderStatus || 'Pending';
+        const badgeClass = getBadgeClass(status);
+        const dateStr = formatOrderDate(o.createdAt);
+        const totalPaid = Number(o.totalAmount || 0).toLocaleString('bn-BD');
+        const paymentMethod = (o.paymentMethod || 'COD').toUpperCase();
+
+        const itemsSummaryText = items.length > 0
+          ? items.slice(0, 2).map(i => `${i.name || 'Product'} (x${i.quantity || 1})`).join(', ') + (items.length > 2 ? ` + ${items.length - 2} more` : '')
+          : 'Product details';
+
+        const itemsDetailHTML = items.map(item => `
+          <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-color); padding: 8px; border-radius: 6px; margin-bottom: 6px; border: 1px solid var(--border-color);">
+            <img src="${item.image || (item.images && item.images[0]) || 'https://via.placeholder.com/50'}" alt="${item.name || 'Item'}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 4px;">
+            <div style="flex: 1;">
+              <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-primary);">${item.name || 'Unnamed Product'}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">
+                ৳${Number(item.price || 0).toLocaleString('bn-BD')} × ${item.quantity || 1}
+                ${item.variant ? ` | <span style="color: var(--accent-color); font-weight: 600;">Variant: ${item.variant}</span>` : ''}
+              </div>
+            </div>
+            <div style="font-weight: 700; color: var(--primary-color); font-size: 0.88rem;">৳${(Number(item.price || 0) * Number(item.quantity || 1)).toLocaleString('bn-BD')}</div>
+          </div>
+        `).join('');
+
+        const subtotal = Number(o.subtotal || items.reduce((s, i) => s + (Number(i.price || 0) * Number(i.quantity || 1)), 0));
+        const deliveryCharge = Number(o.deliveryCharge || 0);
+        const discountAmount = Number(o.discountAmount || 0);
+
+        return `
+          <div class="glass-card" style="margin-bottom: 14px; padding: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; flex-wrap: wrap; gap: 6px;">
+              <div>
+                <span style="font-weight: 800; font-size: 0.95rem; color: var(--primary-color);">Order #${o.id}</span>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;"><i class="far fa-clock"></i> ${dateStr}</div>
+              </div>
+              <span class="${badgeClass}">${status}</span>
+            </div>
+
+            <div style="font-size: 0.82rem; color: var(--text-primary); margin-bottom: 12px; background: var(--bg-color); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+              <div><strong>Items:</strong> ${itemsSummaryText}</div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+                <span><strong>Total:</strong> <span style="color: var(--primary-color); font-weight: 800; font-size: 0.95rem;">৳${totalPaid}</span> (${paymentMethod})</span>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <button onclick="window.toggleOrderDetail('${o.id}')" class="btn-outline" style="flex: 1; font-size: 0.8rem; padding: 8px 12px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                <i class="fas fa-list"></i> Order Details <i id="order-toggle-icon-${o.id}" class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+              </button>
+              <button onclick="window.downloadInvoiceHandler('${o.id}')" class="btn-accent" style="flex: 1; font-size: 0.8rem; padding: 8px 12px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                <i class="fas fa-file-pdf"></i> Download Invoice
+              </button>
+            </div>
+
+            <div id="order-details-${o.id}" style="display: none; margin-top: 14px; border-top: 1px dashed var(--border-color); padding-top: 14px;">
+              <h4 style="font-size: 0.85rem; color: var(--primary-color); font-weight: 700; margin-bottom: 8px;"><i class="fas fa-box"></i> Order Items (${items.length})</h4>
+              <div style="margin-bottom: 12px;">
+                ${itemsDetailHTML}
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; font-size: 0.8rem;">
+                <div style="background: var(--bg-color); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                  <strong style="color: var(--primary-color); display: block; margin-bottom: 4px;"><i class="fas fa-map-marker-alt"></i> Delivery Address</strong>
+                  <div><strong>Division:</strong> ${o.shippingAddress?.division || 'N/A'}</div>
+                  <div><strong>District:</strong> ${o.shippingAddress?.district || 'N/A'}</div>
+                  <div><strong>Upazila:</strong> ${o.shippingAddress?.thana || o.shippingAddress?.upazila || 'N/A'}</div>
+                  <div><strong>Address:</strong> ${o.shippingAddress?.village || 'N/A'}</div>
+                  ${o.shippingAddress?.notes ? `<div style="margin-top:2px; font-style:italic; color:var(--text-muted);">Notes: ${o.shippingAddress.notes}</div>` : ''}
+                </div>
+
+                <div style="background: var(--bg-color); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                  <strong style="color: var(--primary-color); display: block; margin-bottom: 4px;"><i class="fas fa-credit-card"></i> Payment Breakdown</strong>
+                  <div><strong>Method:</strong> ${paymentMethod}</div>
+                  ${o.bKashTxnId ? `<div style="color: #D84315; font-weight: 700; margin-top: 2px;">bKash TrxID: ${o.bKashTxnId}</div>` : ''}
+                  <div style="margin-top: 6px; border-top: 1px solid var(--border-color); padding-top: 6px;">
+                    <div>Subtotal: ৳${subtotal.toLocaleString('bn-BD')}</div>
+                    ${discountAmount > 0 ? `<div style="color: #059669;">Discount: -৳${discountAmount.toLocaleString('bn-BD')}</div>` : ''}
+                    <div>Delivery: ৳${deliveryCharge.toLocaleString('bn-BD')}</div>
+                    <div style="font-weight: 800; color: var(--primary-color); font-size: 0.9rem; margin-top: 4px;">
+                      Grand Total: ৳${totalPaid}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Tab Event Listeners
+    document.querySelectorAll('#status-filter-tabs .status-tab').forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        document.querySelectorAll('#status-filter-tabs .status-tab').forEach(t => t.classList.remove('active'));
+        e.target.classList.add('active');
+        activeFilter = e.target.getAttribute('data-status');
+        renderOrders();
+      });
+    });
+
+    onAuthStateUpdate(async (user, profile) => {
+      const container = document.getElementById('orders-list-container');
+      if (!user) {
+        container.innerHTML = `
+          <div class="glass-card" style="text-align: center; padding: 36px 20px;">
+            <div style="font-size: 3rem; color: var(--accent-color); margin-bottom: 12px;">
+              <i class="fas fa-user-lock"></i>
+            </div>
+            <h3 style="font-size: 1.15rem; color: var(--text-primary); margin-bottom: 6px;">Please Login to View Orders</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">Log in with your account to track order status and download invoices.</p>
+            <a href="login.html" class="btn-primary" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; padding: 10px 24px; border-radius: 25px; font-weight: bold;">
+              <i class="fas fa-sign-in-alt"></i> Login / Register
+            </a>
+          </div>
+        `;
+        return;
+      }
+
+      try {
+        const q = query(collection(db, 'orders'), where('userId', '==', user.uid));
+        const snap = await getDocs(q);
+        allOrders = [];
+        snap.forEach(d => allOrders.push({ id: d.id, ...d.data() }));
+
+        allOrders.sort((a, b) => {
+          const timeA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : (a.createdAt || 0);
+          const timeB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : (b.createdAt || 0);
+          return timeB - timeA;
+        });
+
+        renderOrders();
+      } catch (err) {
+        console.error('Error fetching orders:', err);
+        container.innerHTML = `
+          <div class="glass-card" style="text-align: center; color: var(--danger-color); padding: 30px;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px;"></i>
+            <p style="font-size: 0.9rem;">Unable to load orders. Please try again later.</p>
+          </div>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>

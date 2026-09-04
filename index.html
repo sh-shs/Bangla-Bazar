@@ -52,12 +52,50 @@
       <button class="hamburger-btn" onclick="toggleDrawer()"><i class="fas fa-times"></i></button>
     </div>
     <ul class="drawer-menu">
-      <li><a href="index.html" class="drawer-menu-item active"><i class="fas fa-home"></i> Home</a></li>
-      <li><a href="shop.html" class="drawer-menu-item"><i class="fas fa-th"></i> All Categories</a></li>
-      <li><a href="offers.html" class="drawer-menu-item"><i class="fas fa-tags"></i> Special Offers</a></li>
-      <li><a href="profile.html" class="drawer-menu-item account-link"><i class="fas fa-user-circle"></i> My Account</a></li>
-      <li><a href="contact.html" class="drawer-menu-item"><i class="fas fa-headset"></i> Contact Us</a></li>
-      <li><a href="about.html" class="drawer-menu-item"><i class="fas fa-info-circle"></i> About Us</a></li>
+      <!-- Section: Main Shopping Navigation -->
+      <li><a href="index.html" class="drawer-menu-item active"><i class="fas fa-home" style="width: 20px;"></i> <span data-i18n="home">Home</span></a></li>
+      <li><a href="shop.html" class="drawer-menu-item"><i class="fas fa-th-large" style="width: 20px;"></i> <span data-i18n="allCategories">All Categories</span></a></li>
+      <li><a href="offers.html" class="drawer-menu-item"><i class="fas fa-tags" style="width: 20px;"></i> <span data-i18n="specialOffers">Special Offers</span></a></li>
+      <li><a href="orders.html" class="drawer-menu-item"><i class="fas fa-box" style="width: 20px;"></i> <span data-i18n="myOrders">My Orders</span></a></li>
+      <li><a href="wishlist.html" class="drawer-menu-item"><i class="fas fa-heart" style="width: 20px;"></i> <span data-i18n="wishlist">Wishlist</span></a></li>
+
+      <!-- Account Section -->
+      <li style="padding: 10px 20px 4px 20px; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid var(--border-color); margin-top: 6px;" data-i18n="navSectionAccount">
+        Account & Settings
+      </li>
+      <li><a href="profile.html" class="drawer-menu-item account-link"><i class="fas fa-user-circle" style="width: 20px;"></i> <span data-i18n="myAccount">My Account</span></a></li>
+
+      <!-- Preferences -->
+      <li>
+        <a href="#" onclick="event.preventDefault(); toggleDarkMode();" class="drawer-menu-item">
+          <i class="fas fa-moon theme-toggle-icon" style="width: 20px; color: var(--accent-color);"></i>
+          <span class="theme-toggle-text" data-i18n="darkMode">Dark Mode</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" onclick="event.preventDefault(); toggleLanguage();" class="drawer-menu-item">
+          <i class="fas fa-globe" style="width: 20px; color: var(--primary-color);"></i>
+          <span><span data-i18n="language">Language</span>: <strong style="color: var(--accent-color);">বাংলা / EN</strong></span>
+        </a>
+      </li>
+
+      <!-- Policy Pages -->
+      <li style="padding: 10px 20px 4px 20px; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid var(--border-color); margin-top: 6px;" data-i18n="navSectionPolicies">
+        Customer Care & Policies
+      </li>
+      <li><a href="return-policy.html" class="drawer-menu-item"><i class="fas fa-undo" style="width: 20px;"></i> <span data-i18n="returnPolicy">Return & Refund Policy</span></a></li>
+      <li><a href="shipping-policy.html" class="drawer-menu-item"><i class="fas fa-truck" style="width: 20px;"></i> <span data-i18n="shippingInfo">Shipping & Delivery Info</span></a></li>
+      <li><a href="privacy-policy.html" class="drawer-menu-item"><i class="fas fa-user-shield" style="width: 20px;"></i> <span data-i18n="privacyPolicy">Privacy Policy</span></a></li>
+      <li><a href="terms.html" class="drawer-menu-item"><i class="fas fa-file-contract" style="width: 20px;"></i> <span data-i18n="termsOfService">Terms of Service</span></a></li>
+      <li><a href="faq.html" class="drawer-menu-item"><i class="fas fa-question-circle" style="width: 20px;"></i> <span data-i18n="faq">FAQ / Help Center</span></a></li>
+
+      <!-- Support & Social -->
+      <li style="padding: 10px 20px 4px 20px; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid var(--border-color); margin-top: 6px;" data-i18n="navSectionSupport">
+        Support & App
+      </li>
+      <li><a href="contact.html" class="drawer-menu-item"><i class="fas fa-headset" style="width: 20px;"></i> <span data-i18n="contactUs">Contact Us</span></a></li>
+      <li><a href="about.html" class="drawer-menu-item"><i class="fas fa-info-circle" style="width: 20px;"></i> <span data-i18n="aboutUs">About Us</span></a></li>
+      <li><a href="#" onclick="event.preventDefault(); toggleDrawer(); openShareModal();" class="drawer-menu-item"><i class="fas fa-share-alt" style="width: 20px; color: var(--accent-color);"></i> <span data-i18n="shareApp">Share Website / Rate Us</span></a></li>
     </ul>
   </aside>
 

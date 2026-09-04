@@ -14,12 +14,57 @@
     <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
     <span class="page-title">Terms & Conditions</span>
   </div>
-  <div class="section-wrapper" style="max-width: 650px; margin: 0 auto;">
-    <div class="glass-card" style="padding: 24px; font-size: 0.9rem; line-height: 1.6;">
-      <h2 style="color: var(--primary-color); margin-bottom: 12px;">Terms & Conditions</h2>
-      <p>By using SHS Bazar, you agree to comply with our store policies. Product pricing, availability, and delivery charges inside Kushtia (৳100) or outside Kushtia (৳160) are subject to change as defined by administration.</p>
+
+  <div class="section-wrapper" style="max-width: 680px; margin: 0 auto;">
+    <div class="glass-card" style="padding: 24px; font-size: 0.9rem; line-height: 1.7;">
+      <h2 style="color: var(--primary-color); margin-bottom: 16px; font-size: 1.25rem; border-bottom: 2px solid var(--accent-color); padding-bottom: 6px; display: inline-block;">
+        <i class="fas fa-file-contract" style="color: var(--accent-color);"></i> Terms & Conditions
+      </h2>
+
+      <p style="margin-bottom: 14px;">Welcome to <strong>SHS Bazar</strong> (https://sh-shs.github.io/shs-bazar/). By accessing or placing an order on our platform, you agree to comply with the following terms and conditions.</p>
+
+      <h3 style="color: var(--primary-color); font-size: 1.05rem; margin: 18px 0 8px 0;"><i class="fas fa-gavel" style="color: var(--accent-color);"></i> General Terms</h3>
+      <ul style="padding-left: 20px; list-style-type: disc; margin-bottom: 16px; color: var(--text-primary);">
+        <li>All product prices are listed in Bangladeshi Taka (৳). Prices and stock availability are subject to change.</li>
+        <li>Delivery charges inside Kushtia town are ৳100 and outside Kushtia are ৳160 across Bangladesh.</li>
+        <li>Orders placed with incorrect addresses or phone numbers may be subject to cancellation.</li>
+      </ul>
+
+      <h3 style="color: var(--primary-color); font-size: 1.05rem; margin: 18px 0 8px 0;"><i class="fas fa-user-check" style="color: var(--success-color);"></i> User Responsibilities</h3>
+      <p style="margin-bottom: 14px;">Users must provide accurate details when placing an order and maintain the security of their account credentials. Fraudulent orders or fake transaction IDs are strictly prohibited.</p>
+
+      <div style="background: var(--bg-color); padding: 14px; border-radius: 10px; border-left: 4px solid var(--primary-color); margin-top: 18px;">
+        <strong>Platform Owner:</strong> Shafaet Hossen Sarip<br>
+        <strong>Kushtia, Bangladesh</strong>
+      </div>
     </div>
   </div>
+
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item">
+      <div class="nav-icon-wrap"><i class="fas fa-home"></i></div>
+      <span data-i18n="home">Home</span>
+    </a>
+    <a href="shop.html" class="nav-item">
+      <div class="nav-icon-wrap"><i class="fas fa-th-large"></i></div>
+      <span data-i18n="allCategories">Menu</span>
+    </a>
+    <div class="center-cart-wrapper">
+      <a href="cart.html" class="center-cart-shortcut" aria-label="Cart">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="nav-cart-badge cart-count-badge">0</span>
+      </a>
+    </div>
+    <a href="orders.html" class="nav-item">
+      <div class="nav-icon-wrap"><i class="fas fa-box"></i></div>
+      <span data-i18n="myOrders">Orders</span>
+    </a>
+    <a href="profile.html" class="nav-item account-link">
+      <div class="nav-icon-wrap"><i class="fas fa-user"></i></div>
+      <span data-i18n="myAccount">Account</span>
+    </a>
+  </nav>
+
   <script type="module" src="assets/js/firebase-config.js"></script>
   <script type="module" src="assets/js/auth.js"></script>
   <script type="module" src="assets/js/app.js"></script>
