@@ -1208,6 +1208,30 @@ input, select, textarea {
   text-transform: uppercase;
 }
 
+.share-btn-card {
+  position: absolute;
+  top: 8px;
+  right: 42px;
+  background: rgba(255,255,255,0.85);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6B7280;
+  font-size: 0.82rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 5;
+}
+
+.share-btn-card:hover {
+  background: #FFFFFF;
+  color: var(--primary-color);
+}
+
 .wishlist-btn-card {
   position: absolute;
   top: 8px;
@@ -1222,6 +1246,8 @@ input, select, textarea {
   color: #6B7280;
   font-size: 0.9rem;
   border: none;
+  cursor: pointer;
+  z-index: 5;
 }
 
 .wishlist-btn-card.active {

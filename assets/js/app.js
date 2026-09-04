@@ -1,5 +1,5 @@
 // Main Application Script (UI Wiring, Search, Cart State, Mobile Nav)
-import { fetchPublishedProducts, fetchBanners, renderProductCard, fetchActiveCategories, DEFAULT_CATEGORIES, DEFAULT_BANNERS } from './products.js';
+import { fetchPublishedProducts, fetchBanners, renderProductCard, fetchActiveCategories, DEFAULT_CATEGORIES, DEFAULT_BANNERS, getProductShareUrl } from './products.js';
 import { toggleWishlist, isProductInWishlist } from './auth.js';
 
 // Global Cart State (localStorage backed)
@@ -97,6 +97,38 @@ window.handleAddToCart = (id, name, price, image, sellerId = 'admin') => {
   addToCart({ id, name, price, image, sellerId, quantity: 1 });
 };
 
+window.handleCopyProductLink = (productId) => {
+  const link = getProductShareUrl(productId);
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(link).then(() => {
+      showToast('Link copied!');
+    }).catch(() => {
+      fallbackCopyText(link);
+    });
+  } else {
+    fallbackCopyText(link);
+  }
+};
+
+function fallbackCopyText(text) {
+  const textArea = document.createElement('textarea');
+  textArea.value = text;
+  textArea.style.position = 'fixed';
+  textArea.style.top = '0';
+  textArea.style.left = '0';
+  textArea.style.opacity = '0';
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+  try {
+    document.execCommand('copy');
+    showToast('Link copied!');
+  } catch (err) {
+    showToast('Failed to copy link');
+  }
+  document.body.removeChild(textArea);
+}
+
 window.handleWishlistToggle = async (id, btnEl) => {
   const isWishlisted = await toggleWishlist(id);
   // Synchronize all wishlist buttons on the page for this product ID
@@ -177,7 +209,7 @@ export function initSearch(allProducts) {
     const matches = (allProducts || []).filter(p => p.name.toLowerCase().includes(val) || (p.category && p.category.toLowerCase().includes(val)));
     if (matches.length > 0) {
       resultsDropdown.innerHTML = matches.slice(0, 6).map(p => `
-        <div class="search-result-item" onclick="window.location.href='product-detail.html?slug=${p.slug || p.id}'">
+        <div class="search-result-item" onclick="window.location.href='product-detail.html?id=${encodeURIComponent(p.id || p.slug)}'">
           <img src="${p.images?.[0] || 'https://via.placeholder.com/40'}" alt="${p.name}">
           <div>
             <div style="font-size: 0.85rem; font-weight: 600;">${p.name}</div>

@@ -6,6 +6,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Product Details - SHS Bazar</title>
+
+  <!-- Open Graph / Meta Tags for Social Preview -->
+  <meta property="og:type" content="product">
+  <meta property="og:title" id="og-title" content="SHS Bazar - Quality Online Shopping">
+  <meta property="og:description" id="og-description" content="Shop authentic products on SHS Bazar with Kushtia Express fast delivery.">
+  <meta property="og:image" id="og-image" content="assets/images/logo.png">
+  <meta property="og:url" id="og-url" content="">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" id="twitter-title" content="SHS Bazar">
+  <meta name="twitter:description" id="twitter-description" content="Shop authentic products on SHS Bazar.">
+  <meta name="twitter:image" id="twitter-image" content="assets/images/logo.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -42,17 +53,17 @@
   <script type="module" src="assets/js/auth.js"></script>
   <script type="module" src="assets/js/app.js"></script>
   <script type="module">
-    import { fetchProductBySlugOrId, fetchPublishedProducts, renderProductCard } from './assets/js/products.js';
+    import { fetchProductBySlugOrId, fetchPublishedProducts, renderProductCard, getProductShareUrl } from './assets/js/products.js';
     import { addToCart } from './assets/js/app.js';
 
     const fallbackImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600'%3E%3Crect width='600' height='600' fill='%23F8F9FA'/%3E%3Ctext x='50%25' y='46%25' dominant-baseline='middle' text-anchor='middle' fill='%230B4D3C' font-size='28' font-weight='bold' font-family='sans-serif'%3ESHS Bazar%3C/text%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' fill='%236B7280' font-size='18' font-family='sans-serif'%3EProduct Image%3C/text%3E%3C/svg%3E";
 
-    let currentRequestSlug = null;
+    let currentRequestIdentifier = null;
 
     async function initProductDetail() {
       const params = new URLSearchParams(window.location.search);
-      const slug = params.get('slug');
-      currentRequestSlug = slug;
+      const identifier = params.get('id') || params.get('slug');
+      currentRequestIdentifier = identifier;
 
       const container = document.getElementById('pd-container');
       const stickyBar = document.getElementById('pd-sticky-bar');
@@ -68,7 +79,7 @@
         `;
       }
 
-      if (!slug) {
+      if (!identifier) {
         container.innerHTML = `
           <div class="glass-card" style="text-align: center; padding: 40px 20px;">
             <i class="fas fa-exclamation-triangle fa-3x" style="color: var(--warning-color); margin-bottom: 12px;"></i>
@@ -79,10 +90,10 @@
         return;
       }
 
-      let product = await fetchProductBySlugOrId(slug);
+      let product = await fetchProductBySlugOrId(identifier);
 
       // Check if another request has been initiated while fetch was in-flight
-      if (currentRequestSlug !== slug) {
+      if (currentRequestIdentifier !== identifier) {
         return;
       }
       if (!product) {
@@ -106,6 +117,26 @@
       }
 
       document.getElementById('pd-header-title').textContent = product.name;
+
+      // Update Document Title & Open Graph Meta Tags dynamically
+      const shareUrl = getProductShareUrl(product.id || product.slug);
+      const mainImageUrl = product.images?.[0] || 'assets/images/logo.png';
+      const descText = product.shortDescription || (product.fullDescription ? product.fullDescription.substring(0, 150) + '...' : `Buy ${product.name} at best price on SHS Bazar.`);
+
+      document.title = `${product.name} - SHS Bazar`;
+
+      const updateMetaTag = (selector, content) => {
+        const el = document.querySelector(selector);
+        if (el) el.setAttribute('content', content);
+      };
+
+      updateMetaTag('meta[property="og:title"]', `${product.name} - SHS Bazar`);
+      updateMetaTag('meta[property="og:description"]', descText);
+      updateMetaTag('meta[property="og:image"]', mainImageUrl);
+      updateMetaTag('meta[property="og:url"]', shareUrl);
+      updateMetaTag('meta[name="twitter:title"]', `${product.name} - SHS Bazar`);
+      updateMetaTag('meta[name="twitter:description"]', descText);
+      updateMetaTag('meta[name="twitter:image"]', mainImageUrl);
 
       const isDiscounted = product.discountPrice && Number(product.discountPrice) < Number(product.regularPrice);
       const currentPrice = isDiscounted ? Number(product.discountPrice) : Number(product.regularPrice);
@@ -209,6 +240,9 @@
               </button>
               <button id="pd-buynow-btn" class="btn-accent pd-btn-buy" ${isOutOfStock ? 'disabled' : ''}>
                 <i class="fas fa-bolt"></i> Buy Now
+              </button>
+              <button id="pd-share-btn" class="btn-outline" style="padding: 12px 14px; border-radius: 12px; font-size: 0.92rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px;" title="Share / Copy Link" onclick="window.handleCopyProductLink('${product.id}')">
+                <i class="fas fa-share-nodes"></i> Share
               </button>
             </div>
           </div>

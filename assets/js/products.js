@@ -58,6 +58,7 @@ export async function fetchPublishedProducts() {
 }
 
 export async function fetchProductBySlugOrId(identifier) {
+  if (!identifier) return null;
   const fetchPromise = (async () => {
     try {
       // Check by ID
@@ -79,8 +80,15 @@ export async function fetchProductBySlugOrId(identifier) {
     return null;
   })();
 
-  const timeoutPromise = new Promise(resolve => setTimeout(() => resolve(null), 1200));
+  const timeoutPromise = new Promise(resolve => setTimeout(() => resolve(null), 3500));
   return Promise.race([fetchPromise, timeoutPromise]);
+}
+
+export function getProductShareUrl(identifier) {
+  if (!identifier) return window.location.href;
+  const base = window.location.href.split('?')[0].split('#')[0];
+  const directory = base.substring(0, base.lastIndexOf('/') + 1);
+  return `${directory}product-detail.html?id=${encodeURIComponent(identifier)}`;
 }
 
 export const DEFAULT_BANNERS = [
@@ -132,7 +140,8 @@ export function renderProductCard(product) {
   const currentPrice = isDiscounted ? product.discountPrice : product.regularPrice;
   const discountPercent = isDiscounted ? Math.round(((product.regularPrice - product.discountPrice) / product.regularPrice) * 100) : 0;
   const isOutOfStock = !product.stock || Number(product.stock) <= 0;
-  const productUrl = `product-detail.html?slug=${product.slug || product.id}`;
+  const productIdOrSlug = product.id || product.slug;
+  const productUrl = `product-detail.html?id=${encodeURIComponent(productIdOrSlug)}`;
   const imageSrc = product.images && product.images.length > 0 ? product.images[0] : 'https://via.placeholder.com/300?text=SHS+Bazar';
   const sellerId = product.sellerId || 'admin';
 
@@ -144,6 +153,9 @@ export function renderProductCard(product) {
         </a>
         ${isDiscounted ? `<span class="discount-badge">-${discountPercent}%</span>` : ''}
         ${isOutOfStock ? `<div class="stock-out-overlay">Stock Out</div>` : ''}
+        <button class="share-btn-card" title="Share Product" onclick="event.preventDefault(); event.stopPropagation(); window.handleCopyProductLink('${product.id}')">
+          <i class="fas fa-share-nodes"></i>
+        </button>
         <button class="wishlist-btn-card ${isProductInWishlist(product.id) ? 'active' : ''}" onclick="window.handleWishlistToggle('${product.id}', this)">
           <i class="${isProductInWishlist(product.id) ? 'fas' : 'far'} fa-heart"></i>
         </button>
