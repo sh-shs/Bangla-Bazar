@@ -1,5 +1,6 @@
 // Products Data Management & Firestore Helper Functions
 import { db, collection, getDocs, doc, getDoc, query, where, orderBy, limit } from './firebase-config.js';
+import { isProductInWishlist } from './auth.js';
 
 // Fallback initial categories array as defined in requirement
 export const DEFAULT_CATEGORIES = [
@@ -104,7 +105,25 @@ export const DEFAULT_BANNERS = [
 ];
 
 export async function fetchBanners() {
-  return DEFAULT_BANNERS;
+  try {
+    const fetchPromise = (async () => {
+      const snap = await getDocs(collection(db, 'banners'));
+      const list = [];
+      snap.forEach(docSnap => {
+        const data = docSnap.data();
+        if (data.isActive !== false) {
+          list.push({ id: docSnap.id, ...data });
+        }
+      });
+      return list.length > 0 ? list : DEFAULT_BANNERS;
+    })();
+
+    const timeoutPromise = new Promise(resolve => setTimeout(() => resolve(DEFAULT_BANNERS), 1200));
+    return await Promise.race([fetchPromise, timeoutPromise]);
+  } catch (err) {
+    console.warn('Error fetching banners from Firestore, using default banners:', err);
+    return DEFAULT_BANNERS;
+  }
 }
 
 // Generate product card HTML snippet
@@ -125,8 +144,8 @@ export function renderProductCard(product) {
         </a>
         ${isDiscounted ? `<span class="discount-badge">-${discountPercent}%</span>` : ''}
         ${isOutOfStock ? `<div class="stock-out-overlay">Stock Out</div>` : ''}
-        <button class="wishlist-btn-card" onclick="window.handleWishlistToggle('${product.id}', this)">
-          <i class="far fa-heart"></i>
+        <button class="wishlist-btn-card ${isProductInWishlist(product.id) ? 'active' : ''}" onclick="window.handleWishlistToggle('${product.id}', this)">
+          <i class="${isProductInWishlist(product.id) ? 'fas' : 'far'} fa-heart"></i>
         </button>
       </div>
       <div class="product-details">
