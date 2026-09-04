@@ -99,14 +99,24 @@ window.handleAddToCart = (id, name, price, image, sellerId = 'admin') => {
 
 window.handleWishlistToggle = async (id, btnEl) => {
   const isWishlisted = await toggleWishlist(id);
-  const icon = btnEl.querySelector('i');
+  // Synchronize all wishlist buttons on the page for this product ID
+  const cardButtons = document.querySelectorAll(`.product-card[data-product-id="${id}"] .wishlist-btn-card`);
+  const buttonsToUpdate = cardButtons.length > 0 ? cardButtons : (btnEl ? [btnEl] : []);
+
+  buttonsToUpdate.forEach(btn => {
+    const icon = btn.querySelector('i');
+    if (isWishlisted) {
+      btn.classList.add('active');
+      if (icon) icon.className = 'fas fa-heart';
+    } else {
+      btn.classList.remove('active');
+      if (icon) icon.className = 'far fa-heart';
+    }
+  });
+
   if (isWishlisted) {
-    btnEl.classList.add('active');
-    icon.className = 'fas fa-heart';
     showToast('Added to Wishlist');
   } else {
-    btnEl.classList.remove('active');
-    icon.className = 'far fa-heart';
     showToast('Removed from Wishlist');
   }
 };
@@ -134,13 +144,37 @@ export function initSearch(allProducts) {
   const resultsDropdown = document.getElementById('search-results');
   if (!input || !resultsDropdown) return;
 
+  const searchBox = input.closest('.search-box');
+  const searchBtn = searchBox ? searchBox.querySelector('button') : null;
+
+  const triggerSearchRedirect = () => {
+    const query = input.value.trim();
+    if (query) {
+      window.location.href = `shop.html?search=${encodeURIComponent(query)}`;
+    }
+  };
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      triggerSearchRedirect();
+    }
+  });
+
+  if (searchBtn) {
+    searchBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      triggerSearchRedirect();
+    });
+  }
+
   input.addEventListener('input', (e) => {
     const val = e.target.value.trim().toLowerCase();
     if (val.length < 2) {
       resultsDropdown.classList.remove('active');
       return;
     }
-    const matches = allProducts.filter(p => p.name.toLowerCase().includes(val) || (p.category && p.category.toLowerCase().includes(val)));
+    const matches = (allProducts || []).filter(p => p.name.toLowerCase().includes(val) || (p.category && p.category.toLowerCase().includes(val)));
     if (matches.length > 0) {
       resultsDropdown.innerHTML = matches.slice(0, 6).map(p => `
         <div class="search-result-item" onclick="window.location.href='product-detail.html?slug=${p.slug || p.id}'">
@@ -212,6 +246,21 @@ export function initCarousel(banners) {
       goToSlide(idx);
       startAutoRotate();
     });
+  });
+
+  // Bottom Navigation helper for Search button and active tab highlight
+  document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
+    const icon = item.querySelector('i.fa-search');
+    if (icon) {
+      item.addEventListener('click', (e) => {
+        const input = document.getElementById('search-input');
+        if (input) {
+          e.preventDefault();
+          input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => input.focus(), 300);
+        }
+      });
+    }
   });
 
   // Touch / Swipe Gesture support for mobile devices

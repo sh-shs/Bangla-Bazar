@@ -1021,6 +1021,15 @@ input, select, textarea {
 /* Homepage Section Styling */
 .section-wrapper {
   padding: 16px;
+  box-sizing: border-box;
+}
+
+.flash-sale-wrapper {
+  background-color: #FFF3E0;
+  border-radius: var(--radius-md);
+  margin: 16px;
+  padding: 16px;
+  border: 1px solid #FFE0B2;
 }
 
 .section-header {
@@ -1233,11 +1242,14 @@ input, select, textarea {
   color: var(--text-primary);
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis;
   line-height: 1.3;
   margin-bottom: 6px;
   height: 2.6em;
+  word-break: break-word;
 }
 
 .product-price-wrap {

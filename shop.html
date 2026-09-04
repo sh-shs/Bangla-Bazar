@@ -70,6 +70,12 @@
       const urlParams = new URLSearchParams(window.location.search);
       const selectedCategory = urlParams.get('category');
       const filterParam = urlParams.get('filter');
+      const searchQuery = urlParams.get('search')?.trim();
+
+      if (searchQuery) {
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) searchInput.value = searchQuery;
+      }
 
       // Filter tabs
       const filterBar = document.getElementById('category-filter-bar');
@@ -91,6 +97,14 @@
       if (filterParam === 'trending') displayed = displayed.filter(p => p.isTrending);
       if (filterParam === 'flash') displayed = displayed.filter(p => p.isFlashSale);
       if (filterParam === 'bestseller') displayed = displayed.filter(p => p.isBestSeller);
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        displayed = displayed.filter(p =>
+          (p.name && p.name.toLowerCase().includes(q)) ||
+          (p.category && p.category.toLowerCase().includes(q)) ||
+          (p.tags && p.tags.some(t => t.toLowerCase().includes(q)))
+        );
+      }
 
       const grid = document.getElementById('shop-products-grid');
       if (grid) {
