@@ -13,7 +13,8 @@
   <!-- Top Header Bar -->
   <div class="admin-top-bar">
     <div style="display: flex; align-items: center; gap: 12px;">
-      <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+      <button class="hamburger-btn" onclick="toggleAdminSidebar()" title="Toggle Menu"><i class="fas fa-bars"></i></button>
+      <button class="back-btn" onclick="goBack()" title="Back to Shop"><i class="fas fa-arrow-left"></i></button>
       <div class="brand-title">
         <div class="admin-shield-icon"><i class="fas fa-user-shield"></i></div>
         <span>SHS Bazar <span style="font-weight: 400; font-size: 0.85em; opacity: 0.85;">Admin Panel</span></span>
@@ -22,16 +23,26 @@
     <span class="admin-badge-role"><i class="fas fa-crown"></i> Super Admin</span>
   </div>
 
-  <div class="section-wrapper" style="max-width: 1280px; margin: 0 auto; padding-top: 20px;">
+  <!-- Sidebar Overlay for Mobile -->
+  <div class="admin-sidebar-overlay" id="admin-sidebar-overlay" onclick="toggleAdminSidebar(false)"></div>
 
-    <!-- Modern Scrollable Pill Navigation Bar -->
-    <div class="admin-nav-container">
-      <div class="admin-nav-scroll">
+  <div class="admin-layout">
+    <!-- Sidebar / Drawer Navigation Menu -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="admin-sidebar-header">
+        <span><i class="fas fa-compass"></i> Admin Menu</span>
+        <button class="admin-sidebar-close" onclick="toggleAdminSidebar(false)">&times;</button>
+      </div>
+
+      <nav class="admin-sidebar-nav">
         <button class="admin-tab-btn active" id="adm-tab-dash" onclick="switchAdminTab('dash')">
           <i class="fas fa-chart-pie"></i> Dashboard
         </button>
         <button class="admin-tab-btn" id="adm-tab-products" onclick="switchAdminTab('products')">
           <i class="fas fa-box-open"></i> Products
+        </button>
+        <button class="admin-tab-btn" id="adm-tab-inventory" onclick="switchAdminTab('inventory')">
+          <i class="fas fa-warehouse"></i> Inventory/Stock
         </button>
         <button class="admin-tab-btn" id="adm-tab-categories" onclick="switchAdminTab('categories')">
           <i class="fas fa-tags"></i> Categories
@@ -42,6 +53,12 @@
         <button class="admin-tab-btn" id="adm-tab-orders" onclick="switchAdminTab('orders')">
           <i class="fas fa-shopping-bag"></i> Orders
         </button>
+        <button class="admin-tab-btn" id="adm-tab-reviews" onclick="switchAdminTab('reviews')">
+          <i class="fas fa-star"></i> Reviews
+        </button>
+        <button class="admin-tab-btn" id="adm-tab-reports" onclick="switchAdminTab('reports')">
+          <i class="fas fa-chart-line"></i> Reports
+        </button>
         <button class="admin-tab-btn" id="adm-tab-coupons" onclick="switchAdminTab('coupons')">
           <i class="fas fa-ticket-alt"></i> Coupons
         </button>
@@ -51,8 +68,11 @@
         <button class="admin-tab-btn" id="adm-tab-banners" onclick="switchAdminTab('banners')">
           <i class="fas fa-images"></i> Banners
         </button>
-      </div>
-    </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main-content">
 
     <!-- Section 1: Dashboard Overview -->
     <div id="sec-dash">
@@ -65,7 +85,39 @@
             <div class="stat-label">Total Sales Volume</div>
           </div>
         </div>
-        <!-- Card 2: Orders Placed -->
+        <!-- Card 2: Today's Orders -->
+        <div class="stat-card-premium stat-card-blue">
+          <div class="stat-icon-wrapper"><i class="fas fa-calendar-day"></i></div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-today-orders">0</div>
+            <div class="stat-label">Today's Orders</div>
+          </div>
+        </div>
+        <!-- Card 3: Pending Orders -->
+        <div class="stat-card-premium stat-card-amber">
+          <div class="stat-icon-wrapper"><i class="fas fa-clock"></i></div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-pending-orders">0</div>
+            <div class="stat-label">Pending Orders</div>
+          </div>
+        </div>
+        <!-- Card 4: Total Products -->
+        <div class="stat-card-premium stat-card-purple">
+          <div class="stat-icon-wrapper"><i class="fas fa-boxes"></i></div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-total-products">0</div>
+            <div class="stat-label">Total Products</div>
+          </div>
+        </div>
+        <!-- Card 5: Low Stock Items -->
+        <div class="stat-card-premium stat-card-amber" style="background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%); border-color: rgba(239, 68, 68, 0.25);">
+          <div class="stat-icon-wrapper" style="background: linear-gradient(135deg, #EF4444, #DC2626); color: #FFF; box-shadow: 0 8px 18px rgba(239, 68, 68, 0.35);"><i class="fas fa-exclamation-triangle"></i></div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-low-stock" style="color: #991B1B;">0</div>
+            <div class="stat-label" style="color: #B91C1C;">Low Stock Items</div>
+          </div>
+        </div>
+        <!-- Card 6: Total Orders Placed -->
         <div class="stat-card-premium stat-card-blue">
           <div class="stat-icon-wrapper"><i class="fas fa-shopping-cart"></i></div>
           <div class="stat-info">
@@ -73,7 +125,7 @@
             <div class="stat-label">Total Orders Placed</div>
           </div>
         </div>
-        <!-- Card 3: Registered Customers -->
+        <!-- Card 7: Registered Customers -->
         <div class="stat-card-premium stat-card-purple">
           <div class="stat-icon-wrapper"><i class="fas fa-users"></i></div>
           <div class="stat-info">
@@ -81,6 +133,25 @@
             <div class="stat-label">Registered Customers</div>
           </div>
         </div>
+      </div>
+
+      <!-- 7-Day Sales Trend Line Chart -->
+      <div class="admin-section-card" style="margin-bottom: 24px;">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-chart-area"></i> 7-Day Sales Trend</h3>
+        </div>
+        <div id="dash-chart-container" style="width: 100%; min-height: 220px; padding: 10px 0;">
+          <!-- SVG Chart will be injected here -->
+        </div>
+      </div>
+
+      <!-- Recent Orders Preview List (Last 5) -->
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-history"></i> Recent Orders (Latest 5)</h3>
+          <button class="btn-outline admin-btn-sm" onclick="switchAdminTab('orders')"><i class="fas fa-external-link-alt"></i> View All Orders</button>
+        </div>
+        <div id="dash-recent-orders-list"></div>
       </div>
     </div>
 
@@ -103,6 +174,30 @@
         </div>
 
         <div id="admin-products-list"></div>
+      </div>
+    </div>
+
+    <!-- Section 2.5: Inventory / Stock Management Section -->
+    <div id="sec-inventory" style="display: none;">
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-warehouse"></i> Inventory & Stock Control</h3>
+        </div>
+
+        <div class="admin-toolbar">
+          <div class="admin-search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="inv-search" class="admin-search-input" placeholder="Search product name, SKU..." oninput="window.renderInventoryTable()">
+          </div>
+          <select id="inv-filter-stock" class="admin-filter-select" onchange="window.renderInventoryTable()">
+            <option value="all">All Stock Status</option>
+            <option value="low">Low Stock (<= 5)</option>
+            <option value="out">Out of Stock (0)</option>
+            <option value="in">In Stock (> 5)</option>
+          </select>
+        </div>
+
+        <div id="admin-inventory-list"></div>
       </div>
     </div>
 
@@ -173,6 +268,56 @@
         </div>
 
         <div id="admin-orders-list"></div>
+      </div>
+    </div>
+
+    <!-- Section 6.5: Customer Reviews Management -->
+    <div id="sec-reviews" style="display: none;">
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-star"></i> Customer Reviews Management</h3>
+        </div>
+
+        <div class="admin-toolbar">
+          <div class="admin-search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="rev-search" class="admin-search-input" placeholder="Search product, customer, review text..." oninput="window.renderReviewsList()">
+          </div>
+          <select id="rev-status-filter" class="admin-filter-select" onchange="window.renderReviewsList()">
+            <option value="all">All Reviews</option>
+            <option value="pending">Pending Approval</option>
+            <option value="approved">Approved</option>
+          </select>
+        </div>
+
+        <div id="admin-reviews-list"></div>
+      </div>
+    </div>
+
+    <!-- Section 6.8: Sales & Performance Reports -->
+    <div id="sec-reports" style="display: none;">
+      <div class="admin-section-card">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title"><i class="fas fa-chart-line"></i> Sales & Analytics Reports</h3>
+        </div>
+
+        <div id="admin-reports-summary" class="admin-stats-grid" style="margin-bottom: 24px;"></div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+          <div class="admin-section-card" style="margin-bottom: 0;">
+            <div class="admin-section-header">
+              <h4 style="font-size: 1rem; color: var(--primary-color); font-weight: 700;"><i class="fas fa-trophy" style="color:#F59E0B;"></i> Top Selling Products</h4>
+            </div>
+            <div id="admin-top-selling-list"></div>
+          </div>
+
+          <div class="admin-section-card" style="margin-bottom: 0;">
+            <div class="admin-section-header">
+              <h4 style="font-size: 1rem; color: var(--primary-color); font-weight: 700;"><i class="fas fa-file-invoice-dollar" style="color:#10B981;"></i> Sales Breakdown</h4>
+            </div>
+            <div id="admin-sales-breakdown-list"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -597,7 +742,11 @@
       deleteBannerFromDB,
       toggleBannerVisibility,
       saveAdminProduct,
-      uploadMediaFile
+      uploadMediaFile,
+      updateProductStock,
+      fetchReviewsFromDB,
+      updateReviewStatus,
+      deleteReviewFromDB
     } from './assets/js/admin.js';
     import { onAuthStateUpdate, SUPER_ADMIN_EMAIL } from './assets/js/auth.js';
     import { showToast } from './assets/js/app.js';
@@ -612,17 +761,37 @@
       orders: [],
       coupons: [],
       banners: [],
+      reviews: [],
       settings: {}
+    };
+
+    // Toggle Sidebar Drawer
+    window.toggleAdminSidebar = (forceState) => {
+      const sidebar = document.getElementById('admin-sidebar');
+      const overlay = document.getElementById('admin-sidebar-overlay');
+      if (!sidebar || !overlay) return;
+      const isActive = forceState !== undefined ? forceState : !sidebar.classList.contains('active');
+      if (isActive) {
+        sidebar.classList.add('active');
+        overlay.classList.add('active');
+      } else {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+      }
     };
 
     // Tab Switching Logic
     window.switchAdminTab = (tab) => {
-      ['dash', 'products', 'categories', 'customers', 'orders', 'coupons', 'settings', 'banners'].forEach(t => {
+      ['dash', 'products', 'inventory', 'categories', 'customers', 'orders', 'reviews', 'reports', 'coupons', 'settings', 'banners'].forEach(t => {
         const sec = document.getElementById(`sec-${t}`);
         if (sec) sec.style.display = t === tab ? 'block' : 'none';
         const btn = document.getElementById(`adm-tab-${t}`);
         if (btn) btn.className = t === tab ? 'admin-tab-btn active' : 'admin-tab-btn';
       });
+      toggleAdminSidebar(false);
+      if (tab === 'inventory') renderInventoryTable();
+      if (tab === 'reviews') renderReviewsList();
+      if (tab === 'reports') renderReportsView();
     };
 
     // Modal Handlers
@@ -655,6 +824,7 @@
           loadOrdersData(),
           loadCouponsData(),
           loadBannersData(),
+          loadReviewsData(),
           loadSettingsData()
         ]);
         updateDashboardMetrics();
@@ -664,18 +834,56 @@
     }
 
     // -------------------------------------------------------------
-    // Dashboard Overview
+    // Dashboard Overview & 7-Day Trend
     // -------------------------------------------------------------
     function updateDashboardMetrics() {
       let totalSales = 0;
+      let pendingOrdersCount = 0;
+      let todayOrdersCount = 0;
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
       const orders = Array.isArray(adminState.orders) ? adminState.orders : [];
       let orderCount = orders.length;
 
+      // 7-Day Trend Map
+      const daysMap = {};
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+        const key = d.toISOString().split('T')[0];
+        const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        daysMap[key] = { label, sales: 0, orders: 0 };
+      }
+
       orders.forEach(o => {
-        if (o && o.orderStatus !== 'Cancelled') {
-          totalSales += Number(o.totalAmount || 0);
+        if (!o) return;
+        const orderTime = o.createdAt?.seconds ? o.createdAt.seconds * 1000 : (o.createdAt ? new Date(o.createdAt).getTime() : 0);
+
+        if (o.orderStatus === 'Pending') {
+          pendingOrdersCount++;
+        }
+
+        if (orderTime >= todayStart) {
+          todayOrdersCount++;
+        }
+
+        if (o.orderStatus !== 'Cancelled') {
+          const amt = Number(o.totalAmount || 0);
+          totalSales += amt;
+
+          if (orderTime > 0) {
+            const dateKey = new Date(orderTime).toISOString().split('T')[0];
+            if (daysMap[dateKey]) {
+              daysMap[dateKey].sales += amt;
+              daysMap[dateKey].orders += 1;
+            }
+          }
         }
       });
+
+      const products = Array.isArray(adminState.products) ? adminState.products : [];
+      const totalProductsCount = products.length;
+      const lowStockCount = products.filter(p => Number(p.stock || 0) <= 5).length;
 
       const customers = Array.isArray(adminState.customers) ? adminState.customers : [];
       let customerCount = customers.length;
@@ -683,12 +891,472 @@
       const elTotalSales = document.getElementById('stat-total-sales');
       if (elTotalSales) elTotalSales.textContent = `৳${totalSales.toLocaleString('bn-BD')}`;
 
+      const elTodayOrders = document.getElementById('stat-today-orders');
+      if (elTodayOrders) elTodayOrders.textContent = todayOrdersCount;
+
+      const elPendingOrders = document.getElementById('stat-pending-orders');
+      if (elPendingOrders) elPendingOrders.textContent = pendingOrdersCount;
+
+      const elTotalProducts = document.getElementById('stat-total-products');
+      if (elTotalProducts) elTotalProducts.textContent = totalProductsCount;
+
+      const elLowStock = document.getElementById('stat-low-stock');
+      if (elLowStock) elLowStock.textContent = lowStockCount;
+
       const elTotalOrders = document.getElementById('stat-total-orders');
       if (elTotalOrders) elTotalOrders.textContent = orderCount;
 
       const elTotalUsers = document.getElementById('stat-total-users');
       if (elTotalUsers) elTotalUsers.textContent = customerCount;
+
+      renderSalesTrendChart(daysMap);
+      renderRecentOrdersPreview(orders.slice(0, 5));
     }
+
+    function renderSalesTrendChart(daysMap) {
+      const container = document.getElementById('dash-chart-container');
+      if (!container) return;
+
+      const dayKeys = Object.keys(daysMap);
+      const values = dayKeys.map(k => daysMap[k].sales);
+      const maxVal = Math.max(...values, 100);
+
+      const width = 600;
+      const height = 180;
+      const padding = 30;
+
+      const points = dayKeys.map((k, idx) => {
+        const x = padding + (idx * (width - 2 * padding) / (dayKeys.length - 1));
+        const y = height - padding - ((daysMap[k].sales / maxVal) * (height - 2 * padding));
+        return { x, y, val: daysMap[k].sales, label: daysMap[k].label };
+      });
+
+      const pathD = points.reduce((acc, p, i) => `${acc} ${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`, '');
+
+      container.innerHTML = `
+        <svg viewBox="0 0 ${width} ${height}" style="width: 100%; height: 100%; overflow: visible;">
+          <!-- Grid Lines -->
+          <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="#E5E7EB" stroke-width="1.5" />
+          <line x1="${padding}" y1="${padding}" x2="${width - padding}" y2="${padding}" stroke="#F3F4F6" stroke-width="1" stroke-dasharray="4" />
+
+          <!-- Line -->
+          <path d="${pathD}" fill="none" stroke="var(--primary-color)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+
+          <!-- Points & Labels -->
+          ${points.map(p => `
+            <circle cx="${p.x}" cy="${p.y}" r="5" fill="var(--accent-color)" stroke="#FFF" stroke-width="2" />
+            <text x="${p.x}" y="${height - 8}" font-size="11" font-weight="600" fill="#6B7280" text-anchor="middle">${p.label}</text>
+            <text x="${p.x}" y="${p.y - 10}" font-size="10" font-weight="800" fill="var(--primary-color)" text-anchor="middle">৳${p.val >= 1000 ? (p.val/1000).toFixed(1)+'k' : p.val}</text>
+          `).join('')}
+        </svg>
+      `;
+    }
+
+    function renderRecentOrdersPreview(recentOrders) {
+      const container = document.getElementById('dash-recent-orders-list');
+      if (!container) return;
+
+      if (!recentOrders || recentOrders.length === 0) {
+        container.innerHTML = '<p style="color: #6B7280; font-size: 0.9rem;">No recent orders placed.</p>';
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${recentOrders.map(o => {
+                let dateStr = 'N/A';
+                if (o.createdAt) {
+                  const t = o.createdAt.seconds ? o.createdAt.seconds * 1000 : (new Date(o.createdAt).getTime());
+                  if (t) dateStr = new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                }
+                const statusClass = (o.orderStatus || 'pending').toLowerCase().replace(/\s+/g, '-');
+                return `
+                  <tr>
+                    <td><strong>#${o.id}</strong></td>
+                    <td>${o.customerInfo?.name || 'Customer'}</td>
+                    <td><span style="font-size: 0.78rem; color: #6B7280;">${dateStr}</span></td>
+                    <td><strong style="color: var(--accent-color);">৳${Number(o.totalAmount || 0).toLocaleString('bn-BD')}</strong></td>
+                    <td><span class="admin-badge admin-badge-${statusClass}">${o.orderStatus || 'Pending'}</span></td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    // -------------------------------------------------------------
+    // Inventory / Stock Control
+    // -------------------------------------------------------------
+    window.renderInventoryTable = () => {
+      const container = document.getElementById('admin-inventory-list');
+      if (!container) return;
+
+      const search = (document.getElementById('inv-search')?.value || '').toLowerCase().trim();
+      const stockFilter = document.getElementById('inv-filter-stock')?.value || 'all';
+
+      let filtered = adminState.products.filter(p => {
+        const matchesSearch = (p.name || '').toLowerCase().includes(search) || (p.sku || '').toLowerCase().includes(search);
+        const stock = Number(p.stock || 0);
+        let matchesStock = true;
+        if (stockFilter === 'low') matchesStock = stock > 0 && stock <= 5;
+        else if (stockFilter === 'out') matchesStock = stock === 0;
+        else if (stockFilter === 'in') matchesStock = stock > 5;
+        return matchesSearch && matchesStock;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="admin-loading-container"><i class="fas fa-warehouse" style="font-size:2rem;"></i><p>No inventory items found.</p></div>';
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Price</th>
+                <th>Current Stock</th>
+                <th>Stock Status</th>
+                <th>Quick Update</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered.map(p => {
+                const stock = Number(p.stock || 0);
+                let badgeHTML = '<span class="admin-badge admin-badge-approved">In Stock</span>';
+                if (stock === 0) badgeHTML = '<span class="admin-badge admin-badge-rejected">Out of Stock</span>';
+                else if (stock <= 5) badgeHTML = '<span class="admin-badge admin-badge-pending">Low Stock Alert</span>';
+
+                return `
+                  <tr>
+                    <td>
+                      <div style="display:flex; align-items:center; gap:10px;">
+                        <img src="${p.images?.[0] || 'https://via.placeholder.com/40'}" style="width:40px; height:40px; object-fit:cover; border-radius:6px; border:1px solid #E5E7EB;">
+                        <strong>${p.name}</strong>
+                      </div>
+                    </td>
+                    <td><code>${p.sku || 'N/A'}</code></td>
+                    <td><strong>৳${p.discountPrice || p.regularPrice}</strong></td>
+                    <td><strong style="font-size: 1rem; color: ${stock <= 5 ? 'var(--danger-color)' : 'var(--primary-color)'};">${stock}</strong></td>
+                    <td>${badgeHTML}</td>
+                    <td>
+                      <div style="display:flex; gap:6px; align-items:center;">
+                        <input type="number" id="inv-qty-${p.id}" value="${stock}" min="0" style="width:70px; padding:4px 8px; border-radius:6px; border:1px solid #CCC; font-weight:bold;">
+                        <button onclick="window.handleStockSave('${p.id}')" class="btn-primary admin-btn-sm"><i class="fas fa-save"></i> Save</button>
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    };
+
+    window.handleStockSave = async (productId) => {
+      const input = document.getElementById(`inv-qty-${productId}`);
+      if (!input) return;
+      const newStock = parseInt(input.value, 10);
+      if (isNaN(newStock) || newStock < 0) {
+        showToast('Please enter a valid non-negative stock quantity');
+        return;
+      }
+
+      try {
+        await updateProductStock(productId, newStock);
+        const prod = adminState.products.find(p => p.id === productId);
+        if (prod) prod.stock = newStock;
+        renderInventoryTable();
+        renderProductsTable();
+        updateDashboardMetrics();
+        showToast('Stock quantity updated successfully');
+      } catch (err) {
+        console.error('Stock update failed:', err);
+        showToast('Failed to update stock');
+      }
+    };
+
+    // -------------------------------------------------------------
+    // Customer Reviews Management
+    // -------------------------------------------------------------
+    async function loadReviewsData() {
+      try {
+        adminState.reviews = (await fetchReviewsFromDB()) || [];
+      } catch (err) {
+        console.error('Error loading reviews:', err);
+        adminState.reviews = [];
+      }
+      renderReviewsList();
+    }
+
+    window.renderReviewsList = () => {
+      const container = document.getElementById('admin-reviews-list');
+      if (!container) return;
+
+      const search = (document.getElementById('rev-search')?.value || '').toLowerCase().trim();
+      const statusFilter = document.getElementById('rev-status-filter')?.value || 'all';
+
+      let filtered = adminState.reviews.filter(r => {
+        const matchesSearch = (r.productName || r.productId || '').toLowerCase().includes(search) || (r.userName || r.userEmail || '').toLowerCase().includes(search) || (r.comment || r.text || '').toLowerCase().includes(search);
+        const status = r.status || (r.isApproved ? 'approved' : 'pending');
+        const matchesStatus = statusFilter === 'all' || status === statusFilter;
+        return matchesSearch && matchesStatus;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="admin-loading-container"><i class="fas fa-star" style="font-size:2rem;"></i><p>No customer reviews found.</p></div>';
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Customer</th>
+                <th>Rating</th>
+                <th>Comment</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered.map(r => {
+                const isApproved = r.status === 'approved' || r.isApproved === true;
+                const stars = '★'.repeat(r.rating || 5) + '☆'.repeat(Math.max(0, 5 - (r.rating || 5)));
+                return `
+                  <tr>
+                    <td><strong>${r.productName || r.productId || 'Product'}</strong></td>
+                    <td>
+                      <div><strong>${r.userName || 'Customer'}</strong></div>
+                      <div style="font-size:0.75rem; color:#6B7280;">${r.userEmail || ''}</div>
+                    </td>
+                    <td><span style="color:#F59E0B; font-weight:bold; font-size:1rem;">${stars}</span></td>
+                    <td style="max-width:280px; word-break:break-word;">${r.comment || r.text || r.review || 'No text'}</td>
+                    <td>
+                      <span class="admin-badge ${isApproved ? 'admin-badge-approved' : 'admin-badge-pending'}">
+                        ${isApproved ? 'Approved' : 'Pending'}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="admin-action-btn-group">
+                        ${!isApproved ? `<button onclick="window.handleApproveReview('${r.id}')" class="btn-primary admin-btn-sm"><i class="fas fa-check"></i> Approve</button>` : ''}
+                        <button onclick="window.handleDeleteReview('${r.id}')" class="admin-btn-sm" style="background:var(--danger-color); color:#FFF;"><i class="fas fa-trash"></i> Delete</button>
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    };
+
+    window.handleApproveReview = async (reviewId) => {
+      try {
+        await updateReviewStatus(reviewId, 'approved');
+        const rev = adminState.reviews.find(r => r.id === reviewId);
+        if (rev) {
+          rev.status = 'approved';
+          rev.isApproved = true;
+        }
+        renderReviewsList();
+        showToast('Review approved');
+      } catch (err) {
+        showToast('Failed to approve review');
+      }
+    };
+
+    window.handleDeleteReview = async (reviewId) => {
+      if (confirm('Delete this customer review?')) {
+        try {
+          await deleteReviewFromDB(reviewId);
+          adminState.reviews = adminState.reviews.filter(r => r.id !== reviewId);
+          renderReviewsList();
+          showToast('Review deleted');
+        } catch (err) {
+          showToast('Failed to delete review');
+        }
+      }
+    };
+
+    // -------------------------------------------------------------
+    // Reports & Sales Analytics View
+    // -------------------------------------------------------------
+    window.renderReportsView = () => {
+      const summaryContainer = document.getElementById('admin-reports-summary');
+      const topSellingContainer = document.getElementById('admin-top-selling-list');
+      const breakdownContainer = document.getElementById('admin-sales-breakdown-list');
+      if (!summaryContainer || !topSellingContainer || !breakdownContainer) return;
+
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      const weekStart = todayStart - (7 * 24 * 60 * 60 * 1000);
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+      let dailySales = 0, weeklySales = 0, monthlySales = 0;
+      let dailyOrders = 0, weeklyOrders = 0, monthlyOrders = 0;
+
+      const productSalesMap = {};
+      const statusCounts = {};
+
+      const orders = Array.isArray(adminState.orders) ? adminState.orders : [];
+
+      orders.forEach(o => {
+        if (!o) return;
+        const status = o.orderStatus || 'Pending';
+        statusCounts[status] = (statusCounts[status] || 0) + 1;
+
+        if (status === 'Cancelled') return;
+
+        const orderTime = o.createdAt?.seconds ? o.createdAt.seconds * 1000 : (o.createdAt ? new Date(o.createdAt).getTime() : 0);
+        const amount = Number(o.totalAmount || 0);
+
+        if (orderTime >= todayStart) {
+          dailySales += amount;
+          dailyOrders++;
+        }
+        if (orderTime >= weekStart) {
+          weeklySales += amount;
+          weeklyOrders++;
+        }
+        if (orderTime >= monthStart) {
+          monthlySales += amount;
+          monthlyOrders++;
+        }
+
+        // Count top sold items
+        if (Array.isArray(o.items)) {
+          o.items.forEach(item => {
+            const pId = item.id || item.productId || item.name;
+            const qty = Number(item.quantity || 1);
+            if (!productSalesMap[pId]) {
+              productSalesMap[pId] = {
+                name: item.name || 'Product',
+                image: item.image || (item.images && item.images[0]) || 'https://via.placeholder.com/40',
+                qty: 0,
+                total: 0
+              };
+            }
+            productSalesMap[pId].qty += qty;
+            productSalesMap[pId].total += Number(item.price || 0) * qty;
+          });
+        }
+      });
+
+      // Render Summary Cards
+      summaryContainer.innerHTML = `
+        <div class="stat-card-premium stat-card-emerald">
+          <div class="stat-icon-wrapper"><i class="fas fa-calendar-day"></i></div>
+          <div class="stat-info">
+            <div class="stat-value">৳${dailySales.toLocaleString('bn-BD')}</div>
+            <div class="stat-label">Daily Sales (${dailyOrders} orders)</div>
+          </div>
+        </div>
+
+        <div class="stat-card-premium stat-card-blue">
+          <div class="stat-icon-wrapper"><i class="fas fa-calendar-week"></i></div>
+          <div class="stat-info">
+            <div class="stat-value">৳${weeklySales.toLocaleString('bn-BD')}</div>
+            <div class="stat-label">Weekly Sales (${weeklyOrders} orders)</div>
+          </div>
+        </div>
+
+        <div class="stat-card-premium stat-card-purple">
+          <div class="stat-icon-wrapper"><i class="fas fa-calendar-alt"></i></div>
+          <div class="stat-info">
+            <div class="stat-value">৳${monthlySales.toLocaleString('bn-BD')}</div>
+            <div class="stat-label">Monthly Sales (${monthlyOrders} orders)</div>
+          </div>
+        </div>
+      `;
+
+      // Render Top Selling Products
+      const topProducts = Object.values(productSalesMap).sort((a, b) => b.qty - a.qty).slice(0, 5);
+      if (topProducts.length === 0) {
+        topSellingContainer.innerHTML = '<p style="color:#6B7280; font-size:0.85rem;">No sales data available yet.</p>';
+      } else {
+        topSellingContainer.innerHTML = `
+          <div class="admin-table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Units Sold</th>
+                  <th>Total Revenue</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${topProducts.map(tp => `
+                  <tr>
+                    <td>
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <img src="${tp.image}" style="width:36px; height:36px; object-fit:cover; border-radius:6px; border:1px solid #E5E7EB;">
+                        <span style="font-weight:700;">${tp.name}</span>
+                      </div>
+                    </td>
+                    <td><span class="admin-badge admin-badge-active">${tp.qty} Sold</span></td>
+                    <td><strong style="color:var(--accent-color);">৳${tp.total.toLocaleString('bn-BD')}</strong></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      // Render Status Breakdown
+      const statusKeys = Object.keys(statusCounts);
+      if (statusKeys.length === 0) {
+        breakdownContainer.innerHTML = '<p style="color:#6B7280; font-size:0.85rem;">No order status data available.</p>';
+      } else {
+        breakdownContainer.innerHTML = `
+          <div class="admin-table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Order Status</th>
+                  <th>Total Orders</th>
+                  <th>Percentage</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${statusKeys.map(st => {
+                  const count = statusCounts[st];
+                  const pct = ((count / (orders.length || 1)) * 100).toFixed(1);
+                  const statusClass = st.toLowerCase().replace(/\s+/g, '-');
+                  return `
+                    <tr>
+                      <td><span class="admin-badge admin-badge-${statusClass}">${st}</span></td>
+                      <td><strong>${count}</strong></td>
+                      <td><strong style="color:var(--primary-color);">${pct}%</strong></td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+    };
 
     // -------------------------------------------------------------
     // Products CRUD & Table
