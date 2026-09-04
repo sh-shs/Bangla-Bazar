@@ -97,23 +97,14 @@
         return;
       }
       if (!product) {
-        // Mock fallback product for demo & visual verification
-        product = {
-          id: 'demo-sample-product',
-          slug: 'demo-sample-product',
-          name: 'Premium Wireless Headphones with Noise Cancellation',
-          category: 'Electronics',
-          regularPrice: 3500,
-          discountPrice: 2800,
-          stock: 4,
-          shortDescription: 'High-fidelity audio headphone with active noise cancellation, 30-hour battery life, and ergonomic earcups.',
-          fullDescription: 'Experience superior sound quality with SHS Bazar Wireless Headphones. Engineered with 40mm drivers and dynamic bass boost, these headphones deliver deep bass and crisp highs.\n\n• Active Noise Cancellation (ANC)\n• Up to 30 Hours Playtime\n• Bluetooth 5.2 Seamless Pairing\n• Built-in HD Microphone for Calls\n• Soft Memory Foam Ear Cushions',
-          images: [
-            fallbackImage
-          ],
-          videoUrl: null,
-          variants: ['Black Matte', 'Silver Metallic', 'Deep Green Edition']
-        };
+        container.innerHTML = `
+          <div class="glass-card" style="text-align: center; padding: 40px 20px;">
+            <i class="fas fa-exclamation-triangle fa-3x" style="color: var(--warning-color); margin-bottom: 12px;"></i>
+            <h3>Product Not Found</h3>
+            <p style="font-size: 0.85rem; color: #666; margin-top: 8px;">The requested product could not be located or has been removed.</p>
+            <a href="index.html" class="btn-primary" style="display: inline-block; margin-top: 16px;">Back to Home</a>
+          </div>`;
+        return;
       }
 
       document.getElementById('pd-header-title').textContent = product.name;
@@ -425,33 +416,10 @@
             }
           }
 
-          // 3. Fallback demo products if fewer than targetCount available in total
-          if (selectedProducts.length < targetCount) {
-            const selectedIds = new Set(selectedProducts.map(p => p.id || p.slug));
-            const demoCat = product.category || 'Electronics';
-            const demoList = [
-              { id: 'demo-rel-1', slug: 'demo-rel-1', name: 'Wireless Bluetooth Earbuds Pro', category: demoCat, regularPrice: 2200, discountPrice: 1750, stock: 12, images: [fallbackImage] },
-              { id: 'demo-rel-2', slug: 'demo-rel-2', name: 'Smart Fitness Tracker Watch', category: demoCat, regularPrice: 3100, discountPrice: 2490, stock: 8, images: [fallbackImage] },
-              { id: 'demo-rel-3', slug: 'demo-rel-3', name: 'Portable Power Bank 20000mAh', category: demoCat, regularPrice: 2500, discountPrice: 1990, stock: 15, images: [fallbackImage] },
-              { id: 'demo-rel-4', slug: 'demo-rel-4', name: 'RGB Gaming Mechanical Keyboard', category: demoCat, regularPrice: 4200, discountPrice: 3450, stock: 6, images: [fallbackImage] },
-              { id: 'demo-rel-5', slug: 'demo-rel-5', name: 'Ergonomic Wireless Mouse', category: demoCat, regularPrice: 1200, discountPrice: 890, stock: 20, images: [fallbackImage] },
-              { id: 'demo-rel-6', slug: 'demo-rel-6', name: 'Ultra HD 4K Webcam with Mic', category: demoCat, regularPrice: 3800, discountPrice: 2990, stock: 9, images: [fallbackImage] },
-              { id: 'demo-rel-7', slug: 'demo-rel-7', name: 'Noise Cancelling Headphones', category: demoCat, regularPrice: 4800, discountPrice: 3800, stock: 5, images: [fallbackImage] },
-              { id: 'demo-rel-8', slug: 'demo-rel-8', name: 'Bluetooth Mini Speaker', category: demoCat, regularPrice: 2900, discountPrice: 2150, stock: 11, images: [fallbackImage] }
-            ];
-
-            for (const demoItem of demoList) {
-              if (selectedProducts.length >= targetCount) break;
-              if (!selectedIds.has(demoItem.id) && !isCurrentProduct(demoItem)) {
-                selectedProducts.push(demoItem);
-              }
-            }
-          }
-
           if (selectedProducts.length > 0) {
             relatedGrid.innerHTML = selectedProducts.map(p => renderProductCard(p)).join('');
           } else {
-            relatedGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #888;">No related products found.</p>`;
+            relatedGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 20px;">আরও প্রোডাক্ট শীঘ্রই আসছে</p>`;
           }
         }
       } catch (err) {

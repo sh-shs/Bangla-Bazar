@@ -684,7 +684,7 @@ async function initApp() {
         if (filtered.length > 0) {
           el.innerHTML = filtered.map(renderProductCard).join('');
         } else {
-          el.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 20px;">No products available yet in this section.</p>';
+          el.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 20px;">আরও প্রোডাক্ট শীঘ্রই আসছে</p>';
         }
       }
     };
