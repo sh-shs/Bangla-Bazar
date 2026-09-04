@@ -100,7 +100,7 @@ To enable automated Firebase Hosting deployment:
 - **Phone / WhatsApp**: `01342697743`
 - **Email**: `saripofficialsupport@gmail.com`
 - **Location**: Kushtia, Bangladesh
-- **Telegram Channel**: [https://t.me/banglabazarofficial](https://t.me/banglabazarofficial)
+- **Telegram Channel**: [https://t.me/shsbazarofficial](https://t.me/shsbazarofficial)
 - **Telegram Support**: `@shsaripofficial`
 - **Facebook**: [https://www.facebook.com/share/1HRbgfrKK3/](https://www.facebook.com/share/1HRbgfrKK3/)
-- **TikTok**: `banglabazarofficial`
+- **TikTok**: `shsbazarofficial`

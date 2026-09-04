@@ -19,7 +19,7 @@ import {
 
 export const SUPER_ADMIN_EMAILS = [
   'banglabazaroffical@gmail.com',
-  'banglabazarofficial@gmail.com'
+  'shsbazarofficial@gmail.com'
 ];
 export const SUPER_ADMIN_EMAIL = SUPER_ADMIN_EMAILS[0];
 
