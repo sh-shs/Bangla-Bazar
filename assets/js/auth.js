@@ -103,7 +103,13 @@ function updateHeaderAuthUI() {
   const wishlistBadges = document.querySelectorAll('.wishlist-count-badge');
   const wishlistCount = (userProfile && userProfile.wishlist) ? userProfile.wishlist.length : getLocalWishlist().length;
   wishlistBadges.forEach(badge => {
+    const prevCount = badge.textContent;
     badge.textContent = wishlistCount;
+    if (prevCount !== String(wishlistCount)) {
+      badge.classList.remove('pop');
+      void badge.offsetWidth;
+      badge.classList.add('pop');
+    }
   });
 }
 

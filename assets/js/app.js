@@ -346,11 +346,17 @@ export function updateCartUI() {
 
   // Update header & navigation cart badges dynamically
   document.querySelectorAll('.cart-count-badge').forEach(el => {
+    const prevCount = el.textContent;
     el.textContent = totalItems;
     if (el.classList.contains('nav-cart-badge')) {
       el.style.display = totalItems > 0 ? 'flex' : 'none';
     } else {
-      el.style.display = totalItems > 0 ? 'inline-flex' : 'inline-flex';
+      el.style.display = 'inline-flex';
+    }
+    if (prevCount !== String(totalItems)) {
+      el.classList.remove('pop');
+      void el.offsetWidth;
+      el.classList.add('pop');
     }
   });
 
