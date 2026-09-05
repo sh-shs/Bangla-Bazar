@@ -285,8 +285,8 @@
           </div>
           <select id="rev-status-filter" class="admin-filter-select" onchange="window.renderReviewsList()">
             <option value="all">All Reviews</option>
-            <option value="pending">Pending Approval</option>
-            <option value="approved">Approved</option>
+            <option value="approved">Visible / Published</option>
+            <option value="hidden">Hidden / Moderated</option>
           </select>
         </div>
 
@@ -1114,8 +1114,8 @@
       const statusFilter = document.getElementById('rev-status-filter')?.value || 'all';
 
       let filtered = adminState.reviews.filter(r => {
-        const matchesSearch = (r.productName || r.productId || '').toLowerCase().includes(search) || (r.userName || r.userEmail || '').toLowerCase().includes(search) || (r.comment || r.text || '').toLowerCase().includes(search);
-        const status = r.status || (r.isApproved ? 'approved' : 'pending');
+        const matchesSearch = (r.productName || r.productId || r.product_id || '').toLowerCase().includes(search) || (r.customer_name || r.userName || r.customer_email || r.userEmail || '').toLowerCase().includes(search) || (r.comment || r.text || r.review || '').toLowerCase().includes(search);
+        const status = r.status === 'hidden' ? 'hidden' : 'approved';
         const matchesStatus = statusFilter === 'all' || status === statusFilter;
         return matchesSearch && matchesStatus;
       });
@@ -1130,35 +1130,48 @@
           <table class="admin-table">
             <thead>
               <tr>
-                <th>Product</th>
+                <th>Product ID / Name</th>
                 <th>Customer</th>
                 <th>Rating</th>
-                <th>Comment</th>
+                <th>Comment & Photos</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               ${filtered.map(r => {
-                const isApproved = r.status === 'approved' || r.isApproved === true;
-                const stars = '★'.repeat(r.rating || 5) + '☆'.repeat(Math.max(0, 5 - (r.rating || 5)));
+                const isHidden = r.status === 'hidden';
+                const rating = Number(r.rating || 5);
+                const stars = '★'.repeat(rating) + '☆'.repeat(Math.max(0, 5 - rating));
+                const images = Array.isArray(r.images) ? r.images : [];
+                const imagesHTML = images.length > 0 ? `
+                  <div style="display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap;">
+                    ${images.map(img => `<img src="${img}" style="width: 36px; height: 36px; object-fit: cover; border-radius: 4px; border: 1px solid #DDD;">`).join('')}
+                  </div>
+                ` : '';
+
                 return `
                   <tr>
-                    <td><strong>${r.productName || r.productId || 'Product'}</strong></td>
+                    <td><strong>${r.productName || r.productId || r.product_id || 'Product'}</strong></td>
                     <td>
-                      <div><strong>${r.userName || 'Customer'}</strong></div>
-                      <div style="font-size:0.75rem; color:#6B7280;">${r.userEmail || ''}</div>
+                      <div><strong>${r.customer_name || r.userName || 'Customer'}</strong></div>
+                      <div style="font-size:0.75rem; color:#6B7280;">${r.customer_email || r.userEmail || ''}</div>
                     </td>
                     <td><span style="color:#F59E0B; font-weight:bold; font-size:1rem;">${stars}</span></td>
-                    <td style="max-width:280px; word-break:break-word;">${r.comment || r.text || r.review || 'No text'}</td>
+                    <td style="max-width:280px; word-break:break-word;">
+                      <div>${r.comment || r.text || r.review || 'No comment text'}</div>
+                      ${imagesHTML}
+                    </td>
                     <td>
-                      <span class="admin-badge ${isApproved ? 'admin-badge-approved' : 'admin-badge-pending'}">
-                        ${isApproved ? 'Approved' : 'Pending'}
+                      <span class="admin-badge ${isHidden ? 'admin-badge-rejected' : 'admin-badge-approved'}">
+                        ${isHidden ? 'Hidden' : 'Visible'}
                       </span>
                     </td>
                     <td>
                       <div class="admin-action-btn-group">
-                        ${!isApproved ? `<button onclick="window.handleApproveReview('${r.id}')" class="btn-primary admin-btn-sm"><i class="fas fa-check"></i> Approve</button>` : ''}
+                        <button onclick="window.handleToggleReviewVisibility('${r.id}', '${r.status || 'approved'}')" class="btn-outline admin-btn-sm">
+                          ${isHidden ? '<i class="fas fa-eye"></i> Show' : '<i class="fas fa-eye-slash"></i> Hide'}
+                        </button>
                         <button onclick="window.handleDeleteReview('${r.id}')" class="admin-btn-sm" style="background:var(--danger-color); color:#FFF;"><i class="fas fa-trash"></i> Delete</button>
                       </div>
                     </td>
@@ -1171,18 +1184,19 @@
       `;
     };
 
-    window.handleApproveReview = async (reviewId) => {
+    window.handleToggleReviewVisibility = async (reviewId, currentStatus) => {
+      const newStatus = currentStatus === 'hidden' ? 'approved' : 'hidden';
       try {
-        await updateReviewStatus(reviewId, 'approved');
+        await updateReviewStatus(reviewId, newStatus);
         const rev = adminState.reviews.find(r => r.id === reviewId);
         if (rev) {
-          rev.status = 'approved';
-          rev.isApproved = true;
+          rev.status = newStatus;
+          rev.isApproved = newStatus === 'approved';
         }
         renderReviewsList();
-        showToast('Review approved');
+        showToast(`Review ${newStatus === 'hidden' ? 'hidden' : 'published'}`);
       } catch (err) {
-        showToast('Failed to approve review');
+        showToast('Failed to update review status');
       }
     };
 

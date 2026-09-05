@@ -38,6 +38,79 @@
       border-color: var(--primary-color);
       box-shadow: 0 4px 10px rgba(11, 77, 60, 0.25);
     }
+
+    /* Review Modal Styles */
+    .review-modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+    .review-modal-overlay.active {
+      display: flex;
+    }
+    .review-modal {
+      background: var(--card-bg, #FFFFFF);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+      border: 1px solid var(--border-color, #E2E8F0);
+      padding: 20px;
+    }
+    .star-rating-select {
+      display: flex;
+      gap: 10px;
+      font-size: 1.8rem;
+      color: #D1D5DB;
+      cursor: pointer;
+      margin: 10px 0 16px 0;
+    }
+    .star-rating-select .fa-star.selected {
+      color: #F59E0B;
+    }
+    .review-img-preview-grid {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .review-img-thumb {
+      position: relative;
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+    .review-img-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .review-img-thumb .remove-img-btn {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background: rgba(220, 38, 38, 0.85);
+      color: #FFF;
+      border: none;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   </style>
 </head>
 <body>
@@ -66,6 +139,60 @@
       </div>
     </div>
   </div>
+
+<!-- Write Review Modal -->
+<div class="review-modal-overlay" id="review-modal-overlay">
+  <div class="review-modal">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+      <h3 style="font-size: 1.1rem; color: var(--text-primary); font-weight: 700; display: flex; align-items: center; gap: 8px;">
+        <i class="fas fa-star" style="color: #F59E0B;"></i> Product Review
+      </h3>
+      <button onclick="window.closeReviewModal()" style="background: none; border: none; font-size: 1.4rem; color: var(--text-muted); cursor: pointer;">&times;</button>
+    </div>
+
+    <div id="review-modal-product-info" style="display: flex; gap: 12px; align-items: center; background: var(--bg-color); padding: 10px; border-radius: 10px; margin-bottom: 16px; border: 1px solid var(--border-color);">
+      <img id="review-modal-img" src="" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px;">
+      <div>
+        <div id="review-modal-title" style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary);">Product Name</div>
+        <div id="review-modal-order-id" style="font-size: 0.78rem; color: var(--text-muted);">Order #---</div>
+      </div>
+    </div>
+
+    <form id="review-form">
+      <input type="hidden" id="review-order-id">
+      <input type="hidden" id="review-product-id">
+      <input type="hidden" id="review-doc-id">
+      <input type="hidden" id="review-rating-value" value="5">
+
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label class="form-label" style="font-weight: 600; font-size: 0.88rem;">Select Rating *</label>
+        <div class="star-rating-select" id="star-rating-container">
+          <i class="fas fa-star selected" data-value="1"></i>
+          <i class="fas fa-star selected" data-value="2"></i>
+          <i class="fas fa-star selected" data-value="3"></i>
+          <i class="fas fa-star selected" data-value="4"></i>
+          <i class="fas fa-star selected" data-value="5"></i>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label class="form-label" style="font-weight: 600; font-size: 0.88rem;">Your Review / Comment *</label>
+        <textarea id="review-comment" class="form-control" rows="4" required placeholder="Write your experience with this product..." style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); font-family: inherit; font-size: 0.88rem;"></textarea>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label class="form-label" style="font-weight: 600; font-size: 0.88rem;">Upload Product Photos (Optional, max 4)</label>
+        <input type="file" id="review-photos-input" class="form-control" accept="image/*" multiple style="font-size: 0.82rem;">
+        <div class="review-img-preview-grid" id="review-photos-preview"></div>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button type="button" onclick="window.closeReviewModal()" class="btn-outline" style="padding: 10px 18px; border-radius: 8px;">Cancel</button>
+        <button type="submit" id="review-submit-btn" class="btn-accent" style="padding: 10px 22px; border-radius: 8px; font-weight: 700;">Submit Review</button>
+      </div>
+    </form>
+  </div>
+</div>
 
   <!-- Bottom Navigation Bar -->
   <nav class="bottom-nav">
@@ -98,11 +225,18 @@
   <script type="module" src="assets/js/app.js"></script>
   <script type="module">
     import { onAuthStateUpdate } from './assets/js/auth.js';
-    import { db, collection, getDocs, query, where } from './assets/js/firebase-config.js';
+    import { db, collection, getDocs, doc, setDoc, addDoc, query, where } from './assets/js/firebase-config.js';
     import { generatePDFInvoice } from './assets/js/invoice.js';
+    import { uploadMediaFile } from './assets/js/admin.js';
+    import { showToast } from './assets/js/app.js';
 
     let allOrders = [];
     let activeFilter = 'all';
+    let currentUserObj = null;
+    let currentUserProfile = null;
+    let existingUserReviews = {}; // Key: `${order_id}_${product_id}` -> review doc
+    let pendingUploadPhotos = [];
+    let existingReviewImageUrls = [];
 
     window.downloadInvoiceHandler = (orderId) => {
       const order = allOrders.find(o => o.id === orderId);
@@ -171,19 +305,38 @@
           ? items.slice(0, 2).map(i => `${i.name || 'Product'} (x${i.quantity || 1})`).join(', ') + (items.length > 2 ? ` + ${items.length - 2} more` : '')
           : 'Product details';
 
-        const itemsDetailHTML = items.map(item => `
-          <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-color); padding: 8px; border-radius: 6px; margin-bottom: 6px; border: 1px solid var(--border-color);">
-            <img src="${item.image || (item.images && item.images[0]) || 'https://via.placeholder.com/50'}" alt="${item.name || 'Item'}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 4px;">
-            <div style="flex: 1;">
-              <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-primary);">${item.name || 'Unnamed Product'}</div>
-              <div style="font-size: 0.75rem; color: var(--text-muted);">
-                ৳${Number(item.price || 0).toLocaleString('bn-BD')} × ${item.quantity || 1}
-                ${item.variant ? ` | <span style="color: var(--accent-color); font-weight: 600;">Variant: ${item.variant}</span>` : ''}
-              </div>
+        const isDelivered = (status || '').toLowerCase() === 'delivered';
+
+        const itemsDetailHTML = items.map(item => {
+          const productId = item.id || item.productId || '';
+          const reviewKey = `${o.id}_${productId}`;
+          const review = existingUserReviews[reviewKey];
+
+          const reviewButtonHTML = isDelivered && productId ? `
+            <div style="margin-top: 6px;">
+              <button onclick="window.openReviewModal('${o.id}', '${productId}', '${(item.name || '').replace(/'/g, "\\'")}', '${item.image || (item.images && item.images[0]) || ''}')"
+                class="${review ? 'btn-outline' : 'btn-accent'}"
+                style="font-size: 0.75rem; padding: 5px 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; text-decoration: none;">
+                <i class="fas fa-star" style="color: #F59E0B;"></i> ${review ? 'Edit Review' : 'Write a Review'}
+              </button>
             </div>
-            <div style="font-weight: 700; color: var(--primary-color); font-size: 0.88rem;">৳${(Number(item.price || 0) * Number(item.quantity || 1)).toLocaleString('bn-BD')}</div>
-          </div>
-        `).join('');
+          ` : '';
+
+          return `
+            <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-color); padding: 8px; border-radius: 6px; margin-bottom: 6px; border: 1px solid var(--border-color);">
+              <img src="${item.image || (item.images && item.images[0]) || 'https://via.placeholder.com/50'}" alt="${item.name || 'Item'}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 4px;">
+              <div style="flex: 1;">
+                <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-primary);">${item.name || 'Unnamed Product'}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">
+                  ৳${Number(item.price || 0).toLocaleString('bn-BD')} × ${item.quantity || 1}
+                  ${item.variant ? ` | <span style="color: var(--accent-color); font-weight: 600;">Variant: ${item.variant}</span>` : ''}
+                </div>
+                ${reviewButtonHTML}
+              </div>
+              <div style="font-weight: 700; color: var(--primary-color); font-size: 0.88rem;">৳${(Number(item.price || 0) * Number(item.quantity || 1)).toLocaleString('bn-BD')}</div>
+            </div>
+          `;
+        }).join('');
 
         const subtotal = Number(o.subtotal || items.reduce((s, i) => s + (Number(i.price || 0) * Number(i.quantity || 1)), 0));
         const deliveryCharge = Number(o.deliveryCharge || 0);
@@ -261,8 +414,201 @@
       });
     });
 
+    // Review Modal Functions
+    window.openReviewModal = (orderId, productId, productName, productImage) => {
+      const modal = document.getElementById('review-modal-overlay');
+      if (!modal) return;
+
+      document.getElementById('review-order-id').value = orderId;
+      document.getElementById('review-product-id').value = productId;
+      document.getElementById('review-modal-title').textContent = productName;
+      document.getElementById('review-modal-order-id').textContent = `Order #${orderId}`;
+      document.getElementById('review-modal-img').src = productImage || 'https://via.placeholder.com/50';
+
+      const reviewKey = `${orderId}_${productId}`;
+      const existingRev = existingUserReviews[reviewKey];
+
+      pendingUploadPhotos = [];
+      existingReviewImageUrls = existingRev && Array.isArray(existingRev.images) ? [...existingRev.images] : [];
+
+      if (existingRev) {
+        document.getElementById('review-doc-id').value = existingRev.id || '';
+        document.getElementById('review-comment').value = existingRev.comment || existingRev.review || '';
+        setRatingValue(existingRev.rating || 5);
+      } else {
+        document.getElementById('review-doc-id').value = '';
+        document.getElementById('review-comment').value = '';
+        setRatingValue(5);
+      }
+
+      renderPhotoPreviews();
+      modal.classList.add('active');
+    };
+
+    window.closeReviewModal = () => {
+      const modal = document.getElementById('review-modal-overlay');
+      if (modal) modal.classList.remove('active');
+    };
+
+    function setRatingValue(val) {
+      document.getElementById('review-rating-value').value = val;
+      const stars = document.querySelectorAll('#star-rating-container .fa-star');
+      stars.forEach(s => {
+        const starVal = parseInt(s.getAttribute('data-value'), 10);
+        if (starVal <= val) {
+          s.classList.add('selected');
+        } else {
+          s.classList.remove('selected');
+        }
+      });
+    }
+
+    // Star Rating Event Listeners
+    document.querySelectorAll('#star-rating-container .fa-star').forEach(star => {
+      star.addEventListener('click', (e) => {
+        const val = parseInt(e.target.getAttribute('data-value'), 10);
+        setRatingValue(val);
+      });
+    });
+
+    // File Input Listener for Reviews
+    const photoInput = document.getElementById('review-photos-input');
+    if (photoInput) {
+      photoInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files || []);
+        const totalAllowed = 4 - existingReviewImageUrls.length;
+        if (files.length > totalAllowed) {
+          showToast(`Maximum 4 photos allowed in total.`);
+        }
+        pendingUploadPhotos = files.slice(0, totalAllowed);
+        renderPhotoPreviews();
+      });
+    }
+
+    function renderPhotoPreviews() {
+      const container = document.getElementById('review-photos-preview');
+      if (!container) return;
+
+      let html = '';
+
+      // Render existing saved images
+      existingReviewImageUrls.forEach((url, idx) => {
+        html += `
+          <div class="review-img-thumb">
+            <img src="${url}">
+            <button type="button" class="remove-img-btn" onclick="window.removeExistingReviewImg(${idx})">&times;</button>
+          </div>
+        `;
+      });
+
+      // Render newly selected files
+      pendingUploadPhotos.forEach((file, idx) => {
+        const tempUrl = URL.createObjectURL(file);
+        html += `
+          <div class="review-img-thumb">
+            <img src="${tempUrl}">
+            <button type="button" class="remove-img-btn" onclick="window.removePendingReviewImg(${idx})">&times;</button>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    window.removeExistingReviewImg = (idx) => {
+      existingReviewImageUrls.splice(idx, 1);
+      renderPhotoPreviews();
+    };
+
+    window.removePendingReviewImg = (idx) => {
+      pendingUploadPhotos.splice(idx, 1);
+      renderPhotoPreviews();
+    };
+
+    // Form Submit Listener
+    document.getElementById('review-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = document.getElementById('review-submit-btn');
+
+      const orderId = document.getElementById('review-order-id').value;
+      const productId = document.getElementById('review-product-id').value;
+      const docId = document.getElementById('review-doc-id').value;
+      const rating = parseInt(document.getElementById('review-rating-value').value, 10) || 5;
+      const comment = document.getElementById('review-comment').value.trim();
+
+      if (!currentUserObj) {
+        showToast('Please login to submit a review');
+        return;
+      }
+
+      if (!comment) {
+        showToast('Please write a comment for your review');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+      try {
+        let uploadedUrls = [...existingReviewImageUrls];
+
+        if (pendingUploadPhotos.length > 0) {
+          const uploads = pendingUploadPhotos.map(file => uploadMediaFile(file, 'reviews'));
+          const newUrls = await Promise.all(uploads);
+          uploadedUrls = uploadedUrls.concat(newUrls.filter(Boolean));
+        }
+
+        const customerName = currentUserProfile?.displayName || currentUserObj.displayName || 'Customer';
+        const customerEmail = currentUserObj.email || '';
+
+        const reviewPayload = {
+          product_id: productId,
+          productId: productId,
+          order_id: orderId,
+          orderId: orderId,
+          customer_id: currentUserObj.uid,
+          userId: currentUserObj.uid,
+          customer_name: customerName,
+          customer_email: customerEmail,
+          userName: customerName,
+          userEmail: customerEmail,
+          rating: rating,
+          comment: comment,
+          images: uploadedUrls,
+          status: 'approved',
+          isApproved: true,
+          createdAt: new Date(),
+          timestamp: new Date()
+        };
+
+        if (docId) {
+          await setDoc(doc(db, 'reviews', docId), reviewPayload, { merge: true });
+        } else {
+          const docRef = await addDoc(collection(db, 'reviews'), reviewPayload);
+          reviewPayload.id = docRef.id;
+        }
+
+        // Update local state
+        const key = `${orderId}_${productId}`;
+        existingUserReviews[key] = reviewPayload;
+
+        showToast('Review submitted successfully!');
+        window.closeReviewModal();
+        renderOrders();
+      } catch (err) {
+        console.error('Error submitting review:', err);
+        showToast('Failed to submit review. Please try again.');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Review';
+      }
+    });
+
     onAuthStateUpdate(async (user, profile) => {
       const container = document.getElementById('orders-list-container');
+      currentUserObj = user;
+      currentUserProfile = profile;
+
       if (!user) {
         container.innerHTML = `
           <div class="glass-card" style="text-align: center; padding: 36px 20px;">
@@ -290,6 +636,20 @@
           const timeB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : (b.createdAt || 0);
           return timeB - timeA;
         });
+
+        // Fetch existing reviews for this user
+        existingUserReviews = {};
+        try {
+          const revQuery = query(collection(db, 'reviews'), where('userId', '==', user.uid));
+          const revSnap = await getDocs(revQuery);
+          revSnap.forEach(d => {
+            const data = d.data();
+            const key = `${data.order_id || data.orderId}_${data.product_id || data.productId}`;
+            existingUserReviews[key] = { id: d.id, ...data };
+          });
+        } catch (rErr) {
+          console.warn('Error fetching user reviews:', rErr);
+        }
 
         renderOrders();
       } catch (err) {
