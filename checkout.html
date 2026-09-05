@@ -68,32 +68,6 @@
       <div class="glass-card checkout-section-card">
         <h3 class="step-card-title"><i class="fas fa-map-marker-alt"></i> ২. ডেলিভারি ঠিকানা</h3>
 
-        <div class="form-group">
-          <label class="form-label">ডেলিভারি এলাকা *</label>
-          <div class="delivery-area-options">
-            <label class="payment-method-option" style="flex: 1; padding: 10px 12px; cursor: pointer;">
-              <input type="radio" name="delivery_area" value="inside" checked>
-              <div>
-                <strong>কুষ্টিয়ার ভেতরে</strong>
-                <div style="font-size: 0.75rem; color: var(--text-muted);" id="area-inside-label">ডেলিভারি চার্জ ৳100</div>
-              </div>
-            </label>
-            <label class="payment-method-option" style="flex: 1; padding: 10px 12px; cursor: pointer;">
-              <input type="radio" name="delivery_area" value="outside">
-              <div>
-                <strong>কুষ্টিয়ার বাইরে</strong>
-                <div style="font-size: 0.75rem; color: var(--text-muted);" id="area-outside-label">ডেলিভারি চার্জ ৳160</div>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">ঠিকানা (গ্রাম / এলাকা / বাসা / রোড) *</label>
-          <input type="text" id="cust-village" class="form-control" placeholder="বাসার নম্বর, রোড, গ্রাম বা এলাকার নাম">
-          <span class="field-error" id="err-cust-village"></span>
-        </div>
-
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
           <div class="form-group">
             <label class="form-label">বিভাগ *</label>
@@ -128,6 +102,12 @@
             </select>
             <span class="field-error" id="err-select-union"></span>
           </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">ঠিকানা (গ্রাম / এলাকা / বাসা / রোড) *</label>
+          <input type="text" id="cust-village" class="form-control" placeholder="বাসার নম্বর, রোড, গ্রাম বা এলাকার নাম">
+          <span class="field-error" id="err-cust-village"></span>
         </div>
 
         <div class="form-group" style="margin-bottom: 0;">
@@ -427,15 +407,6 @@
         return;
       }
 
-      // Update Area Labels with dynamic rates
-      const areaInsideLabel = document.getElementById('area-inside-label');
-      const areaOutsideLabel = document.getElementById('area-outside-label');
-      if (areaInsideLabel && deliverySettings.insideKushtia !== undefined) {
-        areaInsideLabel.textContent = `ডেলিভারি চার্জ ৳${deliverySettings.insideKushtia}`;
-      }
-      if (areaOutsideLabel && deliverySettings.outsideKushtia !== undefined) {
-        areaOutsideLabel.textContent = `ডেলিভারি চার্জ ৳${deliverySettings.outsideKushtia}`;
-      }
 
       // Pre-fill customer info if logged in
       if (currentUser && userProfile) {
@@ -532,58 +503,20 @@
       thanaSelect.value = "Kushtia Sadar";
       populateUnions("Khulna", "Kushtia", "Kushtia Sadar");
 
-      // Delivery Area Radio buttons logic
-      const deliveryAreaRadios = document.querySelectorAll('input[name="delivery_area"]');
-      deliveryAreaRadios.forEach(radio => {
-        radio.addEventListener('change', (e) => {
-          if (e.target.value === 'inside') {
-            divSelect.value = "Khulna";
-            populateDistricts("Khulna");
-            distSelect.value = "Kushtia";
-            populateThanas("Khulna", "Kushtia");
-            thanaSelect.value = "Kushtia Sadar";
-            populateUnions("Khulna", "Kushtia", "Kushtia Sadar");
-          } else {
-            // If currently Kushtia, switch to Dhaka or let user pick outside district
-            if (distSelect.value === 'Kushtia') {
-              divSelect.value = "Dhaka";
-              populateDistricts("Dhaka");
-              distSelect.value = "Dhaka";
-              populateThanas("Dhaka", "Dhaka");
-            }
-          }
-          recalculateTotals();
-        });
-      });
-
       // Cascading Change Listeners
       divSelect.addEventListener('change', (e) => {
         populateDistricts(e.target.value);
-        syncAreaRadioWithDistrict();
         recalculateTotals();
       });
 
       distSelect.addEventListener('change', (e) => {
         populateThanas(divSelect.value, e.target.value);
-        syncAreaRadioWithDistrict();
         recalculateTotals();
       });
 
       thanaSelect.addEventListener('change', (e) => {
         populateUnions(divSelect.value, distSelect.value, e.target.value);
       });
-
-      function syncAreaRadioWithDistrict() {
-        const currentDist = distSelect.value;
-        const insideRadio = document.querySelector('input[name="delivery_area"][value="inside"]');
-        const outsideRadio = document.querySelector('input[name="delivery_area"][value="outside"]');
-
-        if (currentDist.toLowerCase() === 'kushtia') {
-          if (insideRadio) insideRadio.checked = true;
-        } else {
-          if (outsideRadio) outsideRadio.checked = true;
-        }
-      }
 
       // bKash Modal Elements
       const bkashModalOverlay = document.getElementById('bkash-modal-overlay');
@@ -750,15 +683,7 @@
       function recalculateTotals() {
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-        // Determine district from radio or select
-        const selectedAreaRadio = document.querySelector('input[name="delivery_area"]:checked')?.value;
-        let district = distSelect.value;
-        if (selectedAreaRadio === 'inside') {
-          district = 'Kushtia';
-        } else if (!district || district === 'Kushtia') {
-          district = 'Dhaka'; // Default outside district if not selected
-        }
-
+        const district = distSelect.value;
         const deliveryCharge = calculateDeliveryCharge(district);
         const grandTotal = Math.max(0, subtotal + deliveryCharge - appliedDiscount);
 
@@ -827,11 +752,7 @@
           }
 
           const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-          const selectedAreaRadio = document.querySelector('input[name="delivery_area"]:checked')?.value;
-          let district = distSelect.value;
-          if (selectedAreaRadio === 'inside') {
-            district = 'Kushtia';
-          }
+          const district = distSelect.value;
           const deliveryCharge = calculateDeliveryCharge(district);
           const totalAmount = Math.max(0, subtotal + deliveryCharge - appliedDiscount);
 
