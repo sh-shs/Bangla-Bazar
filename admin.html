@@ -13,14 +13,16 @@
   <!-- Top Header Bar -->
   <div class="admin-top-bar">
     <div style="display: flex; align-items: center; gap: 12px;">
-      <button class="hamburger-btn" onclick="toggleAdminSidebar()" title="Toggle Menu"><i class="fas fa-bars"></i></button>
       <button class="back-btn" onclick="goBack()" title="Back to Shop"><i class="fas fa-arrow-left"></i></button>
       <div class="brand-title">
         <div class="admin-shield-icon"><i class="fas fa-user-shield"></i></div>
         <span>SHS Bazar <span style="font-weight: 400; font-size: 0.85em; opacity: 0.85;">Admin Panel</span></span>
       </div>
     </div>
-    <span class="admin-badge-role"><i class="fas fa-crown"></i> Super Admin</span>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="admin-badge-role"><i class="fas fa-crown"></i> Super Admin</span>
+      <button class="admin-settings-btn" onclick="switchAdminTab('settings')" title="Settings"><i class="fas fa-cog"></i></button>
+    </div>
   </div>
 
   <!-- Sidebar Overlay for Mobile -->
