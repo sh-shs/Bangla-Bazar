@@ -102,5 +102,5 @@ To enable automated Firebase Hosting deployment:
 - **Location**: Kushtia, Bangladesh
 - **Telegram Channel**: [https://t.me/shsbazarofficial](https://t.me/shsbazarofficial)
 - **Telegram Support**: `@shsaripofficial`
-- **Facebook**: [https://www.facebook.com/share/1HRbgfrKK3/](https://www.facebook.com/share/1HRbgfrKK3/)
-- **TikTok**: `shsbazarofficial`
+- **Facebook**: [https://facebook.com/shsbazarofficial](https://facebook.com/shsbazarofficial)
+- **TikTok**: [https://tiktok.com/@shsbazarofficial](https://tiktok.com/@shsbazarofficial)
