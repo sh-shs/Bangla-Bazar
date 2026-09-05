@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
   <link rel="icon" type="image/png" href="assets/images/logo.png">
   <link rel="apple-touch-icon" href="assets/images/logo.png">
@@ -8,6 +8,33 @@
   <title>Checkout - SHS Bazar</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .checkout-section-card {
+      margin-bottom: 16px;
+    }
+    .checkout-section-card .step-card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    body.dark-mode .checkout-section-card .step-card-title {
+      color: #34D399;
+    }
+    .delivery-area-options {
+      display: flex;
+      gap: 12px;
+    }
+    @media (max-width: 480px) {
+      .delivery-area-options {
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="page-top-bar">
@@ -16,409 +43,191 @@
   </div>
 
   <div class="checkout-page-container">
-
-    <!-- Horizontal Stepper Bar Header -->
-    <div class="checkout-stepper-card glass-card">
-      <div class="stepper-header">
-        <span class="stepper-counter" id="stepper-counter-text">Step 1 of 5</span>
-        <span class="stepper-title" id="stepper-title-text">Contact Information</span>
-      </div>
-      <div class="stepper-progress-bg">
-        <div class="stepper-progress-bar" id="stepper-progress-bar" style="width: 20%;"></div>
-      </div>
-      <div class="stepper-steps">
-        <div class="step-node active" id="node-1" onclick="window.navigateToStepIfAllowed(1)">
-          <div class="step-circle"><i class="fas fa-user"></i></div>
-          <span class="step-label">Contact</span>
-        </div>
-        <div class="step-node" id="node-2" onclick="window.navigateToStepIfAllowed(2)">
-          <div class="step-circle"><i class="fas fa-map-marker-alt"></i></div>
-          <span class="step-label">Address</span>
-        </div>
-        <div class="step-node" id="node-3" onclick="window.navigateToStepIfAllowed(3)">
-          <div class="step-circle"><i class="fas fa-ticket-alt"></i></div>
-          <span class="step-label">Coupon</span>
-        </div>
-        <div class="step-node" id="node-4" onclick="window.navigateToStepIfAllowed(4)">
-          <div class="step-circle"><i class="fas fa-wallet"></i></div>
-          <span class="step-label">Payment</span>
-        </div>
-        <div class="step-node" id="node-5" onclick="window.navigateToStepIfAllowed(5)">
-          <div class="step-circle"><i class="fas fa-check-circle"></i></div>
-          <span class="step-label">Summary</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Multi-Step Form Wrapper -->
     <form id="checkout-form">
-      <div class="wizard-steps-wrapper">
 
-        <!-- STEP 1: Contact Information -->
-        <div class="wizard-step active" id="step-1">
-          <div class="glass-card">
-            <h3 class="step-card-title"><i class="fas fa-user"></i> Step 1: Contact Information</h3>
-            <div class="form-group">
-              <label class="form-label">Full Name *</label>
-              <input type="text" id="cust-name" class="form-control" placeholder="Enter your full name">
-              <span class="field-error" id="err-cust-name"></span>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Mobile Number *</label>
-              <input type="tel" id="cust-phone" class="form-control" placeholder="017XXXXXXXX">
-              <span class="field-error" id="err-cust-phone"></span>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Email Address (Optional)</label>
-              <input type="email" id="cust-email" class="form-control" placeholder="example@email.com">
-            </div>
-          </div>
-          <!-- Order Summary Billing Card -->
-          <div class="billing-summary-card">
-            <div class="billing-card-header">
-              <span class="billing-card-title">🧾 আপনার বিল</span>
-            </div>
-            <div class="billing-card-body">
-              <div class="billing-row">
-                <span class="billing-label">পণ্যের মূল্য</span>
-                <span class="billing-value billing-subtotal">৳0</span>
-              </div>
-              <div class="billing-row">
-                <span class="billing-label">
-                  কুপন ছাড় <span class="coupon-status-tag tag-not-applied">প্রযোজ্য নয়</span>
-                </span>
-                <span class="billing-value billing-discount">-৳0</span>
-              </div>
-              <div class="billing-row">
-                <span class="billing-label">ডেলিভারি চার্জ</span>
-                <span class="billing-value billing-delivery">৳100</span>
-              </div>
-              <div class="billing-divider-dashed"></div>
-              <div class="billing-row billing-grand-row">
-                <span class="billing-grand-label">সর্বমোট</span>
-                <span class="billing-grand-value billing-grandtotal">৳100</span>
-              </div>
-            </div>
-          </div>
-          <p class="billing-hint-text">
-            <i class="fas fa-info-circle"></i> কুপন কোড থাকলে Coupon ধাপে দিন — সঠিক কোড দিলে ছাড় ও সর্বমোট সাথে সাথে আপডেট হয়ে যাবে।
-          </p>
-
-          <div class="wizard-actions flex-end">
-            <button type="button" class="btn-accent step-next-btn" onclick="window.nextStep(1)">
-              Next <i class="fas fa-arrow-right"></i>
-            </button>
-          </div>
+      <!-- 1. যোগাযোগের তথ্য সেকশন -->
+      <div class="glass-card checkout-section-card">
+        <h3 class="step-card-title"><i class="fas fa-user"></i> ১. যোগাযোগের তথ্য</h3>
+        <div class="form-group">
+          <label class="form-label">পূর্ণ নাম *</label>
+          <input type="text" id="cust-name" class="form-control" placeholder="আপনার পূর্ণ নাম লিখুন">
+          <span class="field-error" id="err-cust-name"></span>
         </div>
-
-        <!-- STEP 2: Delivery Address -->
-        <div class="wizard-step" id="step-2">
-          <div class="glass-card">
-            <h3 class="step-card-title"><i class="fas fa-map-marker-alt"></i> Step 2: Delivery Address</h3>
-
-            <div class="form-group">
-              <label class="form-label">Division *</label>
-              <select id="select-division" class="form-control">
-                <option value="">Select Division</option>
-              </select>
-              <span class="field-error" id="err-select-division"></span>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">District *</label>
-              <select id="select-district" class="form-control" disabled>
-                <option value="">Select District</option>
-              </select>
-              <span class="field-error" id="err-select-district"></span>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Upazila / Thana *</label>
-              <select id="select-thana" class="form-control" disabled>
-                <option value="">Select Thana / Upazila</option>
-              </select>
-              <span class="field-error" id="err-select-thana"></span>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Union / Ward *</label>
-              <select id="select-union" class="form-control" disabled>
-                <option value="">Select Union / Ward</option>
-              </select>
-              <span class="field-error" id="err-select-union"></span>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Village / Area / House / Street *</label>
-              <input type="text" id="cust-village" class="form-control" placeholder="House No, Road, Village or Area name">
-              <span class="field-error" id="err-cust-village"></span>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Order Notes (Optional)</label>
-              <textarea id="cust-notes" class="form-control" rows="2" placeholder="Special delivery instructions..."></textarea>
-            </div>
-          </div>
-          <!-- Order Summary Billing Card -->
-          <div class="billing-summary-card">
-            <div class="billing-card-header">
-              <span class="billing-card-title">🧾 আপনার বিল</span>
-            </div>
-            <div class="billing-card-body">
-              <div class="billing-row">
-                <span class="billing-label">পণ্যের মূল্য</span>
-                <span class="billing-value billing-subtotal">৳0</span>
-              </div>
-              <div class="billing-row">
-                <span class="billing-label">
-                  কুপন ছাড় <span class="coupon-status-tag tag-not-applied">প্রযোজ্য নয়</span>
-                </span>
-                <span class="billing-value billing-discount">-৳0</span>
-              </div>
-              <div class="billing-row">
-                <span class="billing-label">ডেলিভারি চার্জ</span>
-                <span class="billing-value billing-delivery">৳100</span>
-              </div>
-              <div class="billing-divider-dashed"></div>
-              <div class="billing-row billing-grand-row">
-                <span class="billing-grand-label">সর্বমোট</span>
-                <span class="billing-grand-value billing-grandtotal">৳100</span>
-              </div>
-            </div>
-          </div>
-          <p class="billing-hint-text">
-            <i class="fas fa-info-circle"></i> কুপন কোড থাকলে Coupon ধাপে দিন — সঠিক কোড দিলে ছাড় ও সর্বমোট সাথে সাথে আপডেট হয়ে যাবে।
-          </p>
-
-          <div class="wizard-actions space-between">
-            <button type="button" class="btn-outline step-back-btn" onclick="window.prevStep(2)">
-              <i class="fas fa-arrow-left"></i> Back
-            </button>
-            <button type="button" class="btn-accent step-next-btn" onclick="window.nextStep(2)">
-              Next <i class="fas fa-arrow-right"></i>
-            </button>
-          </div>
+        <div class="form-group">
+          <label class="form-label">মোবাইল নম্বর *</label>
+          <input type="tel" id="cust-phone" class="form-control" placeholder="017XXXXXXXX">
+          <span class="field-error" id="err-cust-phone"></span>
         </div>
-
-        <!-- STEP 3: Discount Coupon -->
-        <div class="wizard-step" id="step-3">
-          <div class="glass-card">
-            <h3 class="step-card-title"><i class="fas fa-ticket-alt"></i> Step 3: Discount Coupon</h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
-              Have a promotional code or coupon? Apply it here to get a discount on your order. (Optional)
-            </p>
-            <div style="display: flex; gap: 8px;">
-              <input type="text" id="coupon-code" class="form-control" placeholder="Enter promo code" style="text-transform: uppercase;">
-              <button type="button" id="apply-coupon-btn" class="btn-outline">Apply</button>
-            </div>
-            <div id="coupon-msg" style="font-size: 0.82rem; margin-top: 8px; font-weight: 600;"></div>
-          </div>
-          <!-- Order Summary Billing Card -->
-          <div class="billing-summary-card">
-            <div class="billing-card-header">
-              <span class="billing-card-title">🧾 আপনার বিল</span>
-            </div>
-            <div class="billing-card-body">
-              <div class="billing-row">
-                <span class="billing-label">পণ্যের মূল্য</span>
-                <span class="billing-value billing-subtotal">৳0</span>
-              </div>
-              <div class="billing-row">
-                <span class="billing-label">
-                  কুপন ছাড় <span class="coupon-status-tag tag-not-applied">প্রযোজ্য নয়</span>
-                </span>
-                <span class="billing-value billing-discount">-৳0</span>
-              </div>
-              <div class="billing-row">
-                <span class="billing-label">ডেলিভারি চার্জ</span>
-                <span class="billing-value billing-delivery">৳100</span>
-              </div>
-              <div class="billing-divider-dashed"></div>
-              <div class="billing-row billing-grand-row">
-                <span class="billing-grand-label">সর্বমোট</span>
-                <span class="billing-grand-value billing-grandtotal">৳100</span>
-              </div>
-            </div>
-          </div>
-          <p class="billing-hint-text">
-            <i class="fas fa-info-circle"></i> কুপন কোড থাকলে Coupon ধাপে দিন — সঠিক কোড দিলে ছাড় ও সর্বমোট সাথে সাথে আপডেট হয়ে যাবে।
-          </p>
-
-          <div class="wizard-actions space-between">
-            <button type="button" class="btn-outline step-back-btn" onclick="window.prevStep(3)">
-              <i class="fas fa-arrow-left"></i> Back
-            </button>
-            <div style="display: flex; gap: 8px;">
-              <button type="button" class="btn-outline step-skip-btn" onclick="window.skipStep3()">
-                Skip <i class="fas fa-forward"></i>
-              </button>
-              <button type="button" class="btn-accent step-next-btn" onclick="window.nextStep(3)">
-                Next <i class="fas fa-arrow-right"></i>
-              </button>
-            </div>
-          </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">ইমেইল ঠিকানা (ঐচ্ছিক)</label>
+          <input type="email" id="cust-email" class="form-control" placeholder="example@email.com">
         </div>
-
-        <!-- STEP 4: Payment Method -->
-        <div class="wizard-step" id="step-4">
-          <div class="glass-card">
-            <h3 class="step-card-title"><i class="fas fa-wallet"></i> Step 4: Payment Method</h3>
-
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-              <label class="payment-method-option">
-                <input type="radio" name="payment_method" value="cod" checked>
-                <div>
-                  <strong>Cash on Delivery (COD)</strong>
-                  <div style="font-size: 0.75rem; color: var(--text-muted);">Pay cash when you receive your products</div>
-                </div>
-              </label>
-
-              <label class="payment-method-option">
-                <input type="radio" name="payment_method" value="bkash">
-                <div style="flex: 1;">
-                  <strong style="color: #E2136E;"><i class="fas fa-mobile-alt"></i> bKash Payment</strong>
-                  <div style="font-size: 0.75rem; color: var(--text-muted);">Send Money & enter Transaction ID</div>
-                </div>
-                <button type="button" id="open-bkash-modal-btn" style="display: none; background: #E2136E; color: #FFF; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; border: none;">Pay with bKash</button>
-              </label>
-
-              <div id="bkash-status-card" style="display: none; background: #FDF2F8; border: 1px solid #FBCFE8; padding: 12px; border-radius: 8px; margin-top: 2px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                  <div>
-                    <div style="font-size: 0.8rem; font-weight: 700; color: #BE185D;" id="bkash-status-text">bKash Payment Selected</div>
-                    <div style="font-size: 0.75rem; color: #9D174D; margin-top: 2px;" id="bkash-trxid-confirmed">TrxID: <span id="confirmed-trxid-val" style="font-weight: 800; font-family: monospace;">Not Verified Yet</span></div>
-                  </div>
-                  <button type="button" id="reopen-bkash-modal-btn" style="background: #E2136E; color: #FFF; font-size: 0.75rem; font-weight: 700; padding: 6px 12px; border-radius: 6px; border: none;">
-                    <i class="fas fa-edit"></i> <span id="bkash-btn-label">Enter TrxID</span>
-                  </button>
-                </div>
-                <input type="hidden" id="bkash-txnid">
-              </div>
-
-              <label class="payment-method-option disabled">
-                <input type="radio" name="payment_method" value="nagad" disabled>
-                <div>
-                  <strong>Nagad Payment <span style="font-size: 0.7rem; background: var(--warning-color); color: #FFF; padding: 1px 4px; border-radius: 4px;">Coming Soon</span></strong>
-                  <div style="font-size: 0.75rem; color: var(--text-muted);">Disabled in v1</div>
-                </div>
-              </label>
-            </div>
-            <span class="field-error" id="err-payment-method" style="margin-top: 8px; display: block;"></span>
-          </div>
-          <!-- Order Summary Billing Card -->
-          <div class="billing-summary-card">
-            <div class="billing-card-header">
-              <span class="billing-card-title">🧾 আপনার বিল</span>
-            </div>
-            <div class="billing-card-body">
-              <div class="billing-row">
-                <span class="billing-label">পণ্যের মূল্য</span>
-                <span class="billing-value billing-subtotal">৳0</span>
-              </div>
-              <div class="billing-row">
-                <span class="billing-label">
-                  কুপন ছাড় <span class="coupon-status-tag tag-not-applied">প্রযোজ্য নয়</span>
-                </span>
-                <span class="billing-value billing-discount">-৳0</span>
-              </div>
-              <div class="billing-row">
-                <span class="billing-label">ডেলিভারি চার্জ</span>
-                <span class="billing-value billing-delivery">৳100</span>
-              </div>
-              <div class="billing-divider-dashed"></div>
-              <div class="billing-row billing-grand-row">
-                <span class="billing-grand-label">সর্বমোট</span>
-                <span class="billing-grand-value billing-grandtotal">৳100</span>
-              </div>
-            </div>
-          </div>
-          <p class="billing-hint-text">
-            <i class="fas fa-info-circle"></i> কুপন কোড থাকলে Coupon ধাপে দিন — সঠিক কোড দিলে ছাড় ও সর্বমোট সাথে সাথে আপডেট হয়ে যাবে।
-          </p>
-
-          <div class="wizard-actions space-between">
-            <button type="button" class="btn-outline step-back-btn" onclick="window.prevStep(4)">
-              <i class="fas fa-arrow-left"></i> Back
-            </button>
-            <button type="button" class="btn-accent step-next-btn" onclick="window.nextStep(4)">
-              Next <i class="fas fa-arrow-right"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- STEP 5: Final Summary -->
-        <div class="wizard-step" id="step-5">
-          <!-- Information Review Card -->
-          <div class="glass-card" style="margin-bottom: 16px;">
-            <h3 class="step-card-title"><i class="fas fa-clipboard-check"></i> Step 5: Review & Confirm Order</h3>
-
-            <div class="review-details-grid">
-              <div class="review-box">
-                <div class="review-box-header">
-                  <span><i class="fas fa-user"></i> Contact Info</span>
-                  <button type="button" class="review-edit-btn" onclick="window.goToStep(1, 'back')"><i class="fas fa-edit"></i> Edit</button>
-                </div>
-                <div class="review-box-body" id="review-contact-info">
-                  <!-- Filled dynamically -->
-                </div>
-              </div>
-
-              <div class="review-box">
-                <div class="review-box-header">
-                  <span><i class="fas fa-map-marker-alt"></i> Delivery Address</span>
-                  <button type="button" class="review-edit-btn" onclick="window.goToStep(2, 'back')"><i class="fas fa-edit"></i> Edit</button>
-                </div>
-                <div class="review-box-body" id="review-address-info">
-                  <!-- Filled dynamically -->
-                </div>
-              </div>
-
-              <div class="review-box">
-                <div class="review-box-header">
-                  <span><i class="fas fa-wallet"></i> Payment Method</span>
-                  <button type="button" class="review-edit-btn" onclick="window.goToStep(4, 'back')"><i class="fas fa-edit"></i> Edit</button>
-                </div>
-                <div class="review-box-body" id="review-payment-info">
-                  <!-- Filled dynamically -->
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Price Calculation & Place Order Card -->
-          <div class="glass-card">
-            <h3 style="font-size: 1rem; color: var(--primary-color); margin-bottom: 12px;"><i class="fas fa-calculator"></i> Price Breakdown</h3>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem;">
-              <span>Subtotal</span>
-              <span id="summary-subtotal">৳0</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem;">
-              <span>Delivery Charge (<span id="delivery-location-type">Inside Kushtia ৳100</span>)</span>
-              <span id="summary-delivery">৳100</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem; color: var(--success-color);" id="discount-row">
-              <span>Coupon Discount</span>
-              <span id="summary-discount">-৳0</span>
-            </div>
-            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 8px 0;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 1.1rem; font-weight: bold;">
-              <span>Grand Total</span>
-              <strong id="summary-grandtotal" style="color: var(--accent-color);">৳0</strong>
-            </div>
-
-            <button type="submit" id="place-order-btn" class="btn-accent" style="width: 100%; font-size: 1rem; padding: 12px;">
-              <i class="fas fa-check-circle"></i> Place Order Now
-            </button>
-          </div>
-
-          <div class="wizard-actions space-between" style="margin-top: 16px;">
-            <button type="button" class="btn-outline step-back-btn" onclick="window.prevStep(5)">
-              <i class="fas fa-arrow-left"></i> Back
-            </button>
-          </div>
-        </div>
-
       </div>
+
+      <!-- 2. ডেলিভারি ঠিকানা সেকশন -->
+      <div class="glass-card checkout-section-card">
+        <h3 class="step-card-title"><i class="fas fa-map-marker-alt"></i> ২. ডেলিভারি ঠিকানা</h3>
+
+        <div class="form-group">
+          <label class="form-label">ডেলিভারি এলাকা *</label>
+          <div class="delivery-area-options">
+            <label class="payment-method-option" style="flex: 1; padding: 10px 12px; cursor: pointer;">
+              <input type="radio" name="delivery_area" value="inside" checked>
+              <div>
+                <strong>কুষ্টিয়ার ভেতরে</strong>
+                <div style="font-size: 0.75rem; color: var(--text-muted);" id="area-inside-label">ডেলিভারি চার্জ ৳100</div>
+              </div>
+            </label>
+            <label class="payment-method-option" style="flex: 1; padding: 10px 12px; cursor: pointer;">
+              <input type="radio" name="delivery_area" value="outside">
+              <div>
+                <strong>কুষ্টিয়ার বাইরে</strong>
+                <div style="font-size: 0.75rem; color: var(--text-muted);" id="area-outside-label">ডেলিভারি চার্জ ৳160</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">ঠিকানা (গ্রাম / এলাকা / বাসা / রোড) *</label>
+          <input type="text" id="cust-village" class="form-control" placeholder="বাসার নম্বর, রোড, গ্রাম বা এলাকার নাম">
+          <span class="field-error" id="err-cust-village"></span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+          <div class="form-group">
+            <label class="form-label">বিভাগ *</label>
+            <select id="select-division" class="form-control">
+              <option value="">বিভাগ নির্বাচন করুন</option>
+            </select>
+            <span class="field-error" id="err-select-division"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">জেলা *</label>
+            <select id="select-district" class="form-control" disabled>
+              <option value="">জেলা নির্বাচন করুন</option>
+            </select>
+            <span class="field-error" id="err-select-district"></span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+          <div class="form-group">
+            <label class="form-label">উপজেলা / থানা *</label>
+            <select id="select-thana" class="form-control" disabled>
+              <option value="">থানা / উপজেলা নির্বাচন করুন</option>
+            </select>
+            <span class="field-error" id="err-select-thana"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">ইউনিয়ন / ওয়ার্ড *</label>
+            <select id="select-union" class="form-control" disabled>
+              <option value="">ইউনিয়ন / ওয়ার্ড নির্বাচন করুন</option>
+            </select>
+            <span class="field-error" id="err-select-union"></span>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">অর্ডার নোট (ঐচ্ছিক)</label>
+          <textarea id="cust-notes" class="form-control" rows="2" placeholder="বিশেষ ডেলিভারি নির্দেশনা..."></textarea>
+        </div>
+      </div>
+
+      <!-- 3. কুপন কোড সেকশন -->
+      <div class="glass-card checkout-section-card">
+        <h3 class="step-card-title"><i class="fas fa-ticket-alt"></i> ৩. কুপন কোড (ঐচ্ছিক)</h3>
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 10px;">
+          আপনার কাছে প্রোমো কোড বা কুপন থাকলে নিচে দিয়ে Apply বাটনে চাপ দিন।
+        </p>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="coupon-code" class="form-control" placeholder="কুপন কোড লিখুন" style="text-transform: uppercase;">
+          <button type="button" id="apply-coupon-btn" class="btn-outline" style="white-space: nowrap; padding: 8px 18px;">Apply</button>
+        </div>
+        <div id="coupon-msg" style="font-size: 0.82rem; margin-top: 8px; font-weight: 600;"></div>
+      </div>
+
+      <!-- 4. পেমেন্ট পদ্ধতি সেকশন -->
+      <div class="glass-card checkout-section-card">
+        <h3 class="step-card-title"><i class="fas fa-wallet"></i> ৪. পেমেন্ট পদ্ধতি</h3>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <label class="payment-method-option">
+            <input type="radio" name="payment_method" value="cod" checked>
+            <div>
+              <strong>Cash on Delivery (ক্যাশ অন ডেলিভারি)</strong>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">পণ্য হাতে পেয়ে মূল্য পরিশোধ করুন</div>
+            </div>
+          </label>
+
+          <label class="payment-method-option">
+            <input type="radio" name="payment_method" value="bkash">
+            <div style="flex: 1;">
+              <strong style="color: #E2136E;"><i class="fas fa-mobile-alt"></i> bKash Payment (বিকাশ পেমেন্ট)</strong>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Send Money করে Transaction ID দিন</div>
+            </div>
+            <button type="button" id="open-bkash-modal-btn" style="display: none; background: #E2136E; color: #FFF; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; border: none;">Pay with bKash</button>
+          </label>
+
+          <div id="bkash-status-card" style="display: none; background: #FDF2F8; border: 1px solid #FBCFE8; padding: 12px; border-radius: 8px; margin-top: 2px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 0.8rem; font-weight: 700; color: #BE185D;" id="bkash-status-text">bKash Payment Selected</div>
+                <div style="font-size: 0.75rem; color: #9D174D; margin-top: 2px;" id="bkash-trxid-confirmed">TrxID: <span id="confirmed-trxid-val" style="font-weight: 800; font-family: monospace;">Not Verified Yet</span></div>
+              </div>
+              <button type="button" id="reopen-bkash-modal-btn" style="background: #E2136E; color: #FFF; font-size: 0.75rem; font-weight: 700; padding: 6px 12px; border-radius: 6px; border: none;">
+                <i class="fas fa-edit"></i> <span id="bkash-btn-label">Enter TrxID</span>
+              </button>
+            </div>
+            <input type="hidden" id="bkash-txnid">
+          </div>
+
+          <label class="payment-method-option disabled">
+            <input type="radio" name="payment_method" value="nagad" disabled>
+            <div>
+              <strong>Nagad Payment <span style="font-size: 0.7rem; background: var(--warning-color); color: #FFF; padding: 1px 4px; border-radius: 4px;">Coming Soon</span></strong>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Disabled in v1</div>
+            </div>
+          </label>
+        </div>
+        <span class="field-error" id="err-payment-method" style="margin-top: 8px; display: block;"></span>
+      </div>
+
+      <!-- 5. আপনার বিল কার্ড -->
+      <div class="billing-summary-card checkout-section-card" style="margin-bottom: 16px;">
+        <div class="billing-card-header">
+          <span class="billing-card-title">🧾 আপনার বিল</span>
+        </div>
+        <div class="billing-card-body">
+          <div class="billing-row">
+            <span class="billing-label">পণ্যের মূল্য</span>
+            <span class="billing-value billing-subtotal">৳0</span>
+          </div>
+          <div class="billing-row">
+            <span class="billing-label">
+              কুপন ছাড় <span class="coupon-status-tag tag-not-applied" id="coupon-status-tag">প্রযোজ্য নয়</span>
+            </span>
+            <span class="billing-value billing-discount">-৳0</span>
+          </div>
+          <div class="billing-row">
+            <span class="billing-label">ডেলিভারি চার্জ</span>
+            <span class="billing-value billing-delivery">৳100</span>
+          </div>
+          <div class="billing-divider-dashed"></div>
+          <div class="billing-row billing-grand-row">
+            <span class="billing-grand-label" style="font-size: 1.15rem; font-weight: 800;">সর্বমোট</span>
+            <span class="billing-grand-value billing-grandtotal" style="font-size: 1.4rem; font-weight: 900; color: #F5820A;">৳100</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. ফুল-উইথ "Place Order Now" বাটন -->
+      <button type="submit" id="place-order-btn" class="btn-accent" style="width: 100%; font-size: 1.1rem; font-weight: 800; padding: 14px; margin-bottom: 24px; border-radius: var(--radius-sm); text-align: center;">
+        ✅ Place Order Now
+      </button>
+
     </form>
   </div>
 
@@ -498,35 +307,6 @@
     import { fetchCoupons } from './assets/js/admin.js';
 
     let appliedDiscount = 0;
-    let currentStep = 1;
-    let maxReachedStep = 1;
-
-    const STEP_TITLES = {
-      1: 'Contact Information',
-      2: 'Delivery Address',
-      3: 'Discount Coupon',
-      4: 'Payment Method',
-      5: 'Final Summary'
-    };
-
-    function updateStepperUI(targetStep) {
-      document.getElementById('stepper-counter-text').textContent = `Step ${targetStep} of 5`;
-      document.getElementById('stepper-title-text').textContent = STEP_TITLES[targetStep] || '';
-
-      const pct = (targetStep / 5) * 100;
-      document.getElementById('stepper-progress-bar').style.width = `${pct}%`;
-
-      for (let i = 1; i <= 5; i++) {
-        const node = document.getElementById(`node-${i}`);
-        if (!node) continue;
-        node.classList.remove('active', 'completed');
-        if (i < targetStep) {
-          node.classList.add('completed');
-        } else if (i === targetStep) {
-          node.classList.add('active');
-        }
-      }
-    }
 
     function clearFieldError(id) {
       const errEl = document.getElementById(`err-${id}`);
@@ -552,187 +332,80 @@
       }
     }
 
-    function validateStep(step) {
+    function validateForm() {
       let isValid = true;
 
-      if (step === 1) {
-        clearFieldError('cust-name');
-        clearFieldError('cust-phone');
+      clearFieldError('cust-name');
+      clearFieldError('cust-phone');
+      clearFieldError('cust-village');
+      clearFieldError('select-division');
+      clearFieldError('select-district');
+      clearFieldError('select-thana');
+      clearFieldError('select-union');
+      clearFieldError('payment-method');
 
-        const nameVal = document.getElementById('cust-name').value.trim();
-        const phoneVal = document.getElementById('cust-phone').value.trim();
+      const nameVal = document.getElementById('cust-name').value.trim();
+      const phoneVal = document.getElementById('cust-phone').value.trim();
+      const villVal = document.getElementById('cust-village').value.trim();
+      const divVal = document.getElementById('select-division').value;
+      const distVal = document.getElementById('select-district').value;
+      const thanaVal = document.getElementById('select-thana').value;
+      const unionVal = document.getElementById('select-union').value;
 
-        if (!nameVal) {
-          setFieldError('cust-name', 'Please enter your full name.');
-          isValid = false;
-        }
+      if (!nameVal) {
+        setFieldError('cust-name', 'দয়া করে আপনার পূর্ণ নাম লিখুন।');
+        isValid = false;
+      }
 
-        if (!phoneVal) {
-          setFieldError('cust-phone', 'Please enter your mobile number.');
-          isValid = false;
-        } else if (!/^01[3-9]\d{8}$/.test(phoneVal)) {
-          setFieldError('cust-phone', 'Please enter a valid 11-digit Bangladeshi phone number.');
-          isValid = false;
-        }
-      } else if (step === 2) {
-        clearFieldError('select-division');
-        clearFieldError('select-district');
-        clearFieldError('select-thana');
-        clearFieldError('select-union');
-        clearFieldError('cust-village');
+      if (!phoneVal) {
+        setFieldError('cust-phone', 'দয়া করে আপনার মোবাইল নম্বর লিখুন।');
+        isValid = false;
+      } else if (!/^01[3-9]\d{8}$/.test(phoneVal)) {
+        setFieldError('cust-phone', 'সঠিক ১১ ডিজিটের বাংলাদেশী মোবাইল নম্বর দিন।');
+        isValid = false;
+      }
 
-        const divVal = document.getElementById('select-division').value;
-        const distVal = document.getElementById('select-district').value;
-        const thanaVal = document.getElementById('select-thana').value;
-        const unionVal = document.getElementById('select-union').value;
-        const villVal = document.getElementById('cust-village').value.trim();
+      if (!villVal) {
+        setFieldError('cust-village', 'দয়া করে আপনার গ্রাম, এলাকা বা বাসার ঠিকানা লিখুন।');
+        isValid = false;
+      }
 
-        if (!divVal) {
-          setFieldError('select-division', 'Please select a division.');
+      if (!divVal) {
+        setFieldError('select-division', 'বিভাগ নির্বাচন করুন।');
+        isValid = false;
+      }
+      if (!distVal) {
+        setFieldError('select-district', 'জেলা নির্বাচন করুন।');
+        isValid = false;
+      }
+      if (!thanaVal) {
+        setFieldError('select-thana', 'থানা / উপজেলা নির্বাচন করুন।');
+        isValid = false;
+      }
+      if (!unionVal) {
+        setFieldError('select-union', 'ইউনিয়ন / ওয়ার্ড নির্বাচন করুন।');
+        isValid = false;
+      }
+
+      const selectedPayment = document.querySelector('input[name="payment_method"]:checked')?.value;
+      if (!selectedPayment) {
+        setFieldError('payment-method', 'পেমেন্ট পদ্ধতি নির্বাচন করুন।');
+        isValid = false;
+      } else if (selectedPayment === 'bkash') {
+        const trxVal = document.getElementById('bkash-txnid').value.trim();
+        if (!trxVal) {
+          setFieldError('payment-method', 'bKash ট্রানজেকশন আইডেন্টিফায়ার (TrxID) নিশ্চিত করুন।');
+          showToast('Please enter your bKash Transaction ID');
+          openBkashModal();
           isValid = false;
-        }
-        if (!distVal) {
-          setFieldError('select-district', 'Please select a district.');
-          isValid = false;
-        }
-        if (!thanaVal) {
-          setFieldError('select-thana', 'Please select a Thana / Upazila.');
-          isValid = false;
-        }
-        if (!unionVal) {
-          setFieldError('select-union', 'Please select a Union / Ward.');
-          isValid = false;
-        }
-        if (!villVal) {
-          setFieldError('cust-village', 'Please enter your village, house, or area address.');
-          isValid = false;
-        }
-      } else if (step === 4) {
-        clearFieldError('payment-method');
-        const selectedPayment = document.querySelector('input[name="payment_method"]:checked')?.value;
-        if (!selectedPayment) {
-          setFieldError('payment-method', 'Please select a payment method.');
-          isValid = false;
-        } else if (selectedPayment === 'bkash') {
-          const trxVal = document.getElementById('bkash-txnid').value.trim();
-          if (!trxVal) {
-            setFieldError('payment-method', 'Please complete bKash verification and enter TrxID.');
-            showToast('Please enter your bKash Transaction ID');
-            openBkashModal();
-            isValid = false;
-          }
         }
       }
 
       return isValid;
     }
 
-    function populateReviewSummary() {
-      const name = document.getElementById('cust-name').value.trim();
-      const phone = document.getElementById('cust-phone').value.trim();
-      const email = document.getElementById('cust-email').value.trim();
-
-      const div = document.getElementById('select-division').value;
-      const dist = document.getElementById('select-district').value;
-      const thana = document.getElementById('select-thana').value;
-      const union = document.getElementById('select-union').value;
-      const vill = document.getElementById('cust-village').value.trim();
-      const notes = document.getElementById('cust-notes').value.trim();
-
-      const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value || 'cod';
-      const bkashTrx = document.getElementById('bkash-txnid').value.trim();
-
-      const contactReviewEl = document.getElementById('review-contact-info');
-      if (contactReviewEl) {
-        contactReviewEl.innerHTML = `
-          <div><strong>${name}</strong></div>
-          <div>Phone: ${phone}</div>
-          ${email ? `<div>Email: ${email}</div>` : ''}
-        `;
-      }
-
-      const addressReviewEl = document.getElementById('review-address-info');
-      if (addressReviewEl) {
-        addressReviewEl.innerHTML = `
-          <div>${vill}</div>
-          <div>${union}, ${thana}, ${dist}, ${div}</div>
-          ${notes ? `<div style="font-style: italic; color: var(--text-muted); margin-top: 2px;">Note: ${notes}</div>` : ''}
-        `;
-      }
-
-      const paymentReviewEl = document.getElementById('review-payment-info');
-      if (paymentReviewEl) {
-        let paymentLabel = 'Cash on Delivery (COD)';
-        if (paymentMethod === 'bkash') {
-          paymentLabel = `bKash Payment (TrxID: <strong>${bkashTrx || 'N/A'}</strong>)`;
-        } else if (paymentMethod === 'nagad') {
-          paymentLabel = 'Nagad Payment';
-        }
-
-        paymentReviewEl.innerHTML = `
-          <div>${paymentLabel}</div>
-        `;
-      }
-    }
-
-    window.goToStep = (targetStep, direction = 'next') => {
-      if (targetStep < 1 || targetStep > 5) return;
-
-      const currentStepEl = document.getElementById(`step-${currentStep}`);
-      const targetStepEl = document.getElementById(`step-${targetStep}`);
-
-      if (!currentStepEl || !targetStepEl) return;
-
-      if (targetStep === 5) {
-        populateReviewSummary();
-      }
-
-      currentStepEl.classList.remove('active', 'slide-left', 'slide-right');
-      targetStepEl.classList.remove('active', 'slide-left', 'slide-right');
-
-      if (direction === 'next') {
-        currentStepEl.classList.add('slide-left');
-      } else {
-        currentStepEl.classList.add('slide-right');
-      }
-
-      setTimeout(() => {
-        currentStepEl.classList.remove('active', 'slide-left', 'slide-right');
-        targetStepEl.classList.add('active');
-        currentStep = targetStep;
-        if (currentStep > maxReachedStep) maxReachedStep = currentStep;
-        updateStepperUI(currentStep);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 150);
-    };
-
-    window.nextStep = (fromStep) => {
-      if (!validateStep(fromStep)) return;
-      window.goToStep(fromStep + 1, 'next');
-    };
-
-    window.prevStep = (fromStep) => {
-      window.goToStep(fromStep - 1, 'back');
-    };
-
-    window.skipStep3 = () => {
-      window.goToStep(4, 'next');
-    };
-
-    window.navigateToStepIfAllowed = (targetStep) => {
-      if (targetStep === currentStep) return;
-      if (targetStep < currentStep) {
-        window.goToStep(targetStep, 'back');
-      } else {
-        for (let i = currentStep; i < targetStep; i++) {
-          if (!validateStep(i)) return;
-        }
-        window.goToStep(targetStep, 'next');
-      }
-    };
-
     async function initCheckoutPage() {
-      await loadDeliverySettings();
+      const deliverySettings = await loadDeliverySettings();
       let cart = getCart();
 
       // Support "Buy Now" flow via URL query params
@@ -752,6 +425,16 @@
         showToast('Your cart is empty');
         window.location.href = 'shop.html';
         return;
+      }
+
+      // Update Area Labels with dynamic rates
+      const areaInsideLabel = document.getElementById('area-inside-label');
+      const areaOutsideLabel = document.getElementById('area-outside-label');
+      if (areaInsideLabel && deliverySettings.insideKushtia !== undefined) {
+        areaInsideLabel.textContent = `ডেলিভারি চার্জ ৳${deliverySettings.insideKushtia}`;
+      }
+      if (areaOutsideLabel && deliverySettings.outsideKushtia !== undefined) {
+        areaOutsideLabel.textContent = `ডেলিভারি চার্জ ৳${deliverySettings.outsideKushtia}`;
       }
 
       // Pre-fill customer info if logged in
@@ -789,7 +472,7 @@
 
       // Populate Districts based on selected Division
       function populateDistricts(div) {
-        distSelect.innerHTML = '<option value="">Select District</option>';
+        distSelect.innerHTML = '<option value="">জেলা নির্বাচন করুন</option>';
         distSelect.disabled = !div;
 
         // Reset dependent child dropdowns
@@ -807,7 +490,7 @@
 
       // Populate Upazilas / Thanas based on selected District
       function populateThanas(div, dist) {
-        thanaSelect.innerHTML = '<option value="">Select Thana / Upazila</option>';
+        thanaSelect.innerHTML = '<option value="">থানা / উপজেলা নির্বাচন করুন</option>';
         thanaSelect.disabled = !(div && dist);
 
         // Reset dependent child dropdown
@@ -825,7 +508,7 @@
 
       // Populate Unions / Wards based on selected Upazila
       function populateUnions(div, dist, thana) {
-        unionSelect.innerHTML = '<option value="">Select Union / Ward</option>';
+        unionSelect.innerHTML = '<option value="">ইউনিয়ন / ওয়ার্ড নির্বাচন করুন</option>';
         unionSelect.disabled = !(div && dist && thana);
 
         if (div && dist && thana && BANGLADESH_LOCATIONS[div] && BANGLADESH_LOCATIONS[div][dist] && BANGLADESH_LOCATIONS[div][dist][thana]) {
@@ -849,20 +532,58 @@
       thanaSelect.value = "Kushtia Sadar";
       populateUnions("Khulna", "Kushtia", "Kushtia Sadar");
 
-      // Cascading Change Listeners with Automatic Reset Logic
+      // Delivery Area Radio buttons logic
+      const deliveryAreaRadios = document.querySelectorAll('input[name="delivery_area"]');
+      deliveryAreaRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+          if (e.target.value === 'inside') {
+            divSelect.value = "Khulna";
+            populateDistricts("Khulna");
+            distSelect.value = "Kushtia";
+            populateThanas("Khulna", "Kushtia");
+            thanaSelect.value = "Kushtia Sadar";
+            populateUnions("Khulna", "Kushtia", "Kushtia Sadar");
+          } else {
+            // If currently Kushtia, switch to Dhaka or let user pick outside district
+            if (distSelect.value === 'Kushtia') {
+              divSelect.value = "Dhaka";
+              populateDistricts("Dhaka");
+              distSelect.value = "Dhaka";
+              populateThanas("Dhaka", "Dhaka");
+            }
+          }
+          recalculateTotals();
+        });
+      });
+
+      // Cascading Change Listeners
       divSelect.addEventListener('change', (e) => {
         populateDistricts(e.target.value);
+        syncAreaRadioWithDistrict();
         recalculateTotals();
       });
 
       distSelect.addEventListener('change', (e) => {
         populateThanas(divSelect.value, e.target.value);
+        syncAreaRadioWithDistrict();
         recalculateTotals();
       });
 
       thanaSelect.addEventListener('change', (e) => {
         populateUnions(divSelect.value, distSelect.value, e.target.value);
       });
+
+      function syncAreaRadioWithDistrict() {
+        const currentDist = distSelect.value;
+        const insideRadio = document.querySelector('input[name="delivery_area"][value="inside"]');
+        const outsideRadio = document.querySelector('input[name="delivery_area"][value="outside"]');
+
+        if (currentDist.toLowerCase() === 'kushtia') {
+          if (insideRadio) insideRadio.checked = true;
+        } else {
+          if (outsideRadio) outsideRadio.checked = true;
+        }
+      }
 
       // bKash Modal Elements
       const bkashModalOverlay = document.getElementById('bkash-modal-overlay');
@@ -976,7 +697,7 @@
 
         if (!inputCode) {
           msgEl.style.color = 'var(--danger-color)';
-          msgEl.textContent = 'Please enter a coupon code.';
+          msgEl.textContent = 'দয়া করে একটি কুপন কোড প্রদান করুন।';
           appliedDiscount = 0;
           recalculateTotals();
           return;
@@ -992,15 +713,15 @@
 
           if (!matched) {
             msgEl.style.color = 'var(--danger-color)';
-            msgEl.textContent = 'Invalid coupon code.';
+            msgEl.textContent = 'অকার্যকর কুপন কোড।';
             appliedDiscount = 0;
           } else if (matched.isActive === false) {
             msgEl.style.color = 'var(--danger-color)';
-            msgEl.textContent = 'This coupon is currently inactive.';
+            msgEl.textContent = 'এই কুপনটি বর্তমানে সচল নেই।';
             appliedDiscount = 0;
           } else if (matched.minSpend && subtotal < Number(matched.minSpend)) {
             msgEl.style.color = 'var(--warning-color)';
-            msgEl.textContent = `Minimum spend of ৳${matched.minSpend} is required for this coupon.`;
+            msgEl.textContent = `এই কুপনের জন্য সর্বনিম্ন ৳${matched.minSpend} এর অর্ডার প্রয়োজন।`;
             appliedDiscount = 0;
           } else {
             const isPercent = matched.discountType === 'percentage' || Boolean(matched.discountPercent);
@@ -1011,12 +732,12 @@
             }
             appliedDiscount = Math.min(appliedDiscount, subtotal);
             msgEl.style.color = 'var(--success-color)';
-            msgEl.textContent = `Coupon Applied ✓ Discount: -৳${appliedDiscount}`;
+            msgEl.textContent = `কুপন সফলভাবে যুক্ত হয়েছে! ছাড়: -৳${appliedDiscount}`;
           }
         } catch (err) {
           console.error('Coupon validation error:', err);
           msgEl.style.color = 'var(--danger-color)';
-          msgEl.textContent = 'Unable to validate coupon code. Please try again.';
+          msgEl.textContent = 'কুপন যাচাই করা সম্ভব হয়নি। আবার চেষ্টা করুন।';
           appliedDiscount = 0;
         } finally {
           applyBtn.disabled = false;
@@ -1028,31 +749,25 @@
       // Calculate totals
       function recalculateTotals() {
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const district = distSelect.value || 'Kushtia';
+
+        // Determine district from radio or select
+        const selectedAreaRadio = document.querySelector('input[name="delivery_area"]:checked')?.value;
+        let district = distSelect.value;
+        if (selectedAreaRadio === 'inside') {
+          district = 'Kushtia';
+        } else if (!district || district === 'Kushtia') {
+          district = 'Dhaka'; // Default outside district if not selected
+        }
+
         const deliveryCharge = calculateDeliveryCharge(district);
         const grandTotal = Math.max(0, subtotal + deliveryCharge - appliedDiscount);
-
-        // Update Step 5 Summary Card
-        document.getElementById('summary-subtotal').textContent = `৳${subtotal}`;
-        document.getElementById('summary-delivery').textContent = `৳${deliveryCharge}`;
-        document.getElementById('delivery-location-type').textContent = district.toLowerCase() === 'kushtia' ? 'Inside Kushtia ৳100' : 'Outside Kushtia ৳160';
 
         const bkashModalAmount = document.getElementById('bkash-modal-amount');
         const bkashModalStepAmount = document.getElementById('bkash-modal-step-amount');
         if (bkashModalAmount) bkashModalAmount.textContent = grandTotal;
         if (bkashModalStepAmount) bkashModalStepAmount.textContent = grandTotal;
 
-        const discountRow = document.getElementById('discount-row');
-        if (appliedDiscount > 0) {
-          discountRow.style.display = 'flex';
-          document.getElementById('summary-discount').textContent = `-৳${appliedDiscount}`;
-        } else {
-          discountRow.style.display = 'none';
-        }
-
-        document.getElementById('summary-grandtotal').textContent = `৳${grandTotal}`;
-
-        // Update Steps 1-4 Billing Cards in real-time
+        // Update Billing Card
         document.querySelectorAll('.billing-subtotal').forEach(el => {
           el.textContent = `৳${subtotal}`;
         });
@@ -1065,17 +780,18 @@
           el.textContent = appliedDiscount > 0 ? `-৳${appliedDiscount}` : `-৳0`;
         });
 
-        document.querySelectorAll('.coupon-status-tag').forEach(el => {
+        const tagEl = document.getElementById('coupon-status-tag');
+        if (tagEl) {
           if (appliedDiscount > 0) {
-            el.textContent = 'প্রযোজ্য';
-            el.classList.remove('tag-not-applied');
-            el.classList.add('tag-applied');
+            tagEl.textContent = 'প্রযোজ্য';
+            tagEl.classList.remove('tag-not-applied');
+            tagEl.classList.add('tag-applied');
           } else {
-            el.textContent = 'প্রযোজ্য নয়';
-            el.classList.remove('tag-applied');
-            el.classList.add('tag-not-applied');
+            tagEl.textContent = 'প্রযোজ্য নয়';
+            tagEl.classList.remove('tag-applied');
+            tagEl.classList.add('tag-not-applied');
           }
-        });
+        }
 
         document.querySelectorAll('.billing-grandtotal').forEach(el => {
           el.textContent = `৳${grandTotal}`;
@@ -1083,7 +799,6 @@
       }
 
       recalculateTotals();
-      updateStepperUI(1);
 
       // Form Submission
       const form = document.getElementById('checkout-form');
@@ -1091,14 +806,14 @@
         form.addEventListener('submit', async (e) => {
           e.preventDefault();
 
-          // Validate all previous steps
-          if (!validateStep(1)) { window.goToStep(1, 'back'); return; }
-          if (!validateStep(2)) { window.goToStep(2, 'back'); return; }
-          if (!validateStep(4)) { window.goToStep(4, 'back'); return; }
+          if (!validateForm()) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+          }
 
           const submitBtn = document.getElementById('place-order-btn');
           submitBtn.disabled = true;
-          submitBtn.textContent = 'Processing Order...';
+          submitBtn.textContent = 'প্রসেসিং হচ্ছে...';
 
           const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
           const bkashTxnId = document.getElementById('bkash-txnid').value.trim();
@@ -1107,12 +822,16 @@
             showToast('Please enter your bKash Transaction ID');
             openBkashModal();
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Place Order Now';
+            submitBtn.textContent = '✅ Place Order Now';
             return;
           }
 
           const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-          const district = distSelect.value;
+          const selectedAreaRadio = document.querySelector('input[name="delivery_area"]:checked')?.value;
+          let district = distSelect.value;
+          if (selectedAreaRadio === 'inside') {
+            district = 'Kushtia';
+          }
           const deliveryCharge = calculateDeliveryCharge(district);
           const totalAmount = Math.max(0, subtotal + deliveryCharge - appliedDiscount);
 
@@ -1142,12 +861,12 @@
 
           try {
             const orderId = await placeOrder(orderPayload);
-            showToast('Order Placed Successfully!');
+            showToast('অর্ডার সফলভাবে সম্পূর্ণ হয়েছে!');
             window.location.href = `order-success.html?orderId=${orderId}`;
           } catch (err) {
-            showToast('Failed to place order. Please try again.');
+            showToast('অর্ডার জমা করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Place Order Now';
+            submitBtn.textContent = '✅ Place Order Now';
           }
         });
       }
