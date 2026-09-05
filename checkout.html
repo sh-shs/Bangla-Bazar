@@ -15,148 +15,286 @@
     <span class="page-title">Checkout</span>
   </div>
 
-  <div class="section-wrapper" style="max-width: 600px; margin: 0 auto;">
+  <div class="checkout-page-container">
+
+    <!-- Horizontal Stepper Bar Header -->
+    <div class="checkout-stepper-card glass-card">
+      <div class="stepper-header">
+        <span class="stepper-counter" id="stepper-counter-text">Step 1 of 5</span>
+        <span class="stepper-title" id="stepper-title-text">Contact Information</span>
+      </div>
+      <div class="stepper-progress-bg">
+        <div class="stepper-progress-bar" id="stepper-progress-bar" style="width: 20%;"></div>
+      </div>
+      <div class="stepper-steps">
+        <div class="step-node active" id="node-1" onclick="window.navigateToStepIfAllowed(1)">
+          <div class="step-circle"><i class="fas fa-user"></i></div>
+          <span class="step-label">Contact</span>
+        </div>
+        <div class="step-node" id="node-2" onclick="window.navigateToStepIfAllowed(2)">
+          <div class="step-circle"><i class="fas fa-map-marker-alt"></i></div>
+          <span class="step-label">Address</span>
+        </div>
+        <div class="step-node" id="node-3" onclick="window.navigateToStepIfAllowed(3)">
+          <div class="step-circle"><i class="fas fa-ticket-alt"></i></div>
+          <span class="step-label">Coupon</span>
+        </div>
+        <div class="step-node" id="node-4" onclick="window.navigateToStepIfAllowed(4)">
+          <div class="step-circle"><i class="fas fa-wallet"></i></div>
+          <span class="step-label">Payment</span>
+        </div>
+        <div class="step-node" id="node-5" onclick="window.navigateToStepIfAllowed(5)">
+          <div class="step-circle"><i class="fas fa-check-circle"></i></div>
+          <span class="step-label">Summary</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Multi-Step Form Wrapper -->
     <form id="checkout-form">
+      <div class="wizard-steps-wrapper">
 
-      <!-- Contact Information -->
-      <div class="glass-card" style="margin-bottom: 16px;">
-        <h3 style="font-size: 1rem; color: var(--primary-color); margin-bottom: 12px;"><i class="fas fa-user"></i> Contact Information</h3>
-        <div class="form-group">
-          <label class="form-label">Full Name *</label>
-          <input type="text" id="cust-name" class="form-control" required placeholder="Enter your full name">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Mobile Number *</label>
-          <input type="tel" id="cust-phone" class="form-control" required placeholder="017XXXXXXXX">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Email Address (Optional)</label>
-          <input type="email" id="cust-email" class="form-control" placeholder="example@email.com">
-        </div>
-      </div>
-
-      <!-- Shipping Address -->
-      <div class="glass-card" style="margin-bottom: 16px;">
-        <h3 style="font-size: 1rem; color: var(--primary-color); margin-bottom: 12px;"><i class="fas fa-map-marker-alt"></i> Delivery Address</h3>
-
-        <div class="form-group">
-          <label class="form-label">Division *</label>
-          <select id="select-division" class="form-control" required>
-            <option value="">Select Division</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">District *</label>
-          <select id="select-district" class="form-control" required disabled>
-            <option value="">Select District</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Upazila / Thana *</label>
-          <select id="select-thana" class="form-control" required disabled>
-            <option value="">Select Thana / Upazila</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Union / Ward *</label>
-          <select id="select-union" class="form-control" required disabled>
-            <option value="">Select Union / Ward</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Village / Area / House / Street *</label>
-          <input type="text" id="cust-village" class="form-control" required placeholder="House No, Road, Village or Area name">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Order Notes (Optional)</label>
-          <textarea id="cust-notes" class="form-control" rows="2" placeholder="Special delivery instructions..."></textarea>
-        </div>
-      </div>
-
-      <!-- Coupon Code -->
-      <div class="glass-card" style="margin-bottom: 16px;">
-        <h3 style="font-size: 1rem; color: var(--primary-color); margin-bottom: 12px;"><i class="fas fa-ticket-alt"></i> Discount Coupon</h3>
-        <div style="display: flex; gap: 8px;">
-          <input type="text" id="coupon-code" class="form-control" placeholder="Enter promo code" style="text-transform: uppercase;">
-          <button type="button" id="apply-coupon-btn" class="btn-outline">Apply</button>
-        </div>
-        <div id="coupon-msg" style="font-size: 0.8rem; margin-top: 6px;"></div>
-      </div>
-
-      <!-- Payment Methods -->
-      <div class="glass-card" style="margin-bottom: 16px;">
-        <h3 style="font-size: 1rem; color: var(--primary-color); margin-bottom: 12px;"><i class="fas fa-wallet"></i> Payment Method</h3>
-
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-          <label style="display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;">
-            <input type="radio" name="payment_method" value="cod" checked>
-            <div>
-              <strong>Cash on Delivery (COD)</strong>
-              <div style="font-size: 0.75rem; color: var(--text-muted);">Pay when you receive products</div>
+        <!-- STEP 1: Contact Information -->
+        <div class="wizard-step active" id="step-1">
+          <div class="glass-card">
+            <h3 class="step-card-title"><i class="fas fa-user"></i> Step 1: Contact Information</h3>
+            <div class="form-group">
+              <label class="form-label">Full Name *</label>
+              <input type="text" id="cust-name" class="form-control" placeholder="Enter your full name">
+              <span class="field-error" id="err-cust-name"></span>
             </div>
-          </label>
-
-          <label style="display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;">
-            <input type="radio" name="payment_method" value="bkash">
-            <div style="flex: 1;">
-              <strong style="color: #E2136E;"><i class="fas fa-mobile-alt"></i> bKash Payment</strong>
-              <div style="font-size: 0.75rem; color: var(--text-muted);">Send Money & enter Transaction ID</div>
+            <div class="form-group">
+              <label class="form-label">Mobile Number *</label>
+              <input type="tel" id="cust-phone" class="form-control" placeholder="017XXXXXXXX">
+              <span class="field-error" id="err-cust-phone"></span>
             </div>
-            <button type="button" id="open-bkash-modal-btn" style="display: none; background: #E2136E; color: #FFF; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; border: none;">Pay with bKash</button>
-          </label>
+            <div class="form-group">
+              <label class="form-label">Email Address (Optional)</label>
+              <input type="email" id="cust-email" class="form-control" placeholder="example@email.com">
+            </div>
+          </div>
+          <div class="wizard-actions flex-end">
+            <button type="button" class="btn-accent step-next-btn" onclick="window.nextStep(1)">
+              Next <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
 
-          <div id="bkash-status-card" style="display: none; background: #FDF2F8; border: 1px solid #FBCFE8; padding: 12px; border-radius: 8px; margin-top: 2px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <div style="font-size: 0.8rem; font-weight: 700; color: #BE185D;" id="bkash-status-text">bKash Payment Selected</div>
-                <div style="font-size: 0.75rem; color: #9D174D; margin-top: 2px;" id="bkash-trxid-confirmed">TrxID: <span id="confirmed-trxid-val" style="font-weight: 800; font-family: monospace;">Not Verified Yet</span></div>
-              </div>
-              <button type="button" id="reopen-bkash-modal-btn" style="background: #E2136E; color: #FFF; font-size: 0.75rem; font-weight: 700; padding: 6px 12px; border-radius: 6px; border: none;">
-                <i class="fas fa-edit"></i> <span id="bkash-btn-label">Enter TrxID</span>
+        <!-- STEP 2: Delivery Address -->
+        <div class="wizard-step" id="step-2">
+          <div class="glass-card">
+            <h3 class="step-card-title"><i class="fas fa-map-marker-alt"></i> Step 2: Delivery Address</h3>
+
+            <div class="form-group">
+              <label class="form-label">Division *</label>
+              <select id="select-division" class="form-control">
+                <option value="">Select Division</option>
+              </select>
+              <span class="field-error" id="err-select-division"></span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">District *</label>
+              <select id="select-district" class="form-control" disabled>
+                <option value="">Select District</option>
+              </select>
+              <span class="field-error" id="err-select-district"></span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Upazila / Thana *</label>
+              <select id="select-thana" class="form-control" disabled>
+                <option value="">Select Thana / Upazila</option>
+              </select>
+              <span class="field-error" id="err-select-thana"></span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Union / Ward *</label>
+              <select id="select-union" class="form-control" disabled>
+                <option value="">Select Union / Ward</option>
+              </select>
+              <span class="field-error" id="err-select-union"></span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Village / Area / House / Street *</label>
+              <input type="text" id="cust-village" class="form-control" placeholder="House No, Road, Village or Area name">
+              <span class="field-error" id="err-cust-village"></span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Order Notes (Optional)</label>
+              <textarea id="cust-notes" class="form-control" rows="2" placeholder="Special delivery instructions..."></textarea>
+            </div>
+          </div>
+          <div class="wizard-actions space-between">
+            <button type="button" class="btn-outline step-back-btn" onclick="window.prevStep(2)">
+              <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <button type="button" class="btn-accent step-next-btn" onclick="window.nextStep(2)">
+              Next <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 3: Discount Coupon -->
+        <div class="wizard-step" id="step-3">
+          <div class="glass-card">
+            <h3 class="step-card-title"><i class="fas fa-ticket-alt"></i> Step 3: Discount Coupon</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
+              Have a promotional code or coupon? Apply it here to get a discount on your order. (Optional)
+            </p>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="coupon-code" class="form-control" placeholder="Enter promo code" style="text-transform: uppercase;">
+              <button type="button" id="apply-coupon-btn" class="btn-outline">Apply</button>
+            </div>
+            <div id="coupon-msg" style="font-size: 0.82rem; margin-top: 8px; font-weight: 600;"></div>
+          </div>
+          <div class="wizard-actions space-between">
+            <button type="button" class="btn-outline step-back-btn" onclick="window.prevStep(3)">
+              <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="btn-outline step-skip-btn" onclick="window.skipStep3()">
+                Skip <i class="fas fa-forward"></i>
+              </button>
+              <button type="button" class="btn-accent step-next-btn" onclick="window.nextStep(3)">
+                Next <i class="fas fa-arrow-right"></i>
               </button>
             </div>
-            <input type="hidden" id="bkash-txnid">
+          </div>
+        </div>
+
+        <!-- STEP 4: Payment Method -->
+        <div class="wizard-step" id="step-4">
+          <div class="glass-card">
+            <h3 class="step-card-title"><i class="fas fa-wallet"></i> Step 4: Payment Method</h3>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <label class="payment-method-option">
+                <input type="radio" name="payment_method" value="cod" checked>
+                <div>
+                  <strong>Cash on Delivery (COD)</strong>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Pay cash when you receive your products</div>
+                </div>
+              </label>
+
+              <label class="payment-method-option">
+                <input type="radio" name="payment_method" value="bkash">
+                <div style="flex: 1;">
+                  <strong style="color: #E2136E;"><i class="fas fa-mobile-alt"></i> bKash Payment</strong>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Send Money & enter Transaction ID</div>
+                </div>
+                <button type="button" id="open-bkash-modal-btn" style="display: none; background: #E2136E; color: #FFF; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; border: none;">Pay with bKash</button>
+              </label>
+
+              <div id="bkash-status-card" style="display: none; background: #FDF2F8; border: 1px solid #FBCFE8; padding: 12px; border-radius: 8px; margin-top: 2px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <div style="font-size: 0.8rem; font-weight: 700; color: #BE185D;" id="bkash-status-text">bKash Payment Selected</div>
+                    <div style="font-size: 0.75rem; color: #9D174D; margin-top: 2px;" id="bkash-trxid-confirmed">TrxID: <span id="confirmed-trxid-val" style="font-weight: 800; font-family: monospace;">Not Verified Yet</span></div>
+                  </div>
+                  <button type="button" id="reopen-bkash-modal-btn" style="background: #E2136E; color: #FFF; font-size: 0.75rem; font-weight: 700; padding: 6px 12px; border-radius: 6px; border: none;">
+                    <i class="fas fa-edit"></i> <span id="bkash-btn-label">Enter TrxID</span>
+                  </button>
+                </div>
+                <input type="hidden" id="bkash-txnid">
+              </div>
+
+              <label class="payment-method-option disabled">
+                <input type="radio" name="payment_method" value="nagad" disabled>
+                <div>
+                  <strong>Nagad Payment <span style="font-size: 0.7rem; background: var(--warning-color); color: #FFF; padding: 1px 4px; border-radius: 4px;">Coming Soon</span></strong>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Disabled in v1</div>
+                </div>
+              </label>
+            </div>
+            <span class="field-error" id="err-payment-method" style="margin-top: 8px; display: block;"></span>
+          </div>
+          <div class="wizard-actions space-between">
+            <button type="button" class="btn-outline step-back-btn" onclick="window.prevStep(4)">
+              <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <button type="button" class="btn-accent step-next-btn" onclick="window.nextStep(4)">
+              Next <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 5: Final Summary -->
+        <div class="wizard-step" id="step-5">
+          <!-- Information Review Card -->
+          <div class="glass-card" style="margin-bottom: 16px;">
+            <h3 class="step-card-title"><i class="fas fa-clipboard-check"></i> Step 5: Review & Confirm Order</h3>
+
+            <div class="review-details-grid">
+              <div class="review-box">
+                <div class="review-box-header">
+                  <span><i class="fas fa-user"></i> Contact Info</span>
+                  <button type="button" class="review-edit-btn" onclick="window.goToStep(1, 'back')"><i class="fas fa-edit"></i> Edit</button>
+                </div>
+                <div class="review-box-body" id="review-contact-info">
+                  <!-- Filled dynamically -->
+                </div>
+              </div>
+
+              <div class="review-box">
+                <div class="review-box-header">
+                  <span><i class="fas fa-map-marker-alt"></i> Delivery Address</span>
+                  <button type="button" class="review-edit-btn" onclick="window.goToStep(2, 'back')"><i class="fas fa-edit"></i> Edit</button>
+                </div>
+                <div class="review-box-body" id="review-address-info">
+                  <!-- Filled dynamically -->
+                </div>
+              </div>
+
+              <div class="review-box">
+                <div class="review-box-header">
+                  <span><i class="fas fa-wallet"></i> Payment Method</span>
+                  <button type="button" class="review-edit-btn" onclick="window.goToStep(4, 'back')"><i class="fas fa-edit"></i> Edit</button>
+                </div>
+                <div class="review-box-body" id="review-payment-info">
+                  <!-- Filled dynamically -->
+                </div>
+              </div>
+            </div>
           </div>
 
-          <label style="display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; opacity: 0.6; cursor: not-allowed;">
-            <input type="radio" name="payment_method" value="nagad" disabled>
-            <div>
-              <strong>Nagad Payment <span style="font-size: 0.7rem; background: var(--warning-color); color: #FFF; padding: 1px 4px; border-radius: 4px;">Coming Soon</span></strong>
-              <div style="font-size: 0.75rem; color: var(--text-muted);">Disabled in v1</div>
+          <!-- Price Calculation & Place Order Card -->
+          <div class="glass-card">
+            <h3 style="font-size: 1rem; color: var(--primary-color); margin-bottom: 12px;"><i class="fas fa-calculator"></i> Price Breakdown</h3>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem;">
+              <span>Subtotal</span>
+              <span id="summary-subtotal">৳0</span>
             </div>
-          </label>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem;">
+              <span>Delivery Charge (<span id="delivery-location-type">Inside Kushtia ৳100</span>)</span>
+              <span id="summary-delivery">৳100</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem; color: var(--success-color);" id="discount-row">
+              <span>Coupon Discount</span>
+              <span id="summary-discount">-৳0</span>
+            </div>
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 8px 0;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 1.1rem; font-weight: bold;">
+              <span>Grand Total</span>
+              <strong id="summary-grandtotal" style="color: var(--accent-color);">৳0</strong>
+            </div>
+
+            <button type="submit" id="place-order-btn" class="btn-accent" style="width: 100%; font-size: 1rem; padding: 12px;">
+              <i class="fas fa-check-circle"></i> Place Order Now
+            </button>
+          </div>
+
+          <div class="wizard-actions space-between" style="margin-top: 16px;">
+            <button type="button" class="btn-outline step-back-btn" onclick="window.prevStep(5)">
+              <i class="fas fa-arrow-left"></i> Back
+            </button>
+          </div>
         </div>
+
       </div>
-
-      <!-- Summary & Submit -->
-      <div class="glass-card" style="margin-bottom: 24px;">
-        <h3 style="font-size: 1rem; color: var(--primary-color); margin-bottom: 12px;">Final Summary</h3>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem;">
-          <span>Subtotal</span>
-          <span id="summary-subtotal">৳0</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem;">
-          <span>Delivery Charge (<span id="delivery-location-type">Inside Kushtia ৳100</span>)</span>
-          <span id="summary-delivery">৳100</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem; color: var(--success-color);" id="discount-row">
-          <span>Coupon Discount</span>
-          <span id="summary-discount">-৳0</span>
-        </div>
-        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 8px 0;">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 1.1rem; font-weight: bold;">
-          <span>Grand Total</span>
-          <strong id="summary-grandtotal" style="color: var(--accent-color);">৳0</strong>
-        </div>
-
-        <button type="submit" id="place-order-btn" class="btn-accent" style="width: 100%; font-size: 1rem; padding: 12px;">Place Order Now</button>
-      </div>
-
     </form>
   </div>
 
@@ -236,6 +374,238 @@
     import { fetchCoupons } from './assets/js/admin.js';
 
     let appliedDiscount = 0;
+    let currentStep = 1;
+    let maxReachedStep = 1;
+
+    const STEP_TITLES = {
+      1: 'Contact Information',
+      2: 'Delivery Address',
+      3: 'Discount Coupon',
+      4: 'Payment Method',
+      5: 'Final Summary'
+    };
+
+    function updateStepperUI(targetStep) {
+      document.getElementById('stepper-counter-text').textContent = `Step ${targetStep} of 5`;
+      document.getElementById('stepper-title-text').textContent = STEP_TITLES[targetStep] || '';
+
+      const pct = (targetStep / 5) * 100;
+      document.getElementById('stepper-progress-bar').style.width = `${pct}%`;
+
+      for (let i = 1; i <= 5; i++) {
+        const node = document.getElementById(`node-${i}`);
+        if (!node) continue;
+        node.classList.remove('active', 'completed');
+        if (i < targetStep) {
+          node.classList.add('completed');
+        } else if (i === targetStep) {
+          node.classList.add('active');
+        }
+      }
+    }
+
+    function clearFieldError(id) {
+      const errEl = document.getElementById(`err-${id}`);
+      if (errEl) {
+        errEl.textContent = '';
+        errEl.style.display = 'none';
+      }
+      const inputEl = document.getElementById(id);
+      if (inputEl) {
+        inputEl.classList.remove('is-invalid');
+      }
+    }
+
+    function setFieldError(id, msg) {
+      const errEl = document.getElementById(`err-${id}`);
+      if (errEl) {
+        errEl.textContent = msg;
+        errEl.style.display = 'block';
+      }
+      const inputEl = document.getElementById(id);
+      if (inputEl) {
+        inputEl.classList.add('is-invalid');
+      }
+    }
+
+    function validateStep(step) {
+      let isValid = true;
+
+      if (step === 1) {
+        clearFieldError('cust-name');
+        clearFieldError('cust-phone');
+
+        const nameVal = document.getElementById('cust-name').value.trim();
+        const phoneVal = document.getElementById('cust-phone').value.trim();
+
+        if (!nameVal) {
+          setFieldError('cust-name', 'Please enter your full name.');
+          isValid = false;
+        }
+
+        if (!phoneVal) {
+          setFieldError('cust-phone', 'Please enter your mobile number.');
+          isValid = false;
+        } else if (!/^01[3-9]\d{8}$/.test(phoneVal)) {
+          setFieldError('cust-phone', 'Please enter a valid 11-digit Bangladeshi phone number.');
+          isValid = false;
+        }
+      } else if (step === 2) {
+        clearFieldError('select-division');
+        clearFieldError('select-district');
+        clearFieldError('select-thana');
+        clearFieldError('select-union');
+        clearFieldError('cust-village');
+
+        const divVal = document.getElementById('select-division').value;
+        const distVal = document.getElementById('select-district').value;
+        const thanaVal = document.getElementById('select-thana').value;
+        const unionVal = document.getElementById('select-union').value;
+        const villVal = document.getElementById('cust-village').value.trim();
+
+        if (!divVal) {
+          setFieldError('select-division', 'Please select a division.');
+          isValid = false;
+        }
+        if (!distVal) {
+          setFieldError('select-district', 'Please select a district.');
+          isValid = false;
+        }
+        if (!thanaVal) {
+          setFieldError('select-thana', 'Please select a Thana / Upazila.');
+          isValid = false;
+        }
+        if (!unionVal) {
+          setFieldError('select-union', 'Please select a Union / Ward.');
+          isValid = false;
+        }
+        if (!villVal) {
+          setFieldError('cust-village', 'Please enter your village, house, or area address.');
+          isValid = false;
+        }
+      } else if (step === 4) {
+        clearFieldError('payment-method');
+        const selectedPayment = document.querySelector('input[name="payment_method"]:checked')?.value;
+        if (!selectedPayment) {
+          setFieldError('payment-method', 'Please select a payment method.');
+          isValid = false;
+        } else if (selectedPayment === 'bkash') {
+          const trxVal = document.getElementById('bkash-txnid').value.trim();
+          if (!trxVal) {
+            setFieldError('payment-method', 'Please complete bKash verification and enter TrxID.');
+            showToast('Please enter your bKash Transaction ID');
+            openBkashModal();
+            isValid = false;
+          }
+        }
+      }
+
+      return isValid;
+    }
+
+    function populateReviewSummary() {
+      const name = document.getElementById('cust-name').value.trim();
+      const phone = document.getElementById('cust-phone').value.trim();
+      const email = document.getElementById('cust-email').value.trim();
+
+      const div = document.getElementById('select-division').value;
+      const dist = document.getElementById('select-district').value;
+      const thana = document.getElementById('select-thana').value;
+      const union = document.getElementById('select-union').value;
+      const vill = document.getElementById('cust-village').value.trim();
+      const notes = document.getElementById('cust-notes').value.trim();
+
+      const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value || 'cod';
+      const bkashTrx = document.getElementById('bkash-txnid').value.trim();
+
+      const contactReviewEl = document.getElementById('review-contact-info');
+      if (contactReviewEl) {
+        contactReviewEl.innerHTML = `
+          <div><strong>${name}</strong></div>
+          <div>Phone: ${phone}</div>
+          ${email ? `<div>Email: ${email}</div>` : ''}
+        `;
+      }
+
+      const addressReviewEl = document.getElementById('review-address-info');
+      if (addressReviewEl) {
+        addressReviewEl.innerHTML = `
+          <div>${vill}</div>
+          <div>${union}, ${thana}, ${dist}, ${div}</div>
+          ${notes ? `<div style="font-style: italic; color: var(--text-muted); margin-top: 2px;">Note: ${notes}</div>` : ''}
+        `;
+      }
+
+      const paymentReviewEl = document.getElementById('review-payment-info');
+      if (paymentReviewEl) {
+        let paymentLabel = 'Cash on Delivery (COD)';
+        if (paymentMethod === 'bkash') {
+          paymentLabel = `bKash Payment (TrxID: <strong>${bkashTrx || 'N/A'}</strong>)`;
+        } else if (paymentMethod === 'nagad') {
+          paymentLabel = 'Nagad Payment';
+        }
+
+        paymentReviewEl.innerHTML = `
+          <div>${paymentLabel}</div>
+        `;
+      }
+    }
+
+    window.goToStep = (targetStep, direction = 'next') => {
+      if (targetStep < 1 || targetStep > 5) return;
+
+      const currentStepEl = document.getElementById(`step-${currentStep}`);
+      const targetStepEl = document.getElementById(`step-${targetStep}`);
+
+      if (!currentStepEl || !targetStepEl) return;
+
+      if (targetStep === 5) {
+        populateReviewSummary();
+      }
+
+      currentStepEl.classList.remove('active', 'slide-left', 'slide-right');
+      targetStepEl.classList.remove('active', 'slide-left', 'slide-right');
+
+      if (direction === 'next') {
+        currentStepEl.classList.add('slide-left');
+      } else {
+        currentStepEl.classList.add('slide-right');
+      }
+
+      setTimeout(() => {
+        currentStepEl.classList.remove('active', 'slide-left', 'slide-right');
+        targetStepEl.classList.add('active');
+        currentStep = targetStep;
+        if (currentStep > maxReachedStep) maxReachedStep = currentStep;
+        updateStepperUI(currentStep);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 150);
+    };
+
+    window.nextStep = (fromStep) => {
+      if (!validateStep(fromStep)) return;
+      window.goToStep(fromStep + 1, 'next');
+    };
+
+    window.prevStep = (fromStep) => {
+      window.goToStep(fromStep - 1, 'back');
+    };
+
+    window.skipStep3 = () => {
+      window.goToStep(4, 'next');
+    };
+
+    window.navigateToStepIfAllowed = (targetStep) => {
+      if (targetStep === currentStep) return;
+      if (targetStep < currentStep) {
+        window.goToStep(targetStep, 'back');
+      } else {
+        for (let i = currentStep; i < targetStep; i++) {
+          if (!validateStep(i)) return;
+        }
+        window.goToStep(targetStep, 'next');
+      }
+    };
 
     async function initCheckoutPage() {
       await loadDeliverySettings();
@@ -266,6 +636,12 @@
         if (document.getElementById('cust-email')) document.getElementById('cust-email').value = userProfile.email || '';
       }
 
+      // Clear inline errors on input
+      ['cust-name', 'cust-phone', 'cust-village'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', () => clearFieldError(id));
+      });
+
       // Dropdown Elements
       const divSelect = document.getElementById('select-division');
       const distSelect = document.getElementById('select-district');
@@ -273,6 +649,11 @@
       const unionSelect = document.getElementById('select-union');
 
       if (!divSelect || !distSelect || !thanaSelect || !unionSelect) return;
+
+      // Clear inline errors on select
+      [divSelect, distSelect, thanaSelect, unionSelect].forEach(el => {
+        el.addEventListener('change', () => clearFieldError(el.id));
+      });
 
       // Populate Divisions (all 8 divisions of Bangladesh)
       Object.keys(BANGLADESH_LOCATIONS).forEach(div => {
@@ -377,7 +758,6 @@
       function openBkashModal() {
         if (!bkashModalOverlay) return;
         if (bkashModalError) bkashModalError.style.display = 'none';
-        // Pre-fill modal input with current hidden input value if available
         if (bkashModalTxnIdInput && bkashHiddenTxnInput) {
           bkashModalTxnIdInput.value = bkashHiddenTxnInput.value;
         }
@@ -443,6 +823,7 @@
           if (bkashHiddenTxnInput) bkashHiddenTxnInput.value = trxVal;
           if (confirmedTrxidVal) confirmedTrxidVal.textContent = trxVal;
           if (bkashBtnLabel) bkashBtnLabel.textContent = 'Change TrxID';
+          clearFieldError('payment-method');
 
           showToast('bKash Transaction ID Saved!');
           closeBkashModal();
@@ -453,6 +834,7 @@
       const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
       paymentRadios.forEach(radio => {
         radio.addEventListener('change', (e) => {
+          clearFieldError('payment-method');
           if (e.target.value === 'bkash') {
             if (bkashStatusCard) bkashStatusCard.style.display = 'block';
             openBkashModal();
@@ -547,12 +929,19 @@
       }
 
       recalculateTotals();
+      updateStepperUI(1);
 
       // Form Submission
       const form = document.getElementById('checkout-form');
       if (form) {
         form.addEventListener('submit', async (e) => {
           e.preventDefault();
+
+          // Validate all previous steps
+          if (!validateStep(1)) { window.goToStep(1, 'back'); return; }
+          if (!validateStep(2)) { window.goToStep(2, 'back'); return; }
+          if (!validateStep(4)) { window.goToStep(4, 'back'); return; }
+
           const submitBtn = document.getElementById('place-order-btn');
           submitBtn.disabled = true;
           submitBtn.textContent = 'Processing Order...';
