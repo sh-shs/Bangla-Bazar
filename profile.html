@@ -8,39 +8,796 @@
   <title>My Account - SHS Bazar</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    /* Custom CSS for Profile Page Enhancements */
+    .profile-header-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+    }
+
+    .profile-avatar-container {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      flex-shrink: 0;
+    }
+
+    .profile-avatar-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--primary-light);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    .profile-avatar-letter {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-color) 0%, #0D5C4A 100%);
+      color: #FFFFFF;
+      font-size: 1.8rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid var(--primary-light);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-transform: uppercase;
+    }
+
+    .profile-avatar-edit-badge {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      background: var(--accent-color);
+      color: #FFFFFF;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      border: 2px solid #FFFFFF;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .profile-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .profile-name-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .profile-name {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--primary-color);
+      line-height: 1.2;
+    }
+
+    .profile-meta-text {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      word-break: break-all;
+    }
+
+    .edit-profile-btn {
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 8px;
+      cursor: pointer;
+    }
+
+    /* Quick Stats Grid */
+    .quick-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 10px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary-color);
+    }
+
+    .stat-icon {
+      font-size: 1.25rem;
+      margin-bottom: 4px;
+      display: inline-block;
+    }
+
+    .stat-card.stat-orders .stat-icon { color: var(--primary-color); }
+    .stat-card.stat-pending .stat-icon { color: var(--accent-color); }
+    .stat-card.stat-wishlist .stat-icon { color: #EC4899; }
+
+    .stat-number {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: var(--text-primary);
+      line-height: 1.1;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-top: 2px;
+    }
+
+    /* Menu Cards Grid / List */
+    .profile-menu-section {
+      margin-bottom: 20px;
+    }
+
+    .menu-section-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      padding-left: 4px;
+    }
+
+    .menu-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 420px) {
+      .menu-cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .menu-item-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-primary);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .menu-item-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary-color);
+    }
+
+    .menu-item-card:active {
+      transform: scale(0.98);
+    }
+
+    .menu-icon-box {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .menu-text-wrap {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .menu-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .menu-subtitle {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Modal overlay custom styling */
+    .profile-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(5px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .profile-modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .profile-modal-card {
+      background: var(--card-bg);
+      color: var(--text-primary);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 20px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border-color);
+      position: relative;
+      transform: scale(0.94);
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .profile-modal-overlay.active .profile-modal-card {
+      transform: scale(1);
+    }
+
+    .modal-header-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    /* Address items list inside modal */
+    .address-card-item {
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    /* Toggle switch styling */
+    .toggle-switch-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #CBD5E1;
+      transition: .3s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--primary-color);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+  </style>
 </head>
 <body>
+  <!-- Top Bar -->
   <div class="page-top-bar">
     <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
     <span class="page-title">My Account</span>
   </div>
 
-  <div class="section-wrapper" style="max-width: 650px; margin: 0 auto;">
-    <!-- Profile Card -->
-    <div class="glass-card" style="margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
-      <div>
-        <h3 id="profile-name" style="font-size: 1.1rem; color: var(--primary-color);">...</h3>
-        <p id="profile-email" style="font-size: 0.85rem; color: var(--text-muted);">...</p>
-        <span id="profile-role-badge" style="font-size: 0.7rem; background: var(--primary-light); color: var(--primary-color); padding: 2px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase;">Customer</span>
+  <div class="section-wrapper" style="max-width: 680px; margin: 0 auto; padding-bottom: 30px;">
+
+    <!-- 1. Profile Header Card -->
+    <div class="profile-header-card">
+      <div class="profile-avatar-container" onclick="openEditProfileModal()">
+        <img id="profile-avatar-img" class="profile-avatar-img" src="" alt="Avatar" style="display: none;">
+        <div id="profile-avatar-letter" class="profile-avatar-letter">U</div>
+        <div class="profile-avatar-edit-badge" title="Change Photo">
+          <i class="fas fa-camera"></i>
+        </div>
       </div>
-      <button id="logout-btn" class="btn-outline" style="color: var(--danger-color); border-color: var(--danger-color); font-size: 0.8rem; padding: 6px 12px;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+
+      <div class="profile-info">
+        <div class="profile-name-row">
+          <span id="profile-name" class="profile-name">Loading...</span>
+          <span id="profile-role-badge" style="font-size: 0.68rem; background: var(--primary-light); color: var(--primary-color); padding: 2px 7px; border-radius: 12px; font-weight: 800; text-transform: uppercase;">Customer</span>
+        </div>
+        <div class="profile-meta-text">
+          <i class="far fa-envelope" style="color: var(--accent-color);"></i>
+          <span id="profile-email">...</span>
+        </div>
+        <div class="profile-meta-text">
+          <i class="fas fa-phone-alt" style="color: var(--primary-color);"></i>
+          <span id="profile-phone">No phone number added</span>
+        </div>
+        <button onclick="openEditProfileModal()" class="btn-outline edit-profile-btn">
+          <i class="fas fa-user-edit"></i> Edit Profile
+        </button>
+      </div>
     </div>
 
-    <!-- Order History Section -->
-    <div class="glass-card">
+    <!-- 2. Quick Stats Summary Cards -->
+    <div class="quick-stats-grid">
+      <div class="stat-card stat-orders" onclick="scrollToOrderHistory()">
+        <i class="fas fa-shopping-bag stat-icon"></i>
+        <div id="stat-total-orders" class="stat-number">0</div>
+        <div class="stat-label">Total Orders</div>
+      </div>
+      <div class="stat-card stat-pending" onclick="scrollToOrderHistory()">
+        <i class="fas fa-clock stat-icon"></i>
+        <div id="stat-pending-orders" class="stat-number">0</div>
+        <div class="stat-label">Pending</div>
+      </div>
+      <div class="stat-card stat-wishlist" onclick="window.location.href='wishlist.html'">
+        <i class="fas fa-heart stat-icon"></i>
+        <div id="stat-wishlist-items" class="stat-number">0</div>
+        <div class="stat-label">Wishlist</div>
+      </div>
+    </div>
+
+    <!-- 3. Menu Item Cards Section -->
+    <div class="profile-menu-section">
+      <div class="menu-section-title">Account Menu</div>
+      <div class="menu-cards-grid">
+        <!-- My Orders -->
+        <a href="orders.html" class="menu-item-card">
+          <div class="menu-icon-box" style="background: #E6F4F0; color: var(--primary-color);">
+            <i class="fas fa-box"></i>
+          </div>
+          <div class="menu-text-wrap">
+            <div class="menu-title">My Orders</div>
+            <div class="menu-subtitle">View detailed history</div>
+          </div>
+          <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+        </a>
+
+        <!-- My Wishlist -->
+        <a href="wishlist.html" class="menu-item-card">
+          <div class="menu-icon-box" style="background: #FCE7F3; color: #DB2777;">
+            <i class="fas fa-heart"></i>
+          </div>
+          <div class="menu-text-wrap">
+            <div class="menu-title">My Wishlist</div>
+            <div class="menu-subtitle">Saved favorites</div>
+          </div>
+          <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+        </a>
+
+        <!-- Shipping Addresses -->
+        <div class="menu-item-card" onclick="openAddressesModal()">
+          <div class="menu-icon-box" style="background: #FEF3C7; color: #D97706;">
+            <i class="fas fa-map-marker-alt"></i>
+          </div>
+          <div class="menu-text-wrap">
+            <div class="menu-title">Shipping Addresses</div>
+            <div class="menu-subtitle">Manage delivery locations</div>
+          </div>
+          <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="menu-item-card" onclick="openPaymentMethodsModal()">
+          <div class="menu-icon-box" style="background: #EFF6FF; color: #2563EB;">
+            <i class="fas fa-wallet"></i>
+          </div>
+          <div class="menu-text-wrap">
+            <div class="menu-title">Payment Methods</div>
+            <div class="menu-subtitle">Save bKash / Nagad</div>
+          </div>
+          <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+        </div>
+
+        <!-- Notifications -->
+        <div class="menu-item-card" onclick="openNotificationsModal()">
+          <div class="menu-icon-box" style="background: #EDE9FE; color: #7C3AED;">
+            <i class="fas fa-bell"></i>
+          </div>
+          <div class="menu-text-wrap">
+            <div class="menu-title">Notifications</div>
+            <div class="menu-subtitle">Updates & offer alerts</div>
+          </div>
+          <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+        </div>
+
+        <!-- Change Password -->
+        <div class="menu-item-card" onclick="openChangePasswordModal()">
+          <div class="menu-icon-box" style="background: #DCFCE7; color: #16A34A;">
+            <i class="fas fa-key"></i>
+          </div>
+          <div class="menu-text-wrap">
+            <div class="menu-title">Change Password</div>
+            <div class="menu-subtitle">Update credentials</div>
+          </div>
+          <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+        </div>
+      </div>
+
+      <div class="menu-section-title">Support & Info</div>
+      <div class="menu-cards-grid">
+        <!-- Help & Support -->
+        <a href="contact.html" class="menu-item-card">
+          <div class="menu-icon-box" style="background: #FEF2F2; color: #EF4444;">
+            <i class="fas fa-headset"></i>
+          </div>
+          <div class="menu-text-wrap">
+            <div class="menu-title">Help & Support</div>
+            <div class="menu-subtitle">Contact Us / FAQ</div>
+          </div>
+          <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+        </a>
+
+        <!-- Privacy Policy -->
+        <a href="privacy-policy.html" class="menu-item-card">
+          <div class="menu-icon-box" style="background: #F1F5F9; color: #475569;">
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <div class="menu-text-wrap">
+            <div class="menu-title">Privacy & Terms</div>
+            <div class="menu-subtitle">Policies & Terms</div>
+          </div>
+          <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+        </a>
+
+        <!-- About Us -->
+        <a href="about.html" class="menu-item-card">
+          <div class="menu-icon-box" style="background: #E0F2FE; color: #0284C7;">
+            <i class="fas fa-info-circle"></i>
+          </div>
+          <div class="menu-text-wrap">
+            <div class="menu-title">About Us</div>
+            <div class="menu-subtitle">SHS Bazar Info</div>
+          </div>
+          <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+        </a>
+
+        <!-- Rate Us / Share -->
+        <div class="menu-item-card" onclick="openShareModal()">
+          <div class="menu-icon-box" style="background: #FFF7ED; color: #F97316;">
+            <i class="fas fa-star"></i>
+          </div>
+          <div class="menu-text-wrap">
+            <div class="menu-title">Rate & Share</div>
+            <div class="menu-subtitle">Feedback / Share app</div>
+          </div>
+          <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Order History Section -->
+    <div id="order-history-section" class="glass-card" style="margin-bottom: 24px;">
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
-        <h3 style="color: var(--primary-color); font-size: 1.05rem; margin: 0;"><i class="fas fa-shopping-bag"></i> Order History</h3>
-        <span id="orders-count-badge" style="font-size: 0.8rem; background: #E5E7EB; color: #374151; padding: 2px 8px; border-radius: 12px; font-weight: 600;">0 Orders</span>
+        <h3 style="color: var(--primary-color); font-size: 1.05rem; margin: 0; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-shopping-bag" style="color: var(--accent-color);"></i> Order History
+        </h3>
+        <a href="orders.html" style="font-size: 0.8rem; font-weight: 700; color: var(--accent-color); text-decoration: none;">
+          View All <i class="fas fa-arrow-right" style="font-size: 0.75rem;"></i>
+        </a>
       </div>
       <div id="user-orders-list">
         <div style="text-align: center; color: var(--text-muted); padding: 20px;">
-          <i class="fas fa-spinner fa-spin" style="font-size: 1.5rem;"></i>
+          <i class="fas fa-spinner fa-spin" style="font-size: 1.5rem; color: var(--primary-color);"></i>
           <p style="margin-top: 8px; font-size: 0.9rem;">Loading order history...</p>
         </div>
       </div>
     </div>
+
+    <!-- 5. Bottom Logout Action -->
+    <div style="text-align: center; margin-top: 20px;">
+      <button onclick="openLogoutConfirmModal()" class="btn-outline" style="color: var(--danger-color); border-color: var(--danger-color); font-size: 0.9rem; padding: 10px 24px; border-radius: 25px; font-weight: 800; width: 100%; max-width: 320px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: rgba(239, 68, 68, 0.05);">
+        <i class="fas fa-sign-out-alt"></i> Logout Account
+      </button>
+    </div>
+
   </div>
 
+  <!-- ================= MODALS ================= -->
+
+  <!-- A. Edit Profile Modal -->
+  <div id="edit-profile-modal" class="profile-modal-overlay" onclick="if(event.target===this) closeEditProfileModal();">
+    <div class="profile-modal-card">
+      <div class="modal-header-title">
+        <i class="fas fa-user-edit" style="color: var(--accent-color);"></i> Edit Profile
+      </div>
+      <form id="edit-profile-form" onsubmit="handleSaveProfile(event)">
+        <div style="text-align: center; margin-bottom: 16px;">
+          <div style="position: relative; width: 80px; height: 80px; margin: 0 auto;">
+            <img id="modal-avatar-preview" src="" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-color);" onerror="this.style.display='none'; document.getElementById('modal-avatar-letter').style.display='flex';">
+            <div id="modal-avatar-letter" class="profile-avatar-letter" style="width: 80px; height: 80px; font-size: 2rem;">U</div>
+          </div>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">Update your avatar image or enter image URL</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Profile Image File</label>
+          <input type="file" id="edit-photo-file" accept="image/*" class="form-control" onchange="handleModalFileSelect(event)">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Or Profile Image URL</label>
+          <input type="url" id="edit-photo-url" class="form-control" placeholder="https://example.com/photo.jpg" oninput="handleModalUrlInput(this.value)">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input type="text" id="edit-display-name" class="form-control" required placeholder="Enter full name">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input type="tel" id="edit-phone" class="form-control" placeholder="017xxxxxxxx">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="edit-email" class="form-control" readonly disabled style="background: #F1F5F9; cursor: not-allowed;">
+          <small style="font-size: 0.7rem; color: var(--text-muted);">Email address cannot be changed directly.</small>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+          <button type="button" onclick="closeEditProfileModal()" class="btn-outline" style="font-size: 0.85rem; padding: 8px 16px;">Cancel</button>
+          <button type="submit" id="save-profile-btn" class="btn-primary" style="font-size: 0.85rem; padding: 8px 20px;">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- B. Shipping Addresses Modal -->
+  <div id="addresses-modal" class="profile-modal-overlay" onclick="if(event.target===this) closeAddressesModal();">
+    <div class="profile-modal-card">
+      <div class="modal-header-title">
+        <i class="fas fa-map-marker-alt" style="color: var(--accent-color);"></i> Shipping Addresses
+      </div>
+
+      <div id="saved-addresses-list">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div style="border-top: 1px dashed var(--border-color); padding-top: 14px; margin-top: 10px;">
+        <h4 style="font-size: 0.9rem; font-weight: 800; color: var(--primary-color); margin-bottom: 10px;">Add New Address</h4>
+        <form id="add-address-form" onsubmit="handleAddAddress(event)">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="form-group">
+              <label class="form-label">Division *</label>
+              <input type="text" id="addr-division" class="form-control" placeholder="e.g. Khulna" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">District *</label>
+              <input type="text" id="addr-district" class="form-control" placeholder="e.g. Kushtia" required>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="form-group">
+              <label class="form-label">Upazila/Thana *</label>
+              <input type="text" id="addr-upazila" class="form-control" placeholder="e.g. Kushtia Sadar" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Union / Area</label>
+              <input type="text" id="addr-union" class="form-control" placeholder="e.g. Jagati">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Village / House / Road Address *</label>
+            <textarea id="addr-village" class="form-control" rows="2" placeholder="Full street address or landmark" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Delivery Notes (Optional)</label>
+            <input type="text" id="addr-notes" class="form-control" placeholder="e.g. Call before delivery">
+          </div>
+
+          <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 14px;">
+            <button type="button" onclick="closeAddressesModal()" class="btn-outline" style="font-size: 0.85rem; padding: 8px 16px;">Close</button>
+            <button type="submit" class="btn-accent" style="font-size: 0.85rem; padding: 8px 18px;">Save Address</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- C. Payment Methods Modal -->
+  <div id="payment-methods-modal" class="profile-modal-overlay" onclick="if(event.target===this) closePaymentMethodsModal();">
+    <div class="profile-modal-card">
+      <div class="modal-header-title">
+        <i class="fas fa-wallet" style="color: var(--accent-color);"></i> Payment Methods
+      </div>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">
+        Save your default bKash and Nagad numbers for quicker checkout payments.
+      </p>
+      <form id="payment-methods-form" onsubmit="handleSavePaymentMethods(event)">
+        <div class="form-group">
+          <label class="form-label" style="display: flex; align-items: center; gap: 6px;">
+            <span style="background: #E2136E; color: #FFF; font-weight: 900; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem;">bKash</span>
+            bKash Account Number
+          </label>
+          <input type="tel" id="pm-bkash-number" class="form-control" placeholder="017xxxxxxxx">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" style="display: flex; align-items: center; gap: 6px;">
+            <span style="background: #F7921E; color: #FFF; font-weight: 900; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem;">Nagad</span>
+            Nagad Account Number
+          </label>
+          <input type="tel" id="pm-nagad-number" class="form-control" placeholder="018xxxxxxxx">
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+          <button type="button" onclick="closePaymentMethodsModal()" class="btn-outline" style="font-size: 0.85rem; padding: 8px 16px;">Cancel</button>
+          <button type="submit" class="btn-primary" style="font-size: 0.85rem; padding: 8px 20px;">Save Numbers</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- D. Notifications Modal -->
+  <div id="notifications-modal" class="profile-modal-overlay" onclick="if(event.target===this) closeNotificationsModal();">
+    <div class="profile-modal-card">
+      <div class="modal-header-title">
+        <i class="fas fa-bell" style="color: var(--accent-color);"></i> Notification Settings
+      </div>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">
+        Manage how you receive order updates and discount offer alerts.
+      </p>
+
+      <div class="toggle-switch-wrap">
+        <div>
+          <div style="font-weight: 700; font-size: 0.9rem;">Order Status Alerts</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Receive real-time notifications on order status changes</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="notif-order-status" checked onchange="handleSaveNotifications()">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-switch-wrap" style="border-bottom: none;">
+        <div>
+          <div style="font-weight: 700; font-size: 0.9rem;">Promotional Offers</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Get notified about special Kushtia discount deals</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="notif-promos" checked onchange="handleSaveNotifications()">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+        <button type="button" onclick="closeNotificationsModal()" class="btn-primary" style="font-size: 0.85rem; padding: 8px 20px;">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- E. Change Password Modal -->
+  <div id="change-password-modal" class="profile-modal-overlay" onclick="if(event.target===this) closeChangePasswordModal();">
+    <div class="profile-modal-card">
+      <div class="modal-header-title">
+        <i class="fas fa-key" style="color: var(--accent-color);"></i> Change Password
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-primary); margin-bottom: 12px; line-height: 1.5;">
+        Click below to send a secure Password Reset Email link to <strong id="reset-email-display" style="color: var(--primary-color);">your email</strong>.
+      </p>
+
+      <div id="password-reset-status" style="display: none; padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;"></div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px;">
+        <button type="button" onclick="closeChangePasswordModal()" class="btn-outline" style="font-size: 0.85rem; padding: 8px 16px;">Cancel</button>
+        <button type="button" onclick="handleSendPasswordReset()" id="send-reset-btn" class="btn-accent" style="font-size: 0.85rem; padding: 8px 18px;">
+          <i class="fas fa-paper-plane"></i> Send Password Reset Email
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- F. Logout Confirmation Modal -->
+  <div id="logout-confirm-modal" class="profile-modal-overlay" onclick="if(event.target===this) closeLogoutConfirmModal();">
+    <div class="profile-modal-card" style="max-width: 380px; text-align: center;">
+      <div style="font-size: 2.5rem; color: var(--danger-color); margin-bottom: 8px;">
+        <i class="fas fa-sign-out-alt"></i>
+      </div>
+      <h3 style="font-size: 1.15rem; color: var(--text-primary); margin-bottom: 6px; font-weight: 800;">Confirm Logout</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
+        Are you sure you want to log out of your SHS Bazar account?
+      </p>
+      <div style="display: flex; gap: 10px; justify-content: center;">
+        <button type="button" onclick="closeLogoutConfirmModal()" class="btn-outline" style="flex: 1; font-size: 0.88rem; padding: 9px 16px;">Cancel</button>
+        <button type="button" onclick="confirmLogoutAction()" class="btn-primary" style="flex: 1; background: var(--danger-color); border-color: var(--danger-color); font-size: 0.88rem; padding: 9px 16px;">Yes, Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
   <nav class="bottom-nav">
     <a href="index.html" class="nav-item">
       <div class="nav-icon-wrap"><i class="fas fa-home"></i></div>
@@ -70,12 +827,355 @@
   <script type="module" src="assets/js/auth.js"></script>
   <script type="module" src="assets/js/app.js"></script>
   <script type="module">
-    import { onAuthStateUpdate, logoutUser } from './assets/js/auth.js';
-    import { db, collection, getDocs, query, where } from './assets/js/firebase-config.js';
+    import { onAuthStateUpdate, logoutUser, resetPassword, getLocalWishlist } from './assets/js/auth.js';
+    import { db, collection, getDocs, query, where, doc, updateDoc, updateProfile } from './assets/js/firebase-config.js';
     import { generatePDFInvoice } from './assets/js/invoice.js';
 
     let currentOrders = [];
+    let activeUser = null;
+    let activeProfile = null;
+    let uploadedPhotoFile = null;
 
+    // Share modal / Web Share API helper
+    window.openShareModal = () => {
+      if (navigator.share) {
+        navigator.share({
+          title: 'SHS Bazar',
+          text: 'Check out SHS Bazar for the best online shopping experience in Kushtia!',
+          url: window.location.origin
+        }).catch(() => {});
+      } else {
+        if (window.showToast) {
+          window.showToast('Website link copied to clipboard!');
+        } else {
+          alert('SHS Bazar: ' + window.location.origin);
+        }
+      }
+    };
+
+    // Window scroll helper
+    window.scrollToOrderHistory = () => {
+      const el = document.getElementById('order-history-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    // Modal Helpers
+    window.openEditProfileModal = () => {
+      if (!activeUser) return;
+      document.getElementById('edit-display-name').value = activeProfile?.displayName || activeUser.displayName || '';
+      document.getElementById('edit-phone').value = activeProfile?.phone || activeUser.phoneNumber || '';
+      document.getElementById('edit-email').value = activeUser.email || '';
+      document.getElementById('edit-photo-url').value = activeProfile?.photoURL || activeUser.photoURL || '';
+
+      const photoUrl = activeProfile?.photoURL || activeUser.photoURL;
+      const initial = (activeProfile?.displayName || activeUser.displayName || activeUser.email || 'U').charAt(0).toUpperCase();
+
+      const imgPreview = document.getElementById('modal-avatar-preview');
+      const letterPreview = document.getElementById('modal-avatar-letter');
+
+      if (photoUrl) {
+        imgPreview.src = photoUrl;
+        imgPreview.style.display = 'block';
+        letterPreview.style.display = 'none';
+      } else {
+        imgPreview.style.display = 'none';
+        letterPreview.textContent = initial;
+        letterPreview.style.display = 'flex';
+      }
+
+      uploadedPhotoFile = null;
+      document.getElementById('edit-photo-file').value = '';
+      document.getElementById('edit-profile-modal').classList.add('active');
+    };
+
+    window.closeEditProfileModal = () => {
+      document.getElementById('edit-profile-modal').classList.remove('active');
+    };
+
+    window.handleModalFileSelect = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        uploadedPhotoFile = file;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          const imgPreview = document.getElementById('modal-avatar-preview');
+          const letterPreview = document.getElementById('modal-avatar-letter');
+          imgPreview.src = evt.target.result;
+          imgPreview.style.display = 'block';
+          letterPreview.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    window.handleModalUrlInput = (val) => {
+      const imgPreview = document.getElementById('modal-avatar-preview');
+      const letterPreview = document.getElementById('modal-avatar-letter');
+      if (val.trim()) {
+        imgPreview.src = val.trim();
+        imgPreview.style.display = 'block';
+        letterPreview.style.display = 'none';
+      } else {
+        imgPreview.style.display = 'none';
+        letterPreview.style.display = 'flex';
+      }
+    };
+
+    // Addresses Modal
+    window.openAddressesModal = () => {
+      renderAddressesList();
+      document.getElementById('addresses-modal').classList.add('active');
+    };
+
+    window.closeAddressesModal = () => {
+      document.getElementById('addresses-modal').classList.remove('active');
+    };
+
+    function renderAddressesList() {
+      const container = document.getElementById('saved-addresses-list');
+      const addresses = activeProfile?.addresses || [];
+      if (addresses.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; color: var(--text-muted); padding: 15px; font-size: 0.85rem;">
+            <i class="fas fa-map-marked-alt" style="font-size: 1.5rem; margin-bottom: 6px;"></i>
+            <p>No shipping addresses saved yet.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = addresses.map((addr, index) => `
+        <div class="address-card-item">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <strong style="font-size: 0.85rem; color: var(--primary-color);">Address #${index + 1}</strong>
+            <button onclick="handleDeleteAddress(${index})" class="btn-outline" style="padding: 2px 8px; font-size: 0.7rem; color: var(--danger-color); border-color: var(--danger-color);">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-primary); margin-top: 4px; line-height: 1.4;">
+            <div><strong>Location:</strong> ${addr.village || ''}, ${addr.union ? addr.union + ', ' : ''}${addr.upazila || ''}, ${addr.district || ''}, ${addr.division || ''}</div>
+            ${addr.notes ? `<div style="font-style: italic; color: var(--text-muted); margin-top: 2px;">Note: ${addr.notes}</div>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    window.handleAddAddress = async (e) => {
+      e.preventDefault();
+      if (!activeUser) return;
+
+      const newAddr = {
+        division: document.getElementById('addr-division').value.trim(),
+        district: document.getElementById('addr-district').value.trim(),
+        upazila: document.getElementById('addr-upazila').value.trim(),
+        union: document.getElementById('addr-union').value.trim(),
+        village: document.getElementById('addr-village').value.trim(),
+        notes: document.getElementById('addr-notes').value.trim()
+      };
+
+      const addresses = activeProfile?.addresses || [];
+      addresses.push(newAddr);
+
+      try {
+        await updateDoc(doc(db, 'users', activeUser.uid), { addresses, updatedAt: new Date() });
+        if (activeProfile) activeProfile.addresses = addresses;
+        if (window.showToast) window.showToast('Address saved successfully!');
+        document.getElementById('add-address-form').reset();
+        renderAddressesList();
+      } catch (err) {
+        console.error('Error saving address:', err);
+        alert('Failed to save address: ' + err.message);
+      }
+    };
+
+    window.handleDeleteAddress = async (index) => {
+      if (!activeUser || !activeProfile) return;
+      const addresses = activeProfile.addresses || [];
+      addresses.splice(index, 1);
+
+      try {
+        await updateDoc(doc(db, 'users', activeUser.uid), { addresses, updatedAt: new Date() });
+        activeProfile.addresses = addresses;
+        if (window.showToast) window.showToast('Address removed!');
+        renderAddressesList();
+      } catch (err) {
+        console.error('Error deleting address:', err);
+      }
+    };
+
+    // Payment Methods Modal
+    window.openPaymentMethodsModal = () => {
+      if (activeProfile?.paymentMethods) {
+        document.getElementById('pm-bkash-number').value = activeProfile.paymentMethods.bkash || '';
+        document.getElementById('pm-nagad-number').value = activeProfile.paymentMethods.nagad || '';
+      }
+      document.getElementById('payment-methods-modal').classList.add('active');
+    };
+
+    window.closePaymentMethodsModal = () => {
+      document.getElementById('payment-methods-modal').classList.remove('active');
+    };
+
+    window.handleSavePaymentMethods = async (e) => {
+      e.preventDefault();
+      if (!activeUser) return;
+
+      const paymentMethods = {
+        bkash: document.getElementById('pm-bkash-number').value.trim(),
+        nagad: document.getElementById('pm-nagad-number').value.trim()
+      };
+
+      try {
+        await updateDoc(doc(db, 'users', activeUser.uid), { paymentMethods, updatedAt: new Date() });
+        if (activeProfile) activeProfile.paymentMethods = paymentMethods;
+        if (window.showToast) window.showToast('Payment methods saved!');
+        closePaymentMethodsModal();
+      } catch (err) {
+        console.error('Error saving payment methods:', err);
+        alert('Failed to save payment methods.');
+      }
+    };
+
+    // Notifications Modal
+    window.openNotificationsModal = () => {
+      const notifs = activeProfile?.notifications || { orderStatus: true, promos: true };
+      document.getElementById('notif-order-status').checked = notifs.orderStatus !== false;
+      document.getElementById('notif-promos').checked = notifs.promos !== false;
+      document.getElementById('notifications-modal').classList.add('active');
+    };
+
+    window.closeNotificationsModal = () => {
+      document.getElementById('notifications-modal').classList.remove('active');
+    };
+
+    window.handleSaveNotifications = async () => {
+      if (!activeUser) return;
+
+      const notifications = {
+        orderStatus: document.getElementById('notif-order-status').checked,
+        promos: document.getElementById('notif-promos').checked
+      };
+
+      try {
+        await updateDoc(doc(db, 'users', activeUser.uid), { notifications, updatedAt: new Date() });
+        if (activeProfile) activeProfile.notifications = notifications;
+      } catch (err) {
+        console.error('Error saving notification settings:', err);
+      }
+    };
+
+    // Password Reset Modal
+    window.openChangePasswordModal = () => {
+      if (!activeUser) return;
+      document.getElementById('reset-email-display').textContent = activeUser.email;
+      const statusEl = document.getElementById('password-reset-status');
+      statusEl.style.display = 'none';
+      document.getElementById('change-password-modal').classList.add('active');
+    };
+
+    window.closeChangePasswordModal = () => {
+      document.getElementById('change-password-modal').classList.remove('active');
+    };
+
+    window.handleSendPasswordReset = async () => {
+      if (!activeUser || !activeUser.email) return;
+      const btn = document.getElementById('send-reset-btn');
+      const statusEl = document.getElementById('password-reset-status');
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+      try {
+        await resetPassword(activeUser.email);
+        statusEl.style.display = 'block';
+        statusEl.style.background = '#D1FAE5';
+        statusEl.style.color = '#065F46';
+        statusEl.style.border = '1px solid #A7F3D0';
+        statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Password reset email sent! Check your inbox.';
+        btn.style.display = 'none';
+      } catch (err) {
+        statusEl.style.display = 'block';
+        statusEl.style.background = '#FEE2E2';
+        statusEl.style.color = '#991B1B';
+        statusEl.style.border = '1px solid #FCA5A5';
+        statusEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${err.message}`;
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Try Again';
+      }
+    };
+
+    // Logout Modal
+    window.openLogoutConfirmModal = () => {
+      document.getElementById('logout-confirm-modal').classList.add('active');
+    };
+
+    window.closeLogoutConfirmModal = () => {
+      document.getElementById('logout-confirm-modal').classList.remove('active');
+    };
+
+    window.confirmLogoutAction = () => {
+      logoutUser();
+    };
+
+    // Save Profile Action
+    window.handleSaveProfile = async (e) => {
+      e.preventDefault();
+      if (!activeUser) return;
+
+      const saveBtn = document.getElementById('save-profile-btn');
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+      const displayName = document.getElementById('edit-display-name').value.trim();
+      const phone = document.getElementById('edit-phone').value.trim();
+      let photoURL = document.getElementById('edit-photo-url').value.trim();
+
+      try {
+        if (uploadedPhotoFile) {
+          // Cloudinary unsigned upload fallback logic
+          const formData = new FormData();
+          formData.append('file', uploadedPhotoFile);
+          formData.append('upload_preset', 'Bangla Bazar');
+          const res = await fetch('https://api.cloudinary.com/v1_1/vhc6a9gy/image/upload', {
+            method: 'POST',
+            body: formData
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.secure_url) photoURL = data.secure_url;
+          }
+        }
+
+        // Update Firebase Auth
+        await updateProfile(activeUser, { displayName, photoURL });
+
+        // Update Firestore user document
+        await updateDoc(doc(db, 'users', activeUser.uid), {
+          displayName,
+          phone,
+          photoURL,
+          updatedAt: new Date()
+        });
+
+        if (activeProfile) {
+          activeProfile.displayName = displayName;
+          activeProfile.phone = phone;
+          activeProfile.photoURL = photoURL;
+        }
+
+        if (window.showToast) window.showToast('Profile updated successfully!');
+        updateHeaderUI();
+        closeEditProfileModal();
+      } catch (err) {
+        console.error('Error updating profile:', err);
+        alert('Failed to update profile: ' + err.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = 'Save Changes';
+      }
+    };
+
+    // Order helpers
     window.downloadInvoiceHandler = (orderId) => {
       const order = currentOrders.find(o => o.id === orderId);
       if (order) generatePDFInvoice(order);
@@ -107,46 +1207,78 @@
       return `admin-badge admin-badge-${s}`;
     }
 
+    function updateHeaderUI() {
+      if (!activeUser) return;
+      const name = activeProfile?.displayName || activeUser.displayName || 'Valued Customer';
+      const email = activeUser.email || '';
+      const phone = activeProfile?.phone || activeUser.phoneNumber || 'No phone number added';
+      const photoUrl = activeProfile?.photoURL || activeUser.photoURL;
+      const initial = name.charAt(0).toUpperCase();
+
+      document.getElementById('profile-name').textContent = name;
+      document.getElementById('profile-email').textContent = email;
+      document.getElementById('profile-phone').textContent = phone;
+      document.getElementById('profile-role-badge').textContent = activeProfile?.role || 'Customer';
+
+      const imgEl = document.getElementById('profile-avatar-img');
+      const letterEl = document.getElementById('profile-avatar-letter');
+
+      if (photoUrl) {
+        imgEl.src = photoUrl;
+        imgEl.style.display = 'block';
+        letterEl.style.display = 'none';
+      } else {
+        imgEl.style.display = 'none';
+        letterEl.textContent = initial;
+        letterEl.style.display = 'flex';
+      }
+
+      // Quick Wishlist count
+      const wishlistCount = (activeProfile && activeProfile.wishlist) ? activeProfile.wishlist.length : getLocalWishlist().length;
+      document.getElementById('stat-wishlist-items').textContent = wishlistCount;
+    }
+
     onAuthStateUpdate(async (user, profile) => {
       if (!user) {
         window.location.href = 'login.html';
         return;
       }
 
-      document.getElementById('profile-name').textContent = profile?.displayName || user.displayName || 'Valued Customer';
-      document.getElementById('profile-email').textContent = user.email || '';
-      document.getElementById('profile-role-badge').textContent = profile?.role || 'Customer';
+      activeUser = user;
+      activeProfile = profile;
+      updateHeaderUI();
 
       const container = document.getElementById('user-orders-list');
-      const countBadge = document.getElementById('orders-count-badge');
 
       try {
-        // Query orders for logged-in user only using request.auth.uid / user.uid
         const q = query(collection(db, 'orders'), where('userId', '==', user.uid));
         const snap = await getDocs(q);
         currentOrders = [];
         snap.forEach(d => currentOrders.push({ id: d.id, ...d.data() }));
 
-        // Sort most recent first
+        // Sort recent first
         currentOrders.sort((a, b) => {
           const timeA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : (a.createdAt || 0);
           const timeB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : (b.createdAt || 0);
           return timeB - timeA;
         });
 
-        if (countBadge) {
-          countBadge.textContent = `${currentOrders.length} Order${currentOrders.length === 1 ? '' : 's'}`;
-        }
+        // Quick Stats
+        const totalCount = currentOrders.length;
+        const pendingCount = currentOrders.filter(o => ['pending', 'processing'].includes((o.orderStatus || 'Pending').toLowerCase())).length;
+
+        document.getElementById('stat-total-orders').textContent = totalCount;
+        document.getElementById('stat-pending-orders').textContent = pendingCount;
 
         if (currentOrders.length === 0) {
           container.innerHTML = `
-            <div style="text-align: center; padding: 30px 15px;">
-              <div style="font-size: 2.5rem; color: var(--text-muted); margin-bottom: 10px;">
+            <div style="text-align: center; padding: 26px 15px;">
+              <div style="font-size: 2.2rem; color: var(--text-muted); margin-bottom: 8px;">
                 <i class="fas fa-shopping-bag"></i>
               </div>
-              <h4 style="font-size: 1rem; color: var(--text-color); margin-bottom: 6px;">You haven't placed any orders yet</h4>
-              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Start shopping to explore our rich product catalog!</p>
-              <a href="shop.html" class="btn-primary" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; padding: 8px 18px; border-radius: 20px; font-size: 0.88rem;">
+              <h4 style="font-size: 0.95rem; color: var(--text-color); margin-bottom: 4px; font-weight: 700;">You haven't placed any orders yet</h4>
+              <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">Start shopping to explore our rich product catalog!</p>
+              <a href="shop.html" class="btn-primary" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; padding: 8px 18px; border-radius: 20px; font-size: 0.85rem;">
                 <i class="fas fa-store"></i> Start Shopping
               </a>
             </div>
@@ -162,21 +1294,25 @@
           const totalPaid = Number(o.totalAmount || 0).toLocaleString('bn-BD');
           const paymentMethod = (o.paymentMethod || 'COD').toUpperCase();
 
+          const itemThumbnails = items.slice(0, 3).map(i => `
+            <img src="${i.image || (i.images && i.images[0]) || 'https://via.placeholder.com/44'}" alt="${i.name || 'Item'}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-color);">
+          `).join('');
+
           const itemsSummaryText = items.length > 0
             ? items.slice(0, 2).map(i => `${i.name || 'Product'} (x${i.quantity || 1})`).join(', ') + (items.length > 2 ? ` + ${items.length - 2} more` : '')
             : 'Product details';
 
           const itemsDetailHTML = items.map(item => `
-            <div style="display: flex; gap: 10px; align-items: center; background: #FFF; padding: 8px; border-radius: 6px; margin-bottom: 6px; border: 1px solid #E5E7EB;">
-              <img src="${item.image || (item.images && item.images[0]) || 'https://via.placeholder.com/50'}" alt="${item.name || 'Item'}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 4px; border: 1px solid #E5E7EB;">
+            <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-color); padding: 8px; border-radius: 6px; margin-bottom: 6px; border: 1px solid var(--border-color);">
+              <img src="${item.image || (item.images && item.images[0]) || 'https://via.placeholder.com/50'}" alt="${item.name || 'Item'}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border-color);">
               <div style="flex: 1;">
-                <div style="font-weight: 600; font-size: 0.82rem; color: #111827;">${item.name || 'Unnamed Product'}</div>
-                <div style="font-size: 0.75rem; color: #6B7280;">
+                <div style="font-weight: 700; font-size: 0.82rem; color: var(--text-primary);">${item.name || 'Unnamed Product'}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">
                   ৳${Number(item.price || 0).toLocaleString('bn-BD')} × ${item.quantity || 1}
                   ${item.variant ? ` | <span style="color: var(--accent-color); font-weight: 600;">Variant: ${item.variant}</span>` : ''}
                 </div>
               </div>
-              <div style="font-weight: 700; color: var(--primary-color); font-size: 0.85rem;">৳${(Number(item.price || 0) * Number(item.quantity || 1)).toLocaleString('bn-BD')}</div>
+              <div style="font-weight: 800; color: var(--primary-color); font-size: 0.85rem;">৳${(Number(item.price || 0) * Number(item.quantity || 1)).toLocaleString('bn-BD')}</div>
             </div>
           `).join('');
 
@@ -185,28 +1321,34 @@
           const discountAmount = Number(o.discountAmount || 0);
 
           return `
-            <div style="background: #FFF; border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow-sm);">
               <!-- Top Header -->
               <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
                 <div>
-                  <span style="font-weight: 700; font-size: 0.9rem; color: var(--primary-color);">Order #${o.id}</span>
+                  <span style="font-weight: 800; font-size: 0.9rem; color: var(--primary-color);">Order #${o.id}</span>
                   <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;"><i class="far fa-clock"></i> ${dateStr}</div>
                 </div>
                 <span class="${badgeClass}">${status}</span>
               </div>
 
-              <!-- Quick Info Summary -->
-              <div style="font-size: 0.82rem; color: #4B5563; margin-bottom: 10px; background: #F9FAFB; padding: 8px 10px; border-radius: 6px; border: 1px solid #F3F4F6;">
-                <div><strong>Items:</strong> ${itemsSummaryText}</div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
-                  <span><strong>Grand Total:</strong> <span style="color: var(--primary-color); font-weight: 700; font-size: 0.9rem;">৳${totalPaid}</span> (${paymentMethod})</span>
+              <!-- Item Thumbnails Strip & Summary -->
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; background: var(--bg-color); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                <div style="display: flex; gap: 4px; flex-shrink: 0;">
+                  ${itemThumbnails}
+                </div>
+                <div style="flex: 1; min-width: 0; font-size: 0.8rem; color: var(--text-primary);">
+                  <div style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${itemsSummaryText}</div>
+                  <div style="margin-top: 2px;">
+                    <span style="color: var(--primary-color); font-weight: 800; font-size: 0.88rem;">৳${totalPaid}</span>
+                    <span style="font-size: 0.72rem; color: var(--text-muted);"> (${paymentMethod})</span>
+                  </div>
                 </div>
               </div>
 
               <!-- Action Bar -->
               <div style="display: flex; gap: 8px; align-items: center;">
                 <button onclick="window.toggleOrderDetail('${o.id}')" class="btn-outline" style="flex: 1; font-size: 0.78rem; padding: 6px 10px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
-                  <i class="fas fa-list"></i> Details <i id="order-toggle-icon-${o.id}" class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                  <i class="fas fa-list"></i> View Details <i id="order-toggle-icon-${o.id}" class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
                 </button>
                 <button onclick="window.downloadInvoiceHandler('${o.id}')" class="btn-accent" style="flex: 1; font-size: 0.78rem; padding: 6px 10px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
                   <i class="fas fa-file-pdf"></i> Download Invoice
@@ -215,33 +1357,30 @@
 
               <!-- Expandable Order Detail View -->
               <div id="order-details-${o.id}" style="display: none; margin-top: 12px; border-top: 1px dashed var(--border-color); padding-top: 12px;">
-                <!-- Purchased Items -->
-                <h4 style="font-size: 0.82rem; color: var(--primary-color); font-weight: 700; margin-bottom: 6px;"><i class="fas fa-box"></i> Order Items (${items.length})</h4>
+                <h4 style="font-size: 0.82rem; color: var(--primary-color); font-weight: 800; margin-bottom: 6px;"><i class="fas fa-box"></i> Purchased Items (${items.length})</h4>
                 <div style="margin-bottom: 10px;">
                   ${itemsDetailHTML}
                 </div>
 
-                <!-- Address & Payment Info Grid -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; font-size: 0.78rem; margin-bottom: 10px;">
-                  <div style="background: #F9FAFB; padding: 8px 10px; border-radius: 6px; border: 1px solid #E5E7EB;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; font-size: 0.78rem;">
+                  <div style="background: var(--bg-color); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color);">
                     <strong style="color: var(--primary-color); display: block; margin-bottom: 4px;"><i class="fas fa-map-marker-alt"></i> Delivery Address</strong>
                     <div><strong>Division:</strong> ${o.shippingAddress?.division || 'N/A'}</div>
                     <div><strong>District:</strong> ${o.shippingAddress?.district || 'N/A'}</div>
                     <div><strong>Upazila:</strong> ${o.shippingAddress?.thana || o.shippingAddress?.upazila || 'N/A'}</div>
-                    <div><strong>Union:</strong> ${o.shippingAddress?.union || 'N/A'}</div>
                     <div><strong>Address:</strong> ${o.shippingAddress?.village || 'N/A'}</div>
-                    ${o.shippingAddress?.notes ? `<div style="margin-top:2px; font-style:italic; color:#6B7280;">Notes: ${o.shippingAddress.notes}</div>` : ''}
+                    ${o.shippingAddress?.notes ? `<div style="margin-top:2px; font-style:italic; color:var(--text-muted);">Notes: ${o.shippingAddress.notes}</div>` : ''}
                   </div>
 
-                  <div style="background: #F9FAFB; padding: 8px 10px; border-radius: 6px; border: 1px solid #E5E7EB;">
+                  <div style="background: var(--bg-color); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color);">
                     <strong style="color: var(--primary-color); display: block; margin-bottom: 4px;"><i class="fas fa-credit-card"></i> Payment Summary</strong>
                     <div><strong>Method:</strong> ${paymentMethod}</div>
                     ${o.bKashTxnId ? `<div style="color: #D84315; font-weight: 700; margin-top: 2px;">bKash TrxID: ${o.bKashTxnId}</div>` : ''}
-                    <div style="margin-top: 4px; border-top: 1px solid #E5E7EB; padding-top: 4px;">
+                    <div style="margin-top: 4px; border-top: 1px solid var(--border-color); padding-top: 4px;">
                       <div>Subtotal: ৳${subtotal.toLocaleString('bn-BD')}</div>
                       ${discountAmount > 0 ? `<div style="color: #059669;">Discount: -৳${discountAmount.toLocaleString('bn-BD')}</div>` : ''}
                       <div>Delivery Charge: ৳${deliveryCharge.toLocaleString('bn-BD')}</div>
-                      <div style="font-weight: 700; color: var(--primary-color); font-size: 0.85rem; margin-top: 2px;">
+                      <div style="font-weight: 800; color: var(--primary-color); font-size: 0.85rem; margin-top: 2px;">
                         Grand Total: ৳${totalPaid}
                       </div>
                     </div>
@@ -261,8 +1400,6 @@
         `;
       }
     });
-
-    document.getElementById('logout-btn').addEventListener('click', () => logoutUser());
   </script>
 </body>
 </html>
