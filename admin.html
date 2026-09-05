@@ -68,9 +68,6 @@
         <button class="admin-tab-btn" id="adm-tab-banners" onclick="switchAdminTab('banners')">
           <i class="fas fa-images"></i> Banners
         </button>
-        <button class="admin-tab-btn" id="adm-tab-messenger" onclick="switchAdminTab('messenger')">
-          <i class="fab fa-facebook-messenger" style="color: #0084FF;"></i> Messenger Chats
-        </button>
       </nav>
     </aside>
 
@@ -405,21 +402,6 @@
         </form>
       </div>
 
-      <div class="admin-section-card">
-        <div class="admin-section-header">
-          <h3 class="admin-section-title"><i class="fab fa-facebook-messenger" style="color: #0084FF;"></i> Facebook Messenger Auto-Reply Settings</h3>
-        </div>
-        <form id="adm-autoreply-form">
-          <div class="form-group">
-            <label class="form-label">Auto-Reply Message Text (স্বয়ংক্রিয় উত্তর মেসেজ) *</label>
-            <textarea id="autoreply-msg-setting" class="form-control" rows="3" required placeholder="স্বয়ংক্রিয় উত্তর মেসেজ টাইপ করুন..."></textarea>
-            <small style="color: #6B7280; display: block; margin-top: 6px; font-size: 0.82rem;">
-              <i class="fas fa-info-circle" style="color: var(--primary-color);"></i> পরবর্তীতে Facebook Messenger API ইন্টিগ্রেশন সম্পন্ন হলে নতুন মেসেজ আসার সাথে সাথে গ্রাহক এই বার্তাটি স্বয়ংক্রিয়ভাবে পাবেন।
-            </small>
-          </div>
-          <button type="submit" class="btn-primary" style="border-radius: 10px; padding: 10px 20px;">Save Auto-Reply Message</button>
-        </form>
-      </div>
     </div>
 
     <!-- Section 9: Banners Management -->
@@ -438,44 +420,6 @@
         </div>
 
         <div id="admin-banners-list"></div>
-      </div>
-    </div>
-
-    <!-- Section 10: Messenger Chats Section (Placeholder UI/UX for Facebook Messenger API) -->
-    <div id="sec-messenger" style="display: none;">
-      <div class="admin-section-card" style="padding: 0; overflow: hidden;">
-        <div class="admin-section-header" style="padding: 16px 20px; margin-bottom: 0; border-bottom: 1px solid #E5E7EB; background: #FAFDFB;">
-          <div>
-            <h3 class="admin-section-title" style="display: flex; align-items: center; gap: 8px;">
-              <i class="fab fa-facebook-messenger" style="color: #0084FF; font-size: 1.4rem;"></i>
-              Customer Messenger Chats
-            </h3>
-            <span style="font-size: 0.8rem; color: #6B7280; font-weight: 500;">
-              <i class="fas fa-info-circle" style="color: #0084FF;"></i> Live customer conversations via Facebook Messenger (API Integration Ready)
-            </span>
-          </div>
-          <span class="admin-badge" style="background: #E0F2FE; color: #0369A1; font-weight: 700; border: 1px solid #BAE6FD;">
-            <i class="fas fa-plug"></i> Demo Mode / Placeholder Data
-          </span>
-        </div>
-
-        <div class="messenger-container">
-          <!-- Left Pane: Conversation Threads List -->
-          <div class="messenger-sidebar">
-            <div class="messenger-search-bar">
-              <i class="fas fa-search"></i>
-              <input type="text" id="msg-search-input" placeholder="Search customer or message..." oninput="window.renderMessengerThreads()">
-            </div>
-            <div id="messenger-threads-list" class="messenger-threads-list">
-              <!-- Rendered dynamically -->
-            </div>
-          </div>
-
-          <!-- Right Pane: Active Conversation Thread & Reply Box -->
-          <div class="messenger-chat-window" id="messenger-chat-window">
-            <!-- Active Thread Content rendered dynamically -->
-          </div>
-        </div>
       </div>
     </div>
 
@@ -775,7 +719,6 @@
       saveAdminDeliverySettings,
       saveAdminPaymentSettings,
       saveAdminGeneralSettings,
-      saveAdminAutoReplySettings,
       generateCategorySlug,
       createCategory,
       updateCategory,
@@ -840,7 +783,7 @@
 
     // Tab Switching Logic
     window.switchAdminTab = (tab) => {
-      ['dash', 'products', 'inventory', 'categories', 'customers', 'orders', 'reviews', 'reports', 'coupons', 'settings', 'banners', 'messenger'].forEach(t => {
+      ['dash', 'products', 'inventory', 'categories', 'customers', 'orders', 'reviews', 'reports', 'coupons', 'settings', 'banners'].forEach(t => {
         const sec = document.getElementById(`sec-${t}`);
         if (sec) sec.style.display = t === tab ? 'block' : 'none';
         const btn = document.getElementById(`adm-tab-${t}`);
@@ -850,7 +793,6 @@
       if (tab === 'inventory') renderInventoryTable();
       if (tab === 'reviews') renderReviewsList();
       if (tab === 'reports') renderReportsView();
-      if (tab === 'messenger') renderMessengerUI();
     };
 
     // Modal Handlers
@@ -2371,8 +2313,6 @@
           if (elHotline) elHotline.value = adminState.settings.general.hotline || '+8809658183506';
           const elEmail = document.getElementById('gen-support-email');
           if (elEmail) elEmail.value = adminState.settings.general.supportEmail || 'saripofficialsupport@gmail.com';
-          const elAutoReply = document.getElementById('autoreply-msg-setting');
-          if (elAutoReply) elAutoReply.value = adminState.settings.general.autoReply || "আসসালামু আলাইকুম স্যার/ম্যাম। আপনি কিছুক্ষণ অপেক্ষা করুন। আমাদের প্রতিনিধি আপনার সাথে শীঘ্রই যোগাযোগ করবে। ধন্যবাদ।";
         }
       } catch (err) {
         console.error('Error loading settings data:', err);
@@ -2407,215 +2347,6 @@
       });
       showToast('General Settings Saved');
     });
-
-    document.getElementById('adm-autoreply-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const text = document.getElementById('autoreply-msg-setting').value.trim();
-      await saveAdminAutoReplySettings(text);
-      if (!adminState.settings.general) adminState.settings.general = {};
-      adminState.settings.general.autoReply = text;
-      showToast('Auto-Reply Message Saved');
-    });
-
-    // -------------------------------------------------------------
-    // Messenger Chats Section (Placeholder / UI Mockup)
-    // -------------------------------------------------------------
-    const messengerData = [
-      {
-        id: 'thread-1',
-        customerName: 'তানিয়া রহমান',
-        customerAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80',
-        online: true,
-        unreadCount: 1,
-        messages: [
-          { id: 'm1', text: 'আসসালামু আলাইকুম, ক্যাশ অন ডেলিভারিতে অর্ডার করা যাবে?', sender: 'customer', timestamp: '10:15 AM' },
-          { id: 'm2', text: 'ওয়ালাইকুম আসসালাম। জ্বী হ্যা, আপনি পুরো বাংলাদেশে ক্যাশ অন ডেলিভারিতে অর্ডার করতে পারবেন।', sender: 'admin', timestamp: '10:18 AM' },
-          { id: 'm3', text: 'ধন্যবাদ! অর্ডার করার পর কতদিনের মধ্যে পাবো?', sender: 'customer', timestamp: '10:22 AM' }
-        ]
-      },
-      {
-        id: 'thread-2',
-        customerName: 'মোঃ আরিফুল ইসলাম',
-        customerAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80',
-        online: false,
-        unreadCount: 0,
-        messages: [
-          { id: 'm10', text: 'ভাইয়া, আমার অর্ডার #1002 এর ট্র্যাকিং নাম্বারটা দেওয়া যাবে?', sender: 'customer', timestamp: 'Yesterday 04:45 PM' },
-          { id: 'm11', text: 'অবশ্যই স্যার, আপনার পার্সেলটি পাঠাও কুরিয়ারে বুকিং দেওয়া হয়েছে। ট্র্যাকিং আইডি: CID88301', sender: 'admin', timestamp: 'Yesterday 05:00 PM' },
-          { id: 'm12', text: 'ধন্যবাদ ভাই।', sender: 'customer', timestamp: 'Yesterday 05:10 PM' }
-        ]
-      },
-      {
-        id: 'thread-3',
-        customerName: 'সাবরিনা আক্তার',
-        customerAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80',
-        online: true,
-        unreadCount: 1,
-        messages: [
-          { id: 'm20', text: 'কুষ্টিয়ার ভেতরে ডেলিভারি চার্জ কত?', sender: 'customer', timestamp: '11:05 AM' }
-        ]
-      },
-      {
-        id: 'thread-4',
-        customerName: 'রাশেদুল হাসান',
-        customerAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80',
-        online: false,
-        unreadCount: 0,
-        messages: [
-          { id: 'm30', text: 'স্মার্ট ওয়াচটার গ্যারান্টি কতদিনের?', sender: 'customer', timestamp: 'Jul 12 02:15 PM' },
-          { id: 'm31', text: 'স্যার, আমাদের স্মার্ট ওয়াচে ৬ মাসের অফিসিয়াল রিপ্লেসমেন্ট ওয়ারেন্টি রয়েছে।', sender: 'admin', timestamp: 'Jul 12 02:30 PM' }
-        ]
-      }
-    ];
-
-    let activeThreadId = 'thread-1';
-
-    window.renderMessengerUI = () => {
-      renderMessengerThreads();
-      renderActiveChatThread();
-    };
-
-    window.renderMessengerThreads = () => {
-      const container = document.getElementById('messenger-threads-list');
-      if (!container) return;
-
-      const search = (document.getElementById('msg-search-input')?.value || '').toLowerCase().trim();
-
-      const filtered = messengerData.filter(t => {
-        const nameMatch = (t.customerName || '').toLowerCase().includes(search);
-        const lastMsg = t.messages[t.messages.length - 1];
-        const msgMatch = (lastMsg?.text || '').toLowerCase().includes(search);
-        return nameMatch || msgMatch;
-      });
-
-      if (filtered.length === 0) {
-        container.innerHTML = '<div style="padding: 24px; text-align: center; color: #6B7280; font-size: 0.85rem;">No conversations found</div>';
-        return;
-      }
-
-      container.innerHTML = filtered.map(t => {
-        const lastMsg = t.messages[t.messages.length - 1];
-        const isActive = t.id === activeThreadId;
-        return `
-          <div class="messenger-thread-item ${isActive ? 'active' : ''}" onclick="window.selectMessengerThread('${t.id}')">
-            <div class="messenger-avatar-wrap">
-              <img src="${t.customerAvatar}" alt="${t.customerName}">
-              ${t.online ? '<span class="online-indicator"></span>' : ''}
-            </div>
-            <div class="messenger-thread-info">
-              <div class="messenger-thread-top">
-                <span class="messenger-customer-name">${t.customerName}</span>
-                <span class="messenger-timestamp">${lastMsg ? lastMsg.timestamp : ''}</span>
-              </div>
-              <div class="messenger-thread-bottom">
-                <span class="messenger-last-msg">${lastMsg ? (lastMsg.sender === 'admin' ? 'You: ' : '') + lastMsg.text : ''}</span>
-                ${t.unreadCount > 0 ? `<span class="messenger-unread-badge">${t.unreadCount}</span>` : ''}
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    };
-
-    window.selectMessengerThread = (threadId) => {
-      activeThreadId = threadId;
-      const thread = messengerData.find(t => t.id === threadId);
-      if (thread) thread.unreadCount = 0;
-      renderMessengerThreads();
-      renderActiveChatThread();
-    };
-
-    window.renderActiveChatThread = () => {
-      const container = document.getElementById('messenger-chat-window');
-      if (!container) return;
-
-      const thread = messengerData.find(t => t.id === activeThreadId);
-      if (!thread) {
-        container.innerHTML = '<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#6B7280;">Select a conversation to start chatting</div>';
-        return;
-      }
-
-      container.innerHTML = `
-        <div class="chat-header">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <div class="messenger-avatar-wrap">
-              <img src="${thread.customerAvatar}" alt="${thread.customerName}">
-              ${thread.online ? '<span class="online-indicator"></span>' : ''}
-            </div>
-            <div>
-              <div style="font-weight: 700; color: #111827; font-size: 0.95rem;">${thread.customerName}</div>
-              <div style="font-size: 0.75rem; color: #10B981; font-weight: 600; display: flex; align-items: center; gap: 4px;">
-                <i class="fab fa-facebook-messenger" style="color: #0084FF;"></i> ${thread.online ? 'Active now on Facebook' : 'Offline'}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="chat-messages-body" id="chat-messages-body">
-          ${thread.messages.map(m => `
-            <div class="chat-bubble ${m.sender === 'admin' ? 'chat-bubble-out' : 'chat-bubble-in'}">
-              <div class="bubble-content">${m.text}</div>
-              <div class="bubble-time">${m.timestamp}</div>
-            </div>
-          `).join('')}
-        </div>
-
-        <div class="chat-footer">
-          <div class="quick-reply-bar">
-            <button class="quick-reply-btn" onclick="window.useAutoReplyText()">
-              <i class="fas fa-bolt" style="color: #F59E0B;"></i> Insert Auto-Reply Message
-            </button>
-          </div>
-          <form id="msg-reply-form" onsubmit="window.handleSendReply(event)" style="display: flex; gap: 10px; align-items: center; width: 100%;">
-            <input type="text" id="msg-reply-input" class="form-control" placeholder="Type your reply to ${thread.customerName}..." required style="border-radius: 20px; padding: 10px 16px;">
-            <button type="submit" class="btn-primary" style="border-radius: 20px; padding: 10px 20px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;">
-              <i class="fas fa-paper-plane"></i> Send
-            </button>
-          </form>
-        </div>
-      `;
-
-      setTimeout(() => {
-        const body = document.getElementById('chat-messages-body');
-        if (body) body.scrollTop = body.scrollHeight;
-      }, 50);
-    };
-
-    window.useAutoReplyText = () => {
-      const input = document.getElementById('msg-reply-input');
-      const autoReplyText = adminState.settings?.general?.autoReply || "আসসালামু আলাইকুম স্যার/ম্যাম। আপনি কিছুক্ষণ অপেক্ষা করুন। আমাদের প্রতিনিধি আপনার সাথে শীঘ্রই যোগাযোগ করবে। ধন্যবাদ।";
-      if (input) {
-        input.value = autoReplyText;
-        input.focus();
-      }
-    };
-
-    window.handleSendReply = (e) => {
-      e.preventDefault();
-      const input = document.getElementById('msg-reply-input');
-      if (!input) return;
-
-      const replyText = input.value.trim();
-      if (!replyText) return;
-
-      const thread = messengerData.find(t => t.id === activeThreadId);
-      if (!thread) return;
-
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
-      thread.messages.push({
-        id: 'm-' + Date.now(),
-        text: replyText,
-        sender: 'admin',
-        timestamp: timeStr
-      });
-
-      input.value = '';
-      renderMessengerThreads();
-      renderActiveChatThread();
-      showToast('Reply sent successfully');
-    };
 
     // -------------------------------------------------------------
     // Banner Management

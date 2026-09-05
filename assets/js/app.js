@@ -11,6 +11,7 @@ export const TRANSLATIONS = {
     myOrders: "My Orders",
     wishlist: "Wishlist",
     myAccount: "My Account",
+    search: "Search",
     logout: "Logout",
     darkMode: "Dark Mode",
     lightMode: "Light Mode",
@@ -35,6 +36,7 @@ export const TRANSLATIONS = {
     myOrders: "আমার অর্ডারসমূহ",
     wishlist: "উইশলিস্ট",
     myAccount: "আমার অ্যাকাউন্ট",
+    search: "সার্চ",
     logout: "লগআউট",
     darkMode: "ডার্ক মোড",
     lightMode: "লাইট মোড",
@@ -587,20 +589,6 @@ export function initCarousel(banners) {
     });
   });
 
-  // Bottom Navigation helper for Search button and active tab highlight
-  document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
-    const icon = item.querySelector('i.fa-search');
-    if (icon) {
-      item.addEventListener('click', (e) => {
-        const input = document.getElementById('search-input');
-        if (input) {
-          e.preventDefault();
-          input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          setTimeout(() => input.focus(), 300);
-        }
-      });
-    }
-  });
 
   // Touch / Swipe Gesture support for mobile devices
   let startX = 0;
@@ -636,6 +624,21 @@ async function initApp() {
 
   onAuthStateUpdate(() => {
     renderDrawer();
+  });
+
+  // Bottom Navigation helper for Search button
+  document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
+    const icon = item.querySelector('i.fa-search');
+    if (icon) {
+      item.addEventListener('click', (e) => {
+        const input = document.getElementById('search-input');
+        if (input) {
+          e.preventDefault();
+          input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => input.focus(), 300);
+        }
+      });
+    }
   });
 
   const copyrightYearEl = document.getElementById('copyright-year');
