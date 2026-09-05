@@ -24,10 +24,10 @@ export const TRANSLATIONS = {
     contactUs: "Contact Us",
     aboutUs: "About Us",
     shareApp: "Share Website / Rate Us",
-    navSectionMain: "Shop & Orders",
-    navSectionAccount: "Account & Settings",
-    navSectionPolicies: "Policies & Info",
-    navSectionSupport: "Help & Social"
+    navSectionMain: "MAIN",
+    navSectionAccount: "ACCOUNT & SETTINGS",
+    navSectionPolicies: "POLICIES & INFO",
+    navSectionSupport: "HELP & SOCIAL"
   },
   bn: {
     home: "হোম",
@@ -49,7 +49,7 @@ export const TRANSLATIONS = {
     contactUs: "যোগাযোগ করুন",
     aboutUs: "আমাদের সম্পর্কে",
     shareApp: "ওয়েবসাইট শেয়ার / রেটিং দিন",
-    navSectionMain: "শপিং ও অর্ডার",
+    navSectionMain: "প্রধান মেনু",
     navSectionAccount: "অ্যাকাউন্ট ও সেটিংস",
     navSectionPolicies: "পলিসি ও তথ্য",
     navSectionSupport: "হেল্প ও সোশ্যাল"
@@ -249,23 +249,21 @@ export function renderDrawer() {
     </div>
 
     <ul class="drawer-menu">
-      <!-- Section: Main Shopping Navigation -->
+      <!-- 1. MAIN -->
+      <li class="drawer-section-title">
+        ${t.navSectionMain}
+      </li>
       <li><a href="index.html" class="drawer-menu-item ${currentPath === 'index.html' ? 'active' : ''}"><i class="fas fa-home" style="width: 20px;"></i> <span>${t.home}</span></a></li>
       <li><a href="shop.html" class="drawer-menu-item ${currentPath === 'shop.html' ? 'active' : ''}"><i class="fas fa-th-large" style="width: 20px;"></i> <span>${t.allCategories}</span></a></li>
       <li><a href="offers.html" class="drawer-menu-item ${currentPath === 'offers.html' ? 'active' : ''}"><i class="fas fa-tags" style="width: 20px;"></i> <span>${t.specialOffers}</span></a></li>
       <li><a href="orders.html" class="drawer-menu-item ${currentPath === 'orders.html' ? 'active' : ''}"><i class="fas fa-box" style="width: 20px;"></i> <span>${t.myOrders}</span></a></li>
       <li><a href="wishlist.html" class="drawer-menu-item ${currentPath === 'wishlist.html' ? 'active' : ''}"><i class="fas fa-heart" style="width: 20px;"></i> <span>${t.wishlist}</span></a></li>
 
-      <!-- Account Section -->
-      <li style="padding: 10px 20px 4px 20px; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid var(--border-color); margin-top: 6px;">
+      <!-- 2. ACCOUNT & SETTINGS -->
+      <li class="drawer-section-title">
         ${t.navSectionAccount}
       </li>
       <li><a href="${isLoggedIn ? 'profile.html' : 'login.html'}" class="drawer-menu-item account-link ${currentPath === 'profile.html' || currentPath === 'login.html' ? 'active' : ''}"><i class="fas fa-user-circle" style="width: 20px;"></i> <span>${t.myAccount}</span></a></li>
-      ${isLoggedIn ? `
-      <li><a href="#" onclick="event.preventDefault(); toggleDrawer(); window.handleLogout();" class="drawer-menu-item" style="color: var(--danger-color);"><i class="fas fa-sign-out-alt" style="width: 20px;"></i> <span>${t.logout}</span></a></li>
-      ` : ''}
-
-      <!-- Preferences -->
       <li>
         <a href="#" onclick="event.preventDefault(); toggleDarkMode();" class="drawer-menu-item">
           <i class="${isDark ? 'fas fa-sun' : 'fas fa-moon'} theme-toggle-icon" style="width: 20px; color: var(--accent-color);"></i>
@@ -279,8 +277,8 @@ export function renderDrawer() {
         </a>
       </li>
 
-      <!-- Policy Pages -->
-      <li style="padding: 10px 20px 4px 20px; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid var(--border-color); margin-top: 6px;">
+      <!-- 3. POLICIES & INFO -->
+      <li class="drawer-section-title">
         ${t.navSectionPolicies}
       </li>
       <li><a href="return-policy.html" class="drawer-menu-item ${currentPath === 'return-policy.html' ? 'active' : ''}"><i class="fas fa-undo" style="width: 20px;"></i> <span>${t.returnPolicy}</span></a></li>
@@ -289,13 +287,19 @@ export function renderDrawer() {
       <li><a href="terms.html" class="drawer-menu-item ${currentPath === 'terms.html' ? 'active' : ''}"><i class="fas fa-file-contract" style="width: 20px;"></i> <span>${t.termsOfService}</span></a></li>
       <li><a href="faq.html" class="drawer-menu-item ${currentPath === 'faq.html' ? 'active' : ''}"><i class="fas fa-question-circle" style="width: 20px;"></i> <span>${t.faq}</span></a></li>
 
-      <!-- Support & App -->
-      <li style="padding: 10px 20px 4px 20px; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid var(--border-color); margin-top: 6px;">
+      <!-- 4. HELP & SOCIAL -->
+      <li class="drawer-section-title">
         ${t.navSectionSupport}
       </li>
       <li><a href="contact.html" class="drawer-menu-item ${currentPath === 'contact.html' ? 'active' : ''}"><i class="fas fa-headset" style="width: 20px;"></i> <span>${t.contactUs}</span></a></li>
       <li><a href="about.html" class="drawer-menu-item ${currentPath === 'about.html' ? 'active' : ''}"><i class="fas fa-info-circle" style="width: 20px;"></i> <span>${t.aboutUs}</span></a></li>
       <li><a href="#" onclick="event.preventDefault(); toggleDrawer(); openShareModal();" class="drawer-menu-item"><i class="fas fa-share-alt" style="width: 20px; color: var(--accent-color);"></i> <span>${t.shareApp}</span></a></li>
+
+      <!-- 5. LOGOUT (Bottom Divider & Item) -->
+      ${isLoggedIn ? `
+      <li class="drawer-logout-divider"></li>
+      <li><a href="#" onclick="event.preventDefault(); toggleDrawer(); window.handleLogout();" class="drawer-menu-item logout-link" style="color: var(--danger-color);"><i class="fas fa-sign-out-alt" style="width: 20px;"></i> <span>${t.logout}</span></a></li>
+      ` : ''}
     </ul>
   `;
 }
