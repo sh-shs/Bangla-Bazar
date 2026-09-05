@@ -727,6 +727,28 @@ input, select, textarea {
   padding: 16px 0;
 }
 
+.drawer-section-title {
+  padding: 14px 20px 6px 20px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-top: 1px solid var(--border-color);
+  margin-top: 8px;
+}
+
+.drawer-section-title:first-child {
+  border-top: none;
+  margin-top: 0;
+  padding-top: 4px;
+}
+
+.drawer-logout-divider {
+  margin-top: 18px;
+  border-top: 2px solid var(--border-color);
+}
+
 .drawer-menu-item {
   display: flex;
   align-items: center;
@@ -735,6 +757,11 @@ input, select, textarea {
   font-weight: 500;
   color: var(--text-primary);
   border-bottom: 1px solid #F3F4F6;
+}
+
+.drawer-menu-item.logout-link {
+  color: var(--danger-color);
+  font-weight: 600;
 }
 
 .drawer-menu-item:hover, .drawer-menu-item.active {
