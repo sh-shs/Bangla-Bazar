@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="assets/images/logo.png">
+  <link rel="apple-touch-icon" href="assets/images/logo.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - SHS Bazar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .settings-container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 16px 16px 100px 16px;
+    }
+
+    .settings-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+    }
+
+    .profile-avatar-letter {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-color) 0%, #0D5C4A 100%);
+      color: #FFFFFF;
+      font-size: 2rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid var(--primary-light);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-transform: uppercase;
+      margin: 0 auto;
+    }
+
+    /* Menu Cards Grid / List */
+    .profile-menu-section {
+      margin-bottom: 20px;
+    }
+
+    .menu-section-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      padding-left: 4px;
+    }
+
+    .menu-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 420px) {
+      .menu-cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .menu-item-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-primary);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .menu-item-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary-color);
+    }
+
+    .menu-item-card:active {
+      transform: scale(0.98);
+    }
+
+    .menu-icon-box {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .menu-text-wrap {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .menu-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .menu-subtitle {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Modal overlay custom styling */
+    .profile-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(5px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .profile-modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .profile-modal-card {
+      background: var(--card-bg);
+      color: var(--text-primary);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 20px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border-color);
+      position: relative;
+      transform: scale(0.94);
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .profile-modal-overlay.active .profile-modal-card {
+      transform: scale(1);
+    }
+
+    .modal-header-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .address-card-item {
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .toggle-switch-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #CBD5E1;
+      transition: .3s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--primary-color);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="page-top-bar">
+    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+    <span class="page-title">Settings</span>
+  </div>
+
+  <div class="settings-container">
+
+    <!-- 1. Edit Profile Form Section -->
+    <div class="settings-card">
+      <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--primary-color); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+        <i class="fas fa-user-edit" style="color: var(--accent-color);"></i> Edit Profile
+      </h3>
+
+      <form id="edit-profile-form" onsubmit="handleSaveProfile(event)">
+        <div style="text-align: center; margin-bottom: 16px;">
+          <div style="position: relative; width: 80px; height: 80px; margin: 0 auto;">
+            <img id="settings-avatar-preview" src="" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-color); display: none;" onerror="this.style.display='none'; document.getElementById('settings-avatar-letter').style.display='flex';">
+            <div id="settings-avatar-letter" class="profile-avatar-letter">U</div>
+          </div>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">Update your avatar image or enter image URL</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Profile Image File</label>
+          <input type="file" id="edit-photo-file" accept="image/*" class="form-control" onchange="handleModalFileSelect(event)">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Or Profile Image URL</label>
+          <input type="url" id="edit-photo-url" class="form-control" placeholder="https://example.com/photo.jpg" oninput="handleModalUrlInput(this.value)">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input type="text" id="edit-display-name" class="form-control" required placeholder="Enter full name">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input type="tel" id="edit-phone" class="form-control" placeholder="017xxxxxxxx">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="edit-email" class="form-control" readonly disabled style="background: #F1F5F9; cursor: not-allowed;">
+          <small style="font-size: 0.7rem; color: var(--text-muted);">Email address cannot be changed directly.</small>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+          <button type="submit" id="save-profile-btn" class="btn-primary" style="font-size: 0.85rem; padding: 10px 24px; border-radius: 20px; width: 100%;">Save Changes</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- 2. Menu Cards Grid Section -->
+    <div class="profile-menu-section">
+      <div class="menu-section-title">Account Menu</div>
+      <div class="menu-cards-grid">
+        <!-- My Orders -->
+        <a href="orders.html" class="menu-item-card">
+          <div class="menu-icon-box" style="background: #E6F4F0; color: var(--primary-color);">
+            <i class="fas fa-box"></i>
+          </div>
+          <div class="menu-text-wrap">
+            <div class="menu-title">My Orders</div>
+            <div class="menu-subtitle">View detailed history</div>
+          </div>
+          <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+        </a>
+
+        <!-- My Wishlist -->
+        <a href="wishlist.html" class="menu-item-card">
+          <div class="menu-icon-box" style="background: #FCE7F3; color: #DB2777;">
+            <i class="fas fa-heart"></i>
+          </div>
+          <div class="menu-text-wrap">
+            <div class="menu-title">My Wishlist</div>
+            <div class="menu-subtitle">Saved favorites</div>
+          </div>
+          <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+        </a>
+
+        <!-- Shipping Addresses -->
+        <div class="menu-item-card" onclick="openAddressesModal()">
+          <div class="menu-icon-box" style="background: #FEF3C7; color: #D97706;">
+            <i class="fas fa-map-marker-alt"></i>
+          </div>
+          <div class="menu-text-wrap">
+            <div class="menu-title">Shipping Addresses</div>
+            <div class="menu-subtitle">Manage delivery locations</div>
+          </div>
+          <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="menu-item-card" onclick="openPaymentMethodsModal()">
+          <div class="menu-icon-box" style="background: #EFF6FF; color: #2563EB;">
+            <i class="fas fa-wallet"></i>
+          </div>
+          <div class="menu-text-wrap">
+            <div class="menu-title">Payment Methods</div>
+            <div class="menu-subtitle">Save bKash / Nagad</div>
+          </div>
+          <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+        </div>
+
+        <!-- Notifications -->
+        <div class="menu-item-card" onclick="openNotificationsModal()">
+          <div class="menu-icon-box" style="background: #EDE9FE; color: #7C3AED;">
+            <i class="fas fa-bell"></i>
+          </div>
+          <div class="menu-text-wrap">
+            <div class="menu-title">Notifications</div>
+            <div class="menu-subtitle">Updates & offer alerts</div>
+          </div>
+          <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+        </div>
+
+        <!-- Change Password -->
+        <div class="menu-item-card" onclick="openChangePasswordModal()">
+          <div class="menu-icon-box" style="background: #DCFCE7; color: #16A34A;">
+            <i class="fas fa-key"></i>
+          </div>
+          <div class="menu-text-wrap">
+            <div class="menu-title">Change Password</div>
+            <div class="menu-subtitle">Update credentials</div>
+          </div>
+          <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+        </div>
+      </div>
+
+      <div class="menu-section-title">Support & Info</div>
+      <div class="menu-cards-grid">
+        <!-- Help & Support -->
+        <a href="contact.html" class="menu-item-card">
+          <div class="menu-icon-box" style="background: #FEF2F2; color: #EF4444;">
+            <i class="fas fa-headset"></i>
+          </div>
+          <div class="menu-text-wrap">
+            <div class="menu-title">Help & Support</div>
+            <div class="menu-subtitle">Contact Us / FAQ</div>
+          </div>
+          <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+        </a>
+
+        <!-- Privacy Policy -->
+        <a href="privacy-policy.html" class="menu-item-card">
+          <div class="menu-icon-box" style="background: #F1F5F9; color: #475569;">
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <div class="menu-text-wrap">
+            <div class="menu-title">Privacy & Terms</div>
+            <div class="menu-subtitle">Policies & Terms</div>
+          </div>
+          <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+        </a>
+
+        <!-- About Us -->
+        <a href="about.html" class="menu-item-card">
+          <div class="menu-icon-box" style="background: #E0F2FE; color: #0284C7;">
+            <i class="fas fa-info-circle"></i>
+          </div>
+          <div class="menu-text-wrap">
+            <div class="menu-title">About Us</div>
+            <div class="menu-subtitle">SHS Bazar Info</div>
+          </div>
+          <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+        </a>
+
+        <!-- Rate Us / Share -->
+        <div class="menu-item-card" onclick="openShareModal()">
+          <div class="menu-icon-box" style="background: #FFF7ED; color: #F97316;">
+            <i class="fas fa-star"></i>
+          </div>
+          <div class="menu-text-wrap">
+            <div class="menu-title">Rate & Share</div>
+            <div class="menu-subtitle">Feedback / Share app</div>
+          </div>
+          <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- Shipping Addresses Modal -->
+  <div id="addresses-modal" class="profile-modal-overlay" onclick="if(event.target===this) closeAddressesModal();">
+    <div class="profile-modal-card">
+      <div class="modal-header-title">
+        <i class="fas fa-map-marker-alt" style="color: var(--accent-color);"></i> Shipping Addresses
+      </div>
+
+      <div id="saved-addresses-list">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div style="border-top: 1px dashed var(--border-color); padding-top: 14px; margin-top: 10px;">
+        <h4 style="font-size: 0.9rem; font-weight: 800; color: var(--primary-color); margin-bottom: 10px;">Add New Address</h4>
+        <form id="add-address-form" onsubmit="handleAddAddress(event)">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="form-group">
+              <label class="form-label">Division *</label>
+              <select id="addr-division" class="form-control" required>
+                <option value="">Select Division</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">District *</label>
+              <select id="addr-district" class="form-control" required disabled>
+                <option value="">Select District</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="form-group">
+              <label class="form-label">Upazila/Thana *</label>
+              <select id="addr-upazila" class="form-control" required disabled>
+                <option value="">Select Upazila / Thana</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Union / Area</label>
+              <select id="addr-union" class="form-control" disabled>
+                <option value="">Select Union / Area (Optional)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Village / House / Road Address *</label>
+            <textarea id="addr-village" class="form-control" rows="2" placeholder="Full street address or landmark" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Delivery Notes (Optional)</label>
+            <input type="text" id="addr-notes" class="form-control" placeholder="e.g. Call before delivery">
+          </div>
+
+          <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 14px;">
+            <button type="button" onclick="closeAddressesModal()" class="btn-outline" style="font-size: 0.85rem; padding: 8px 16px;">Close</button>
+            <button type="submit" class="btn-accent" style="font-size: 0.85rem; padding: 8px 18px;">Save Address</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Methods Modal -->
+  <div id="payment-methods-modal" class="profile-modal-overlay" onclick="if(event.target===this) closePaymentMethodsModal();">
+    <div class="profile-modal-card">
+      <div class="modal-header-title">
+        <i class="fas fa-wallet" style="color: var(--accent-color);"></i> Payment Methods
+      </div>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">
+        Save your default bKash and Nagad numbers for quicker checkout payments.
+      </p>
+      <form id="payment-methods-form" onsubmit="handleSavePaymentMethods(event)">
+        <div class="form-group">
+          <label class="form-label" style="display: flex; align-items: center; gap: 6px;">
+            <span style="background: #E2136E; color: #FFF; font-weight: 900; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem;">bKash</span>
+            bKash Account Number
+          </label>
+          <input type="tel" id="pm-bkash-number" class="form-control" placeholder="017xxxxxxxx">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" style="display: flex; align-items: center; gap: 6px;">
+            <span style="background: #F7921E; color: #FFF; font-weight: 900; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem;">Nagad</span>
+            Nagad Account Number
+          </label>
+          <input type="tel" id="pm-nagad-number" class="form-control" placeholder="018xxxxxxxx">
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+          <button type="button" onclick="closePaymentMethodsModal()" class="btn-outline" style="font-size: 0.85rem; padding: 8px 16px;">Cancel</button>
+          <button type="submit" class="btn-primary" style="font-size: 0.85rem; padding: 8px 20px;">Save Numbers</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Notifications Modal -->
+  <div id="notifications-modal" class="profile-modal-overlay" onclick="if(event.target===this) closeNotificationsModal();">
+    <div class="profile-modal-card">
+      <div class="modal-header-title">
+        <i class="fas fa-bell" style="color: var(--accent-color);"></i> Notification Settings
+      </div>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">
+        Manage how you receive order updates and discount offer alerts.
+      </p>
+
+      <div class="toggle-switch-wrap">
+        <div>
+          <div style="font-weight: 700; font-size: 0.9rem;">Order Status Alerts</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Receive real-time notifications on order status changes</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="notif-order-status" checked onchange="handleSaveNotifications()">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-switch-wrap" style="border-bottom: none;">
+        <div>
+          <div style="font-weight: 700; font-size: 0.9rem;">Promotional Offers</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Get notified about special Kushtia discount deals</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="notif-promos" checked onchange="handleSaveNotifications()">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+        <button type="button" onclick="closeNotificationsModal()" class="btn-primary" style="font-size: 0.85rem; padding: 8px 20px;">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Change Password Modal -->
+  <div id="change-password-modal" class="profile-modal-overlay" onclick="if(event.target===this) closeChangePasswordModal();">
+    <div class="profile-modal-card">
+      <div class="modal-header-title">
+        <i class="fas fa-key" style="color: var(--accent-color);"></i> Change Password
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-primary); margin-bottom: 12px; line-height: 1.5;">
+        Click below to send a secure Password Reset Email link to <strong id="reset-email-display" style="color: var(--primary-color);">your email</strong>.
+      </p>
+
+      <div id="password-reset-status" style="display: none; padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px;"></div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px;">
+        <button type="button" onclick="closeChangePasswordModal()" class="btn-outline" style="font-size: 0.85rem; padding: 8px 16px;">Cancel</button>
+        <button type="button" onclick="handleSendPasswordReset()" id="send-reset-btn" class="btn-accent" style="font-size: 0.85rem; padding: 8px 18px;">
+          <i class="fas fa-paper-plane"></i> Send Password Reset Email
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item">
+      <div class="nav-icon-wrap"><i class="fas fa-home"></i></div>
+      <span>Home</span>
+    </a>
+    <a href="shop.html" class="nav-item">
+      <div class="nav-icon-wrap"><i class="fas fa-th-large"></i></div>
+      <span>Menu</span>
+    </a>
+    <div class="center-cart-wrapper">
+      <a href="cart.html" class="center-cart-shortcut" aria-label="Cart">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="nav-cart-badge cart-count-badge">0</span>
+      </a>
+    </div>
+    <a href="shop.html" class="nav-item">
+      <div class="nav-icon-wrap"><i class="fas fa-search"></i></div>
+      <span>Search</span>
+    </a>
+    <a href="profile.html" class="nav-item active account-link">
+      <div class="nav-icon-wrap"><i class="fas fa-user"></i></div>
+      <span>Account</span>
+    </a>
+  </nav>
+
+  <script type="module" src="assets/js/firebase-config.js"></script>
+  <script type="module" src="assets/js/auth.js"></script>
+  <script type="module" src="assets/js/app.js"></script>
+  <script type="module">
+    import { onAuthStateUpdate, resetPassword } from './assets/js/auth.js';
+    import { db, doc, updateDoc, updateProfile } from './assets/js/firebase-config.js';
+    import { BANGLADESH_LOCATIONS } from './assets/js/locations.js';
+
+    let activeUser = null;
+    let activeProfile = null;
+    let uploadedPhotoFile = null;
+
+    // Window back navigation
+    window.goBack = () => {
+      if (document.referrer && document.referrer.includes(window.location.host)) {
+        window.history.back();
+      } else {
+        window.location.href = 'profile.html';
+      }
+    };
+
+    // Profile Image upload helpers
+    window.handleModalFileSelect = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        uploadedPhotoFile = file;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          const imgPreview = document.getElementById('settings-avatar-preview');
+          const letterPreview = document.getElementById('settings-avatar-letter');
+          imgPreview.src = evt.target.result;
+          imgPreview.style.display = 'block';
+          letterPreview.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    window.handleModalUrlInput = (val) => {
+      const imgPreview = document.getElementById('settings-avatar-preview');
+      const letterPreview = document.getElementById('settings-avatar-letter');
+      if (val.trim()) {
+        imgPreview.src = val.trim();
+        imgPreview.style.display = 'block';
+        letterPreview.style.display = 'none';
+      } else {
+        imgPreview.style.display = 'none';
+        letterPreview.style.display = 'flex';
+      }
+    };
+
+    // Save Profile Action
+    window.handleSaveProfile = async (e) => {
+      e.preventDefault();
+      if (!activeUser) return;
+
+      const saveBtn = document.getElementById('save-profile-btn');
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+      const displayName = document.getElementById('edit-display-name').value.trim();
+      const phone = document.getElementById('edit-phone').value.trim();
+      let photoURL = document.getElementById('edit-photo-url').value.trim();
+
+      try {
+        if (uploadedPhotoFile) {
+          const formData = new FormData();
+          formData.append('file', uploadedPhotoFile);
+          formData.append('upload_preset', 'Bangla Bazar');
+          const res = await fetch('https://api.cloudinary.com/v1_1/vhc6a9gy/image/upload', {
+            method: 'POST',
+            body: formData
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.secure_url) photoURL = data.secure_url;
+          }
+        }
+
+        await updateProfile(activeUser, { displayName, photoURL });
+
+        await updateDoc(doc(db, 'users', activeUser.uid), {
+          displayName,
+          phone,
+          photoURL,
+          updatedAt: new Date()
+        });
+
+        if (activeProfile) {
+          activeProfile.displayName = displayName;
+          activeProfile.phone = phone;
+          activeProfile.photoURL = photoURL;
+        }
+
+        if (window.showToast) window.showToast('Profile updated successfully!');
+        populateProfileForm();
+      } catch (err) {
+        console.error('Error updating profile:', err);
+        alert('Failed to update profile: ' + err.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = 'Save Changes';
+      }
+    };
+
+    // Location Cascading Dropdowns Logic
+    function initAddressDropdowns() {
+      const divSelect = document.getElementById('addr-division');
+      const distSelect = document.getElementById('addr-district');
+      const upaSelect = document.getElementById('addr-upazila');
+      const unionSelect = document.getElementById('addr-union');
+
+      if (!divSelect || !distSelect || !upaSelect || !unionSelect) return;
+
+      divSelect.innerHTML = '<option value="">Select Division</option>';
+      Object.keys(BANGLADESH_LOCATIONS).forEach(div => {
+        const opt = document.createElement('option');
+        opt.value = div;
+        opt.textContent = div;
+        divSelect.appendChild(opt);
+      });
+
+      function populateDistricts(div) {
+        distSelect.innerHTML = '<option value="">Select District</option>';
+        distSelect.disabled = !div;
+        populateUpazilas(div, '');
+
+        if (div && BANGLADESH_LOCATIONS[div]) {
+          Object.keys(BANGLADESH_LOCATIONS[div]).forEach(dist => {
+            const opt = document.createElement('option');
+            opt.value = dist;
+            opt.textContent = dist;
+            distSelect.appendChild(opt);
+          });
+        }
+      }
+
+      function populateUpazilas(div, dist) {
+        upaSelect.innerHTML = '<option value="">Select Upazila / Thana</option>';
+        upaSelect.disabled = !(div && dist);
+        populateUnions(div, dist, '');
+
+        if (div && dist && BANGLADESH_LOCATIONS[div] && BANGLADESH_LOCATIONS[div][dist]) {
+          Object.keys(BANGLADESH_LOCATIONS[div][dist]).forEach(upa => {
+            const opt = document.createElement('option');
+            opt.value = upa;
+            opt.textContent = upa;
+            upaSelect.appendChild(opt);
+          });
+        }
+      }
+
+      function populateUnions(div, dist, upa) {
+        unionSelect.innerHTML = '<option value="">Select Union / Area (Optional)</option>';
+        unionSelect.disabled = !(div && dist && upa);
+
+        if (div && dist && upa && BANGLADESH_LOCATIONS[div] && BANGLADESH_LOCATIONS[div][dist] && BANGLADESH_LOCATIONS[div][dist][upa]) {
+          const unions = BANGLADESH_LOCATIONS[div][dist][upa];
+          if (Array.isArray(unions)) {
+            unions.forEach(u => {
+              const opt = document.createElement('option');
+              opt.value = u;
+              opt.textContent = u;
+              unionSelect.appendChild(opt);
+            });
+          }
+        }
+      }
+
+      divSelect.addEventListener('change', (e) => populateDistricts(e.target.value));
+      distSelect.addEventListener('change', (e) => populateUpazilas(divSelect.value, e.target.value));
+      upaSelect.addEventListener('change', (e) => populateUnions(divSelect.value, distSelect.value, e.target.value));
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initAddressDropdowns);
+    } else {
+      initAddressDropdowns();
+    }
+
+    // Addresses Modal Actions
+    window.openAddressesModal = () => {
+      renderAddressesList();
+      document.getElementById('addresses-modal').classList.add('active');
+    };
+
+    window.closeAddressesModal = () => {
+      document.getElementById('addresses-modal').classList.remove('active');
+    };
+
+    function renderAddressesList() {
+      const container = document.getElementById('saved-addresses-list');
+      const addresses = activeProfile?.addresses || [];
+      if (addresses.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; color: var(--text-muted); padding: 15px; font-size: 0.85rem;">
+            <i class="fas fa-map-marked-alt" style="font-size: 1.5rem; margin-bottom: 6px;"></i>
+            <p>No shipping addresses saved yet.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = addresses.map((addr, index) => `
+        <div class="address-card-item">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <strong style="font-size: 0.85rem; color: var(--primary-color);">Address #${index + 1}</strong>
+            <button onclick="handleDeleteAddress(${index})" class="btn-outline" style="padding: 2px 8px; font-size: 0.7rem; color: var(--danger-color); border-color: var(--danger-color);">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-primary); margin-top: 4px; line-height: 1.4;">
+            <div><strong>Location:</strong> ${addr.village || ''}, ${addr.union ? addr.union + ', ' : ''}${addr.upazila || ''}, ${addr.district || ''}, ${addr.division || ''}</div>
+            ${addr.notes ? `<div style="font-style: italic; color: var(--text-muted); margin-top: 2px;">Note: ${addr.notes}</div>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    window.handleAddAddress = async (e) => {
+      e.preventDefault();
+      if (!activeUser) return;
+
+      const newAddr = {
+        division: document.getElementById('addr-division').value.trim(),
+        district: document.getElementById('addr-district').value.trim(),
+        upazila: document.getElementById('addr-upazila').value.trim(),
+        union: document.getElementById('addr-union').value.trim(),
+        village: document.getElementById('addr-village').value.trim(),
+        notes: document.getElementById('addr-notes').value.trim()
+      };
+
+      const addresses = activeProfile?.addresses || [];
+      addresses.push(newAddr);
+
+      try {
+        await updateDoc(doc(db, 'users', activeUser.uid), { addresses, updatedAt: new Date() });
+        if (activeProfile) activeProfile.addresses = addresses;
+        if (window.showToast) window.showToast('Address saved successfully!');
+        document.getElementById('add-address-form').reset();
+
+        const distSelect = document.getElementById('addr-district');
+        const upaSelect = document.getElementById('addr-upazila');
+        const unionSelect = document.getElementById('addr-union');
+        if (distSelect) {
+          distSelect.innerHTML = '<option value="">Select District</option>';
+          distSelect.disabled = true;
+        }
+        if (upaSelect) {
+          upaSelect.innerHTML = '<option value="">Select Upazila / Thana</option>';
+          upaSelect.disabled = true;
+        }
+        if (unionSelect) {
+          unionSelect.innerHTML = '<option value="">Select Union / Area (Optional)</option>';
+          unionSelect.disabled = true;
+        }
+
+        renderAddressesList();
+      } catch (err) {
+        console.error('Error saving address:', err);
+        alert('Failed to save address: ' + err.message);
+      }
+    };
+
+    window.handleDeleteAddress = async (index) => {
+      if (!activeUser || !activeProfile) return;
+      const addresses = activeProfile.addresses || [];
+      addresses.splice(index, 1);
+
+      try {
+        await updateDoc(doc(db, 'users', activeUser.uid), { addresses, updatedAt: new Date() });
+        activeProfile.addresses = addresses;
+        if (window.showToast) window.showToast('Address removed!');
+        renderAddressesList();
+      } catch (err) {
+        console.error('Error deleting address:', err);
+      }
+    };
+
+    // Payment Methods Modal
+    window.openPaymentMethodsModal = () => {
+      if (activeProfile?.paymentMethods) {
+        document.getElementById('pm-bkash-number').value = activeProfile.paymentMethods.bkash || '';
+        document.getElementById('pm-nagad-number').value = activeProfile.paymentMethods.nagad || '';
+      }
+      document.getElementById('payment-methods-modal').classList.add('active');
+    };
+
+    window.closePaymentMethodsModal = () => {
+      document.getElementById('payment-methods-modal').classList.remove('active');
+    };
+
+    window.handleSavePaymentMethods = async (e) => {
+      e.preventDefault();
+      if (!activeUser) return;
+
+      const paymentMethods = {
+        bkash: document.getElementById('pm-bkash-number').value.trim(),
+        nagad: document.getElementById('pm-nagad-number').value.trim()
+      };
+
+      try {
+        await updateDoc(doc(db, 'users', activeUser.uid), { paymentMethods, updatedAt: new Date() });
+        if (activeProfile) activeProfile.paymentMethods = paymentMethods;
+        if (window.showToast) window.showToast('Payment methods saved!');
+        closePaymentMethodsModal();
+      } catch (err) {
+        console.error('Error saving payment methods:', err);
+        alert('Failed to save payment methods.');
+      }
+    };
+
+    // Notifications Modal
+    window.openNotificationsModal = () => {
+      const notifs = activeProfile?.notifications || { orderStatus: true, promos: true };
+      document.getElementById('notif-order-status').checked = notifs.orderStatus !== false;
+      document.getElementById('notif-promos').checked = notifs.promos !== false;
+      document.getElementById('notifications-modal').classList.add('active');
+    };
+
+    window.closeNotificationsModal = () => {
+      document.getElementById('notifications-modal').classList.remove('active');
+    };
+
+    window.handleSaveNotifications = async () => {
+      if (!activeUser) return;
+
+      const notifications = {
+        orderStatus: document.getElementById('notif-order-status').checked,
+        promos: document.getElementById('notif-promos').checked
+      };
+
+      try {
+        await updateDoc(doc(db, 'users', activeUser.uid), { notifications, updatedAt: new Date() });
+        if (activeProfile) activeProfile.notifications = notifications;
+      } catch (err) {
+        console.error('Error saving notification settings:', err);
+      }
+    };
+
+    // Password Reset Modal
+    window.openChangePasswordModal = () => {
+      if (!activeUser) return;
+      document.getElementById('reset-email-display').textContent = activeUser.email;
+      const statusEl = document.getElementById('password-reset-status');
+      statusEl.style.display = 'none';
+      document.getElementById('change-password-modal').classList.add('active');
+    };
+
+    window.closeChangePasswordModal = () => {
+      document.getElementById('change-password-modal').classList.remove('active');
+    };
+
+    window.handleSendPasswordReset = async () => {
+      if (!activeUser || !activeUser.email) return;
+      const btn = document.getElementById('send-reset-btn');
+      const statusEl = document.getElementById('password-reset-status');
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+      try {
+        await resetPassword(activeUser.email);
+        statusEl.style.display = 'block';
+        statusEl.style.background = '#D1FAE5';
+        statusEl.style.color = '#065F46';
+        statusEl.style.border = '1px solid #A7F3D0';
+        statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Password reset email sent! Check your inbox.';
+        btn.style.display = 'none';
+      } catch (err) {
+        statusEl.style.display = 'block';
+        statusEl.style.background = '#FEE2E2';
+        statusEl.style.color = '#991B1B';
+        statusEl.style.border = '1px solid #FCA5A5';
+        statusEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${err.message}`;
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Try Again';
+      }
+    };
+
+    function populateProfileForm() {
+      if (!activeUser) return;
+      document.getElementById('edit-display-name').value = activeProfile?.displayName || activeUser.displayName || '';
+      document.getElementById('edit-phone').value = activeProfile?.phone || activeUser.phoneNumber || '';
+      document.getElementById('edit-email').value = activeUser.email || '';
+      document.getElementById('edit-photo-url').value = activeProfile?.photoURL || activeUser.photoURL || '';
+
+      const photoUrl = activeProfile?.photoURL || activeUser.photoURL;
+      const initial = (activeProfile?.displayName || activeUser.displayName || activeUser.email || 'U').charAt(0).toUpperCase();
+
+      const imgPreview = document.getElementById('settings-avatar-preview');
+      const letterPreview = document.getElementById('settings-avatar-letter');
+
+      if (photoUrl) {
+        imgPreview.src = photoUrl;
+        imgPreview.style.display = 'block';
+        letterPreview.style.display = 'none';
+      } else {
+        imgPreview.style.display = 'none';
+        letterPreview.textContent = initial;
+        letterPreview.style.display = 'flex';
+      }
+    }
+
+    onAuthStateUpdate((user, profile) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      activeUser = user;
+      activeProfile = profile;
+      populateProfileForm();
+    });
+  </script>
+</body>
+</html>
