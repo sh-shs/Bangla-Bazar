@@ -1,0 +1,11 @@
+127.0.0.1 - - [05/Sep/2026 21:55:31] "GET /checkout.html HTTP/1.1" 200 -
+127.0.0.1 - - [05/Sep/2026 21:55:31] "GET /assets/js/firebase-config.js HTTP/1.1" 200 -
+127.0.0.1 - - [05/Sep/2026 21:55:31] "GET /assets/js/auth.js HTTP/1.1" 200 -
+127.0.0.1 - - [05/Sep/2026 21:55:31] "GET /assets/js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [05/Sep/2026 21:55:31] "GET /assets/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [05/Sep/2026 21:55:31] "GET /assets/js/locations.js HTTP/1.1" 200 -
+127.0.0.1 - - [05/Sep/2026 21:55:31] "GET /assets/js/admin.js HTTP/1.1" 200 -
+127.0.0.1 - - [05/Sep/2026 21:55:31] "GET /assets/js/products.js HTTP/1.1" 200 -
+127.0.0.1 - - [05/Sep/2026 21:55:31] "GET /assets/js/cart-checkout.js HTTP/1.1" 200 -
+127.0.0.1 - - [05/Sep/2026 21:55:32] "GET /assets/images/logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [05/Sep/2026 21:55:32] "GET /checkout.html HTTP/1.1" 304 -
