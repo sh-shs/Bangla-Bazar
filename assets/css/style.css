@@ -2740,17 +2740,26 @@ body.dark-mode .review-box-header {
 }
 
 .admin-sidebar {
-  width: 260px;
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 280px;
+  height: 100vh;
   background: #FFFFFF;
-  border-right: 1px solid rgba(11, 77, 60, 0.1);
+  border-left: 1px solid rgba(11, 77, 60, 0.1);
   padding: 20px 14px;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.03);
+  box-shadow: -4px 0 25px rgba(0, 0, 0, 0.12);
   z-index: 1050;
+  transform: translateX(100%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.admin-sidebar.active {
+  transform: translateX(0);
 }
 
 .admin-sidebar-header {
@@ -2768,12 +2777,20 @@ body.dark-mode .review-box-header {
 }
 
 .admin-sidebar-close {
-  display: none;
+  display: block;
   background: transparent;
   border: none;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   color: #6B7280;
   cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.admin-sidebar-close:hover {
+  background: #F3F4F6;
+  color: var(--danger-color);
 }
 
 .admin-sidebar-nav {
@@ -2835,24 +2852,6 @@ body.dark-mode .review-box-header {
   flex: 1;
   padding: 20px;
   min-width: 0;
-}
-
-@media (max-width: 1023px) {
-  .admin-sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    transform: translateX(-100%);
-  }
-
-  .admin-sidebar.active {
-    transform: translateX(0);
-  }
-
-  .admin-sidebar-close {
-    display: block;
-  }
 }
 
 /* Premium Statistics Metric Cards */
