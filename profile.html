@@ -649,22 +649,30 @@
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
             <div class="form-group">
               <label class="form-label">Division *</label>
-              <input type="text" id="addr-division" class="form-control" placeholder="e.g. Khulna" required>
+              <select id="addr-division" class="form-control" required>
+                <option value="">Select Division</option>
+              </select>
             </div>
             <div class="form-group">
               <label class="form-label">District *</label>
-              <input type="text" id="addr-district" class="form-control" placeholder="e.g. Kushtia" required>
+              <select id="addr-district" class="form-control" required disabled>
+                <option value="">Select District</option>
+              </select>
             </div>
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
             <div class="form-group">
               <label class="form-label">Upazila/Thana *</label>
-              <input type="text" id="addr-upazila" class="form-control" placeholder="e.g. Kushtia Sadar" required>
+              <select id="addr-upazila" class="form-control" required disabled>
+                <option value="">Select Upazila / Thana</option>
+              </select>
             </div>
             <div class="form-group">
               <label class="form-label">Union / Area</label>
-              <input type="text" id="addr-union" class="form-control" placeholder="e.g. Jagati">
+              <select id="addr-union" class="form-control" disabled>
+                <option value="">Select Union / Area (Optional)</option>
+              </select>
             </div>
           </div>
 
@@ -830,6 +838,7 @@
     import { onAuthStateUpdate, logoutUser, resetPassword, getLocalWishlist } from './assets/js/auth.js';
     import { db, collection, getDocs, query, where, doc, updateDoc, updateProfile } from './assets/js/firebase-config.js';
     import { generatePDFInvoice } from './assets/js/invoice.js';
+    import { BANGLADESH_LOCATIONS } from './assets/js/locations.js';
 
     let currentOrders = [];
     let activeUser = null;
@@ -921,6 +930,83 @@
       }
     };
 
+    // Location Cascading Dropdowns Logic for Shipping Address Form
+    function initAddressDropdowns() {
+      const divSelect = document.getElementById('addr-division');
+      const distSelect = document.getElementById('addr-district');
+      const upaSelect = document.getElementById('addr-upazila');
+      const unionSelect = document.getElementById('addr-union');
+
+      if (!divSelect || !distSelect || !upaSelect || !unionSelect) return;
+
+      // Populate Divisions
+      divSelect.innerHTML = '<option value="">Select Division</option>';
+      Object.keys(BANGLADESH_LOCATIONS).forEach(div => {
+        const opt = document.createElement('option');
+        opt.value = div;
+        opt.textContent = div;
+        divSelect.appendChild(opt);
+      });
+
+      function populateDistricts(div) {
+        distSelect.innerHTML = '<option value="">Select District</option>';
+        distSelect.disabled = !div;
+        populateUpazilas(div, '');
+
+        if (div && BANGLADESH_LOCATIONS[div]) {
+          Object.keys(BANGLADESH_LOCATIONS[div]).forEach(dist => {
+            const opt = document.createElement('option');
+            opt.value = dist;
+            opt.textContent = dist;
+            distSelect.appendChild(opt);
+          });
+        }
+      }
+
+      function populateUpazilas(div, dist) {
+        upaSelect.innerHTML = '<option value="">Select Upazila / Thana</option>';
+        upaSelect.disabled = !(div && dist);
+        populateUnions(div, dist, '');
+
+        if (div && dist && BANGLADESH_LOCATIONS[div] && BANGLADESH_LOCATIONS[div][dist]) {
+          Object.keys(BANGLADESH_LOCATIONS[div][dist]).forEach(upa => {
+            const opt = document.createElement('option');
+            opt.value = upa;
+            opt.textContent = upa;
+            upaSelect.appendChild(opt);
+          });
+        }
+      }
+
+      function populateUnions(div, dist, upa) {
+        unionSelect.innerHTML = '<option value="">Select Union / Area (Optional)</option>';
+        unionSelect.disabled = !(div && dist && upa);
+
+        if (div && dist && upa && BANGLADESH_LOCATIONS[div] && BANGLADESH_LOCATIONS[div][dist] && BANGLADESH_LOCATIONS[div][dist][upa]) {
+          const unions = BANGLADESH_LOCATIONS[div][dist][upa];
+          if (Array.isArray(unions)) {
+            unions.forEach(u => {
+              const opt = document.createElement('option');
+              opt.value = u;
+              opt.textContent = u;
+              unionSelect.appendChild(opt);
+            });
+          }
+        }
+      }
+
+      divSelect.addEventListener('change', (e) => populateDistricts(e.target.value));
+      distSelect.addEventListener('change', (e) => populateUpazilas(divSelect.value, e.target.value));
+      upaSelect.addEventListener('change', (e) => populateUnions(divSelect.value, distSelect.value, e.target.value));
+    }
+
+    // Initialize dropdowns when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initAddressDropdowns);
+    } else {
+      initAddressDropdowns();
+    }
+
     // Addresses Modal
     window.openAddressesModal = () => {
       renderAddressesList();
@@ -981,6 +1067,24 @@
         if (activeProfile) activeProfile.addresses = addresses;
         if (window.showToast) window.showToast('Address saved successfully!');
         document.getElementById('add-address-form').reset();
+
+        // Reset cascading dropdowns state
+        const distSelect = document.getElementById('addr-district');
+        const upaSelect = document.getElementById('addr-upazila');
+        const unionSelect = document.getElementById('addr-union');
+        if (distSelect) {
+          distSelect.innerHTML = '<option value="">Select District</option>';
+          distSelect.disabled = true;
+        }
+        if (upaSelect) {
+          upaSelect.innerHTML = '<option value="">Select Upazila / Thana</option>';
+          upaSelect.disabled = true;
+        }
+        if (unionSelect) {
+          unionSelect.innerHTML = '<option value="">Select Union / Area (Optional)</option>';
+          unionSelect.disabled = true;
+        }
+
         renderAddressesList();
       } catch (err) {
         console.error('Error saving address:', err);
