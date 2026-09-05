@@ -29,22 +29,36 @@ export function isSuperAdminUser(user, profile) {
 // 1. Settings CRUD Functions
 // -------------------------------------------------------------
 export async function fetchAdminSettings() {
+  const DEFAULT_AUTO_REPLY = "আসসালামু আলাইকুম স্যার/ম্যাম। আপনি কিছুক্ষণ অপেক্ষা করুন। আমাদের প্রতিনিধি আপনার সাথে শীঘ্রই যোগাযোগ করবে। ধন্যবাদ।";
   try {
     const deliverySnap = await getDoc(doc(db, 'settings', 'delivery'));
     const paymentSnap = await getDoc(doc(db, 'settings', 'payment'));
     const generalSnap = await getDoc(doc(db, 'settings', 'general'));
 
+    const generalData = generalSnap.exists() ? generalSnap.data() : {};
+
     return {
       delivery: deliverySnap.exists() ? deliverySnap.data() : { insideKushtia: 100, outsideKushtia: 160 },
       payment: paymentSnap.exists() ? paymentSnap.data() : { bKashNumber: '01342697743', codEnabled: true },
-      general: generalSnap.exists() ? generalSnap.data() : { siteName: 'SHS Bazar', hotline: '+8809658183506', supportEmail: 'saripofficialsupport@gmail.com' }
+      general: {
+        siteName: 'SHS Bazar',
+        hotline: '+8809658183506',
+        supportEmail: 'saripofficialsupport@gmail.com',
+        autoReply: DEFAULT_AUTO_REPLY,
+        ...generalData
+      }
     };
   } catch (err) {
     console.error('Error fetching admin settings:', err);
     return {
       delivery: { insideKushtia: 100, outsideKushtia: 160 },
       payment: { bKashNumber: '01342697743', codEnabled: true },
-      general: { siteName: 'SHS Bazar', hotline: '+8809658183506', supportEmail: 'saripofficialsupport@gmail.com' }
+      general: {
+        siteName: 'SHS Bazar',
+        hotline: '+8809658183506',
+        supportEmail: 'saripofficialsupport@gmail.com',
+        autoReply: DEFAULT_AUTO_REPLY
+      }
     };
   }
 }
@@ -53,6 +67,13 @@ export async function saveAdminDeliverySettings(insideKushtia, outsideKushtia) {
   await setDoc(doc(db, 'settings', 'delivery'), {
     insideKushtia: Number(insideKushtia),
     outsideKushtia: Number(outsideKushtia),
+    updatedAt: new Date()
+  }, { merge: true });
+}
+
+export async function saveAdminAutoReplySettings(autoReply) {
+  await setDoc(doc(db, 'settings', 'general'), {
+    autoReply: autoReply.trim(),
     updatedAt: new Date()
   }, { merge: true });
 }
