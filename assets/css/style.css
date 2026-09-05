@@ -1601,8 +1601,8 @@ input, select, textarea {
 /* Floating Elements */
 .floating-cart-bubble {
   position: fixed;
-  bottom: 85px;
-  right: 16px;
+  bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  left: 16px;
   background: linear-gradient(135deg, #0D5C4A 0%, #0A4A39 100%);
   color: #FFFFFF;
   padding: 9px 16px;
@@ -1611,7 +1611,7 @@ input, select, textarea {
   display: flex;
   align-items: center;
   gap: 12px;
-  z-index: 900;
+  z-index: 1001;
   cursor: pointer;
   border: 1.5px solid rgba(255, 255, 255, 0.25);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1646,7 +1646,7 @@ input, select, textarea {
 
 .floating-chat-bubble {
   position: fixed;
-  bottom: 140px;
+  bottom: calc(84px + env(safe-area-inset-bottom, 0px));
   right: 16px;
   width: 46px;
   height: 46px;
@@ -1658,7 +1658,7 @@ input, select, textarea {
   justify-content: center;
   box-shadow: var(--shadow-3d-md), 0 0 14px rgba(245, 130, 10, 0.35);
   font-size: 1.35rem;
-  z-index: 900;
+  z-index: 1001;
   cursor: pointer;
   border: 2px solid #FFFFFF;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1675,7 +1675,7 @@ input, select, textarea {
 
 /* Bottom Navigation Bar (Floating Mobile & Responsive) */
 body {
-  padding-bottom: calc(75px + env(safe-area-inset-bottom, 12px));
+  padding-bottom: calc(90px + env(safe-area-inset-bottom, 12px));
 }
 
 .bottom-nav {
