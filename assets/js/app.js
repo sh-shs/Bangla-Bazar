@@ -696,10 +696,39 @@ async function initApp() {
     };
 
     renderGrid('trending-products', p => p.isTrending);
-    renderGrid('flash-sale-products', p => p.isFlashSale);
-    renderGrid('latest-products', null);
-    renderGrid('best-sellers-products', p => p.isBestSeller);
-    renderGrid('recommended-products', p => p.isFeatured);
+
+    // All Products grid with pagination / Load More
+    const allProductsGrid = document.getElementById('all-products');
+    if (allProductsGrid) {
+      if (products.length > 0) {
+        const PAGE_SIZE = 8;
+        let visibleCount = PAGE_SIZE;
+
+        const renderAllProductsGrid = () => {
+          const visibleProducts = products.slice(0, visibleCount);
+          allProductsGrid.innerHTML = visibleProducts.map(renderProductCard).join('');
+
+          const loadMoreContainer = document.getElementById('load-more-container');
+          const loadMoreBtn = document.getElementById('load-more-btn');
+
+          if (loadMoreContainer && loadMoreBtn) {
+            if (visibleCount < products.length) {
+              loadMoreContainer.style.display = 'block';
+              loadMoreBtn.onclick = () => {
+                visibleCount += PAGE_SIZE;
+                renderAllProductsGrid();
+              };
+            } else {
+              loadMoreContainer.style.display = 'none';
+            }
+          }
+        };
+
+        renderAllProductsGrid();
+      } else {
+        allProductsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 20px;">আরও প্রোডাক্ট শীঘ্রই আসছে</p>';
+      }
+    }
   }
 }
 
